@@ -8,11 +8,9 @@ def route
 end
 
 get '/' do
-   # erb :site_layout, :layout => false do
-        erb :main do
-             erb :navbar
-        end
-   # end
+    erb :main do
+         erb :home
+    end
 end
 
 get '/hello/:name' do |n|
