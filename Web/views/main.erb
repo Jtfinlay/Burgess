@@ -9,13 +9,18 @@
 		<div class="container">
 			<%= erb :navbar %>
 
+                        <div>
+                                <%if @error then %>
+                                <div class="alert alert-danger" role="alert">
+                                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                                <span class="sr-only">Error:</span>
+                                <%=@error%>
+                                </div>
+                                <% end %>
+                        </div>
+
 			<%= yield %>
 
-			<div>
-				<%if @error then %>
-					<div class="alert alert-error"><%=@error%></div>
-				<% end %>
-			</div>
 		</div>
 		
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
