@@ -2,12 +2,12 @@ function LiveMap(idCanvas, theWidth, theHeight) {
 	this.id = idCanvas;
 	this.width = theWidth;
 	this.height = theHeight;
-	this.iBackground = {};
+	this.customers = [];
 }
 
 LiveMap.prototype = {
 	constructor: LiveMap,
-	// Documentation
+	// TODO Documentation
 	loadResources:function () {
 		that = this;
 		this.iBackground = new Image();
@@ -15,14 +15,23 @@ LiveMap.prototype = {
 		{ that.draw(); };
 		this.iBackground.src = "/images/store_layout.png";
 	},
-	getWidth:function () {
-		return this.width;
-	},
-	// Documentation
+	// TODO Documentation
 	draw:function () {
 		jc.start(this.id);	
 		jc.rect(0, this.width, this.height, 'rgba(100, 100, 100, 1)', 1);
 		jc.image(this.iBackground, 0, 0, this.width, this.height);
+
+		$.each(this.customers, function(i, c) 
+		{
+			jc.circle(c.x, c.y, c.radius, 'rgba(0,255,0,0.25)', true);
+			jc.circle(c.x, c.y, 4, 'rgba(255,0,0,0.5)', true);
+		});
+		
 		jc.start(this.id);
+	},
+	// TODO Documentation, move coords to fit width/height
+	addCustomer:function (xi, yi, ri) 
+	{
+		this.customers.push({x: xi, y: yi, radius: ri});
 	}
 }
