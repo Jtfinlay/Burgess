@@ -1,12 +1,8 @@
 require 'rubygems'
 require 'bundler/setup'
 
+require './userDB'
 require 'sinatra'
-
-require 'mongo'
-require 'json/ext'
-
-include Mongo
 
 def route
     request.path
@@ -14,10 +10,7 @@ end
 
 configure do
     enable :sessions
-
-    conn = MongoClient.new("localhost", 27017)
-    set :mongo_connection, conn
-    set :mongo_db, conn.db('retailers')
+    set :mongo_db, UserData.new
 end
 
 helpers do
@@ -71,7 +64,7 @@ get '/login' do
 end
 
 post '/login/attempt' do
-    if settings.mongo_db['userData'].find({"username" => params['username'], "password" => params['password']}).count.to_json.to_i == 0
+    if settings.mongo_db.authenticate(params['username'], params['password'])
 	redirect to '/login/invalid'
     else
 	session[:identity] = params['username']
