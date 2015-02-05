@@ -55,7 +55,7 @@ get '/settings' do
     end
 end
 
-# AUTHENTICATION
+### AUTHENTICATION ###
 
 get '/login' do
     erb :main do
