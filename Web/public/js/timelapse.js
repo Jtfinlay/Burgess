@@ -9,46 +9,64 @@ TimeLapse.prototype = {
 	constructor: TimeLapse,
 	// TODO Documentation
 	setData: function(data) {
+		var that = this;
 
-		// MARGINS, xRange, yRange, xAxis yAxis
-                var MARGINS = {top: 20, right: 20, bottom: 20, left: 50 },
-		    width = this.width - MARGINS.left - MARGINS.right,
-		    height = this.height - MARGINS.top - MARGINS.bottom;
+		nv.addGraph(function() {
+  			var chart = nv.models.lineChart()
+                		.margin({left: 100})
+                		.useInteractiveGuideline(true)
+                		.transitionDuration(350)
+                		.showLegend(true)
+                		.showYAxis(true)
+                		.showXAxis(true);
+			chart.xAxis
+				.axisLabel('Time (ms)')
+      				.tickFormat(d3.format(',r'));
+			chart.yAxis
+      				.axisLabel('Voltage (v)')
+      				.tickFormat(d3.format('.02f'));
+			data = that.sinAndCos();
+			
+			that.vis
+				.datum(data)
+				.call(chart);
 
-		data.forEach(function(d) {
-                    d.date = new Date(d.date);
-                });
+			nv.utils.windowResize(function() { chart.update() });
+			return chart;
+		});
+	},
+	/**************************************
+ * Simple test data generator
+ */
+sinAndCos: function() {
+  var sin = [],sin2 = [],
+      cos = [];
 
-                var x = d3.time.scale()
-			.range([0, width])
-			.domain([d3.min(data, function(d){return d.date;}), 
-				 d3.max(data, function(d){return d.date;})]),
-                    y = d3.scale.linear()
-			.range([height, 0])
-			.domain([0, d3.max(data, function (d) { return d.customers; })]);
-                    xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(5),
-                    yAxis = d3.svg.axis().scale(y).orient("left").ticks(5);
+  //Data is represented as an array of {x,y} pairs.
+  for (var i = 0; i < 100; i++) {
+    sin.push({x: i, y: Math.sin(i/10)});
+    sin2.push({x: i, y: Math.sin(i/10) *0.25 + 0.5});
+    cos.push({x: i, y: .5 * Math.cos(i/10)});
+  }
 
-                // Define line            
-                var lineFunc = d3.svg.line()
-                        .x(function(d) { return x(d.date); })
-                        .y(function(d) { return y(d.customers); })
-                        .interpolate('linear');
-
-                // Add path
-                this.vis.append("path")
-                        .attr("class", "line")
-                        .attr("d", lineFunc(data));
-            
-                // Add X Axis
-                this.vis.append("g")
-                        .attr("class", "x axis")
-                        .attr("transform", "translate(0, " + height + ")")
-                        .call(xAxis);
-
-                // Add Y Axis
-                this.vis.append("g")
-                        .attr("class", "y axis")
-                        .call(yAxis);
-	}
+  //Line chart data should be sent as an array of series objects.
+  return [
+    {
+      values: sin,      //values - represents the array of {x,y} data points
+      key: 'Sine Wave', //key  - the name of the series.
+      color: '#ff7f0e'  //color - optional: choose your own line color.
+    },
+    {
+      values: cos,
+      key: 'Cosine Wave',
+      color: '#2ca02c'
+    },
+    {
+      values: sin2,
+      key: 'Another sine wave',
+      color: '#7777ff',
+      area: true      //area - set to true if you want this line to turn into a filled area chart.
+    }
+  ];
+}
 }
