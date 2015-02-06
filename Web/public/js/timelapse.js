@@ -12,54 +12,43 @@ TimeLapse.prototype = {
 
 		// MARGINS, xRange, yRange, xAxis yAxis
                 var MARGINS = {top: 20, right: 20, bottom: 20, left: 50 },
-                    xRange = d3.scale.linear().range([MARGINS.left, this.width - MARGINS.right])
-                        .domain([d3.min(data, function(d) {
-                        return d.x;
-                    }), d3.max(data, function(d) {
-                        return d.x;
-                    })]),
-                    yRange = d3.scale.linear().range([this.height - MARGINS.top, MARGINS.bottom])
-                        .domain([d3.min(data, function(d) {
-                        return d.y;
-                    }), d3.max(data, function(d) {
-                        return d.y;
-                    })]),
-                    xAxis = d3.svg.axis()
-                        .scale(xRange)
-                        .tickSize(5)
-                        .tickSubdivide(true),
-                    yAxis = d3.svg.axis()
-                        .scale(yRange)
-                        .tickSize(5)
-                        .orient('left')
-                        .tickSubdivide(true);
+		    width = this.width - MARGINS.left - MARGINS.right,
+		    height = this.height - MARGINS.top - MARGINS.bottom;
 
-        this.vis.append('svg:g')
-                .attr('class', 'x axis')
-                .attr('transform', 'translate(0,' + (this.height - MARGINS.bottom) + ')')
-                .call(xAxis);
+		data.forEach(function(d) {
+                    d.date = new Date(d.date);
+                });
 
-        this.vis.append('svg:g')
-                .attr('class', 'y axis')
-                .attr('transform', 'translate(' + (MARGINS.left) + ',0)')
-                .call(yAxis);
+                var x = d3.time.scale()
+			.range([0, width])
+			.domain([d3.min(data, function(d){return d.date;}), 
+				 d3.max(data, function(d){return d.date;})]),
+                    y = d3.scale.linear()
+			.range([height, 0])
+			.domain([0, d3.max(data, function (d) { return d.customers; })]);
+                    xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(5),
+                    yAxis = d3.svg.axis().scale(y).orient("left").ticks(5);
 
-        var lineFunc = d3.svg.line()
-                .x(function(d) {
-                        return xRange(d.x);
-                })
-                .y(function(d) {
-                        return yRange(d.y);
-                })
-                .interpolate('linear');
+                // Define line            
+                var lineFunc = d3.svg.line()
+                        .x(function(d) { return x(d.date); })
+                        .y(function(d) { return y(d.customers); })
+                        .interpolate('linear');
 
-		this.vis.append('svg:path')
-			.attr('d', lineFunc(data))
-			.attr('stroke', 'blue')
-			.attr('stroke-width', 2)
-			.attr('fill', 'none');
+                // Add path
+                this.vis.append("path")
+                        .attr("class", "line")
+                        .attr("d", lineFunc(data));
+            
+                // Add X Axis
+                this.vis.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0, " + height + ")")
+                        .call(xAxis);
+
+                // Add Y Axis
+                this.vis.append("g")
+                        .attr("class", "y axis")
+                        .call(yAxis);
 	}
-	
-	
-
 }
