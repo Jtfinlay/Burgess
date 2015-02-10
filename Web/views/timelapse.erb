@@ -32,41 +32,40 @@
 	<script type="text/javascript">
 		var timeLapse = new TimeLapse();
 		var lineData = [{
-	                date: "2012-04-23T12:25:43.511Z",
-       		        customers: 8
+	                x: new Date("2012-04-23T12:25:43.511Z"),
+       		        y: 10
         	}, {
-			date: "2012-04-23T13:25:43.511Z",
-                        customers: 9
+			x: new Date("2012-04-23T13:25:43.511Z"),
+                        y: 30
         	}, {
-			date: "2012-04-23T14:25:43.511Z",
-                        customers: 2
+			x: new Date("2012-04-23T14:25:43.511Z"),
+                        y: 14
         	}, {
-			date: "2012-04-23T15:25:43.511Z",
-                        customers: 3
+			x: new Date("2012-04-23T15:25:43.511Z"),
+                        y: 110
         	}, {
-			date: "2012-04-23T16:25:43.511Z",
-                        customers: 1
+			x: new Date("2012-04-23T16:25:43.511Z"),
+                        y: 205
         	}, {
-			date: "2012-04-23T17:25:43.511Z",
-                        customers: 4
+			x: new Date("2012-04-23T17:25:43.511Z"),
+                        y: 70
 		}, {
-                        date: "2012-04-23T18:25:43.511Z",
-                        customers: 9
+                        x: new Date("2012-04-23T18:25:43.511Z"),
+                        y: 90
                 }, {
-                        date: "2012-04-23T19:25:43.511Z",
-                        customers: 2
+                        x: new Date("2012-04-23T19:25:43.511Z"),
+                        y: 20
                 }, {
-                        date: "2012-04-23T20:25:43.511Z",
-                        customers: 3
+                        x: new Date("2012-04-23T20:25:43.511Z"),
+                        y: 100
                 }, {
-                        date: "2012-04-23T21:25:43.511Z",
-                        customers: 1
+                        x: new Date("2012-04-23T21:25:43.511Z"),
+                        y: 50
                 }, {
-                        date: "2012-04-23T22:25:43.511Z",
-                        customers: 4
-
+                        x: new Date("2012-04-23T22:25:43.511Z"),
+                        y: 3
         	}];
-		timeLapse.drawChart("#chart", lineData);
+		timeLapse.drawChart("#chart", [{values: lineData, key: "Customers", color: '#ff7f0e'}]);
 		timeLapse.drawSelector("#time");
 
 	</script>

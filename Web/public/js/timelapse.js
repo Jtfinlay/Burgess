@@ -16,11 +16,10 @@ TimeLapse.prototype = {
                 		.showYAxis(true);
 			chart.xAxis
 				.axisLabel('Time')
-      				.tickFormat(d3.format(',r'));
+				.tickFormat(function(d) { return d3.time.format('%H:%M')(new Date(d));})
 			chart.yAxis
       				.axisLabel('Customers')
-      				.tickFormat(d3.format('.02f'));
-			data = that.sinAndCos();
+      				.tickFormat(d3.format('1.0f'));
 			
 			vis
 				.datum(data)
@@ -59,26 +58,5 @@ TimeLapse.prototype = {
 					 .style('opacity', .4)
 					 .call(drag);
 
-	},
-	/**************************************
- * Simple test data generator
- */
-sinAndCos: function() {
-  var sin = [],sin2 = [],
-      cos = [];
-
-  //Data is represented as an array of {x,y} pairs.
-  for (var i = 0; i < 100; i++) {
-    sin.push({x: i, y: 1+Math.sin(i/10)});
-  }
-
-  //Line chart data should be sent as an array of series objects.
-  return [
-    {
-      values: sin,      //values - represents the array of {x,y} data points
-      key: 'Sine Wave', //key  - the name of the series.
-      color: '#ff7f0e'  //color - optional: choose your own line color.
-    }
-  ];
-}
+	}
 }
