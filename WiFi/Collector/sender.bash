@@ -1,7 +1,8 @@
 #!/bin/bash
 
-BODY_START="\"data\":["
-BODY_END="]"
+DEST="http://192.168.1.67:8000/drone"
+BODY_START="{\"data\":["
+BODY_END="]}"
 
 block=""
 counter=0
@@ -9,9 +10,8 @@ MAX=100
 
 send()
 {
-    #TODO::JT use curl to actually send this to something
     toSend="$BODY_START $1 $BODY_END"
-    echo "TO SEND: $toSend"
+    curl --silent -H "Content-Type: application/json" --data "$toSend" "$DEST"
 }
 
 while read line 
