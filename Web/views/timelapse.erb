@@ -4,8 +4,6 @@
 <% else %>
 
 
-<!-- http://jsfiddle.net/m62sdgj5/1/ -->
-
 <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -31,41 +29,8 @@
 	<script type="text/javascript" src="/js/timelapse.js"></script>
 	<script type="text/javascript">
 		var timeLapse = new TimeLapse();
-		var lineData = [{
-			x: new Date("2012-04-23T12:25:43.511Z"),
-			y: 10
-		}, {
-			x: new Date("2012-04-23T13:25:43.511Z"),
-			y: 30
-		}, {
-			x: new Date("2012-04-23T14:25:43.511Z"),
-			y: 14
-		}, {
-			x: new Date("2012-04-23T15:25:43.511Z"),
-			y: 110
-		}, {
-			x: new Date("2012-04-23T16:25:43.511Z"),
-			y: 205
-		}, {
-			x: new Date("2012-04-23T17:25:43.511Z"),
-			y: 70
-		}, {
-			x: new Date("2012-04-23T18:25:43.511Z"),
-			y: 90
-		}, {
-			x: new Date("2012-04-23T19:25:43.511Z"),
-			y: 20
-		}, {
-			x: new Date("2012-04-23T20:25:43.511Z"),
-			y: 100
-		}, {
-			x: new Date("2012-04-23T21:25:43.511Z"),
-			y: 50
-		}, {
-			x: new Date("2012-04-23T22:25:43.511Z"),
-			y: 3
-		}];
-		timeLapse.drawChart("#chart", [{values: lineData, key: "Customers", color: '#ff7f0e'}]);
+		var data = <%= settings.mongo_db.testIt() %>;
+		timeLapse.drawChart("#chart", [{values: data, key: "Customers", color: '#ff7f0e'}]);
 		timeLapse.drawSelector("#time");
 		timeLapse.selectorMoved = function(x) {
 			// TODO

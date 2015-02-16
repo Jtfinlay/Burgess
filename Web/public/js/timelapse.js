@@ -16,6 +16,8 @@ TimeLapse.prototype = {
 
 		nv.addGraph(function() {
   			var chart = nv.models.lineChart()
+				.width($(idSVG).attr('width'))
+				.height($(idSVG).attr('height'))
 				.interactive(false)
 				.showLegend(false)
 				.showXAxis(true)
@@ -49,8 +51,8 @@ TimeLapse.prototype = {
 
 		var BAR_SIZE = 4;
 		var MARGINS = { left: 60, top: 20, right: 80, bottom: 70 };
-		var WIDTH = $(idSVG).width();
-		var HEIGHT = $(idSVG).height();
+		var WIDTH = $(idSVG).attr('width');
+		var HEIGHT = $(idSVG).attr('height');
 
 		var container = vis
 			.append('svg')
