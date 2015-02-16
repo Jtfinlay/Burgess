@@ -17,8 +17,8 @@ send()
 while read line 
 do
     block="$block $line"
-    count=$((counter + 1))
-    if [ $counter = MAX ]; then
+    counter=$((counter + 1))
+    if (( "$counter" > "$MAX" )); then
 	# send this block, reset and carry on
 	send "$block"
 	block=""
