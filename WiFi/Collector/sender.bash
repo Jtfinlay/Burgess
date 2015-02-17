@@ -1,7 +1,14 @@
 #!/bin/bash
 
-DEST="http://192.168.1.67:8000/drone"
-BODY_START="{\"data\":["
+if [ $# -eq 0 ]; then
+    echo "Please supply an ID as the first parameter to sender!"
+    exit 1
+fi
+
+ID="\"id\":\"$1\", "
+
+DEST="http://192.168.1.73:8000/drone"
+BODY_START="{$ID\"data\":["
 BODY_END="]}"
 
 block=""
