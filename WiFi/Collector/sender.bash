@@ -12,8 +12,7 @@ BODY_START="{$ID\"data\":["
 BODY_END="]}"
 
 block=""
-counter=0
-MAX=100
+INTERVAL=750 # milliseconds
 
 send()
 {
@@ -35,15 +34,18 @@ send()
     rm "./tmp.txt"
 }
 
+lastTimeSent="$(($(date +%s%N)/1000000))"
+
 while read line 
 do
     block="$block $line,"$'\n'
-    counter=$((counter + 1))
-    if (( "$counter" > "$MAX" )); then
+    curTime=$(($(date +%s%N)/1000000))
+    nextSendTime=$((lastTimeSent + INTERVAL))
+    if (( "$curTime" > "$nextSendTime" )); then
 	# send this block, reset and carry on
 	send "$block"
 	block=""
-	counter=0
+	lastTimeSent="$(($(date +%s%N)/1000000))"
     fi
 done
 
