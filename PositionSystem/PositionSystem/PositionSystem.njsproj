@@ -36,17 +36,21 @@
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\typings\body-parser\body-parser.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\express\express.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\mongodb\mongodb.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
     <TypeScriptCompile Include="server.ts" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <TypeScriptCompile Include="WifiReceiver.ts" />
+    <TypeScriptCompile Include="Wifi\WifiEntry.ts" />
+    <TypeScriptCompile Include="Wifi\WifiReceiver.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Wifi\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />
     <Folder Include="Scripts\typings\body-parser\" />
     <Folder Include="Scripts\typings\express\" />
+    <Folder Include="Scripts\typings\mongodb\" />
     <Folder Include="Scripts\typings\node\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
