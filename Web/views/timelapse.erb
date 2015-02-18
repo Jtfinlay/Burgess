@@ -33,8 +33,6 @@
 			format: 'm-d-Y',
 			lang:'en',
 			timepicker:false,
-//			minDate: new Date(<%= settings.mongo_db.getCustomerStartDate("store") %>).toLocaleFormat('%Y/%m/%d'),
-//			maxDate:'0',
 			defaultDate: '2012/04/23'
 		});
 	</script>
@@ -63,7 +61,7 @@
 	<script type="text/javascript" src="/js/timelapse.js"></script>
 	<script type="text/javascript">
 		var timeLapse = new TimeLapse();
-		var data = <%= settings.mongo_db.getCustomersOverDay() %>;
+		var data = <%= settings.db.getCustomersOverDay() %>;
 		timeLapse.drawChart("#chart", [{values: data, key: "Customers", color: '#ff7f0e'}]);
 		timeLapse.drawSelector("#time");
 		timeLapse.selectorMoved = function(x) {

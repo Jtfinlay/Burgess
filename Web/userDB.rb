@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'mongo'
 require 'json/ext'
+require './user'
 
 include Mongo
 
@@ -8,7 +9,9 @@ class UserData
 
     def initialize
         conn = MongoClient.new("localhost", 27017)
-        @mongo_db = conn.db('retailers')
+        db = conn.db('retailers')
+        @userData = db['userData']
+        @position = db['position']
     end
 
     # 
@@ -16,8 +19,8 @@ class UserData
     #
     # Return: Boolean representing success.
     def authenticate(username, password)
-	# TODO Record login time
-	@mongo_db['userData'].find({
+        username.downcase!
+	@userData.find({
             "username" => username,
             "password" => password
         }).count.to_json.to_i == 0
@@ -50,7 +53,7 @@ class UserData
         (ti...tf).step(3600) { |ts|
              result.push({
                  "x" => ts*1000,
-                 "y" => @mongo_db['position'].distinct("wifi", "time" => {
+                 "y" => @position.distinct("wifi", "time" => {
                         "$gte" => Time.at(ts), "$lt" => (Time.at(ts)+3600)
                  }).count
              })
@@ -59,21 +62,31 @@ class UserData
     end
 
     def getCustomerStartDate(username)
-        (@mongo_db['userData'].find({
+        username.downcase!
+        (@userData.find({
             "username" => username
         }).to_a[0]["joined"].to_f*1000.0).to_i
     end
 
     def getLatestPositionsWithinInterval(ti, tf)
 	result = []
-	@mongo_db['position'].distinct('wifi', {time: {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).each{|u|
-            result.push(@mongo_db['position'].find({
+	@position.distinct('wifi', {time: {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).each{|u|
+            result.push(@position.find({
                 "time" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}, 
                 "wifi" => u
             }).sort(:time => :desc).limit(1).to_a[0])
         }
         return result
     end
+
+    def getUser(username)
+        username.downcase!
+        (u = User.new).fromObject(@userData.find({'username' => username}).limit(1).to_a[0])
+        return u
+    end
     
+    def storeUser(user)
+        @userData.insert(user.toObject())
+    end
 
 end

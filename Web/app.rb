@@ -1,113 +1,131 @@
 require 'rubygems'
 require 'bundler/setup'
+require 'sinatra'
+require 'bcrypt'
 
 require './userDB'
-require 'sinatra'
 
-def route
-    request.path
-end
+class BurgessApp < Sinatra::Base
 
-configure do
-    enable :sessions
-    set :mongo_db, UserData.new
-end
-
-helpers do
-    def authenticated?
-        not session[:identity].nil?
+    def route
+        request.path
     end
-    def pop_errors
-        tmp = session[:errors] || []
-        session[:errors] = []
-        return tmp
+
+    configure do
+        enable :sessions
+        set :db, UserData.new
     end
-end
 
-get '/' do
-    erb :main do
-         erb :home
+    helpers do
+        def authenticated?
+            not session[:identity].nil?
+        end
+
+        def pop_errors
+            tmp = session[:errors] || []
+            session[:errors] = []
+            return tmp
+        end
+
+        def push_error(error)
+            (session[:errors] ||= []).push(error)
+        end
     end
-end
 
-get '/about' do
-    erb :main do
-        erb :about
+    get '/' do
+        erb :main do
+             erb :home
+        end
     end
-end
 
-get '/livefeed' do
-    erb :main do
-        erb :livefeed
+    get '/about' do
+        erb :main do
+            erb :about
+        end
     end
-end
 
-get '/timelapse' do
-    erb :main do
-        erb :timelapse
+    get '/livefeed' do
+        erb :main do
+            erb :livefeed
+        end
     end
-end
 
-post '/timelapse/date' do
-    # TODO - Validate input
-
-    v = params[:value].split('-')
-    return settings.mongo_db.getCustomersForDay(v[2].to_i, v[0].to_i, v[1].to_i)
-end
-
-post '/timelapse/positions' do
-    # TODO - Validate input
-
-    t = params[:time].to_i / 1000
-    puts t
-    puts Time.at(t)
-    return settings.mongo_db.getLatestPositionsWithinInterval(Time.at(t-20), Time.at(t)).to_json
-
-end
-
-get '/analytics' do
-    erb :main do
-        erb :analytics
+    get '/timelapse' do
+        erb :main do
+            erb :timelapse
+        end
     end
-end
 
-get '/settings' do
-    erb :main do
-        erb :settings
+    post '/timelapse/date' do
+        # TODO - Validate input
+
+        v = params[:value].split('-')
+        return settings.db.getCustomersForDay(v[2].to_i, v[0].to_i, v[1].to_i)
     end
-end
 
-### AUTHENTICATION ###
+    post '/timelapse/positions' do
+        # TODO - Validate input
 
-get '/login' do
-    erb :main do
-        puts "-------------ERRORS-----------------"
-        puts session[:errors]
-        erb :login
+        t = params[:time].to_i / 1000
+        puts t
+        puts Time.at(t)
+        return settings.db.getLatestPositionsWithinInterval(Time.at(t-20), Time.at(t)).to_json
+
     end
-end
 
-post '/login/attempt' do
-    if settings.mongo_db.authenticate(params['username'], params['password'])
-        (session[:errors] ||= []).push("Invalid login")
-	redirect to '/login'
-    else
-	session[:identity] = params['username']
-	redirect to '/'
+    get '/analytics' do
+        erb :main do
+            erb :analytics
+        end
     end
-end
 
-get '/logout' do
-    session.delete(:identity)
-    redirect to '/'
-end
-
-get '/create_account' do
-    erb :main do
-        erb :create_account
+    get '/settings' do
+        erb :main do
+            erb :settings
+        end
     end
-end
 
-post '/create_account/attempt' do
+    ### AUTHENTICATION ###
 
+    get '/login' do
+        erb :main do
+            erb :login
+        end
+    end
+
+    post '/login' do
+        session[:identity] = settings.db.getUser(params['username'])
+        if not session[:identity].nil? and session[:identity].validatePassword(params['password'])
+            redirect to '/'
+        else
+            push_error('Invalid login')
+            redirect to '/login'
+        end
+    end
+
+    get '/logout' do
+        session.delete(:identity)
+        redirect to '/'
+    end
+
+    get '/signup' do
+        erb :main do
+            erb :signup
+        end
+    end
+
+    post '/signup' do
+        (user = User.new).createUser(params['username'], params['password'], params['company'], params['storeID'])
+    
+        push_error("Username taken") if not settings.db.getUser(params['username']).nil?
+        push_error("Passwords must match") if not user.validatePassword(params['re-password'])
+
+        if not session[:errors] or session[:errors].empty?
+            session[:identity] = user
+            settings.db.storeUser(user)
+            redirect to '/'
+        else
+            redirect to '/signup'
+        end
+    end
 end
