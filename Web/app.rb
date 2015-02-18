@@ -43,6 +43,23 @@ get '/timelapse' do
     end
 end
 
+post '/timelapse/date' do
+    # TODO - Validate input
+
+    v = params[:value].split('-')
+    return settings.mongo_db.getCustomersForDay(v[2].to_i, v[0].to_i, v[1].to_i)
+end
+
+post '/timelapse/positions' do
+    # TODO - Validate input
+
+    t = params[:time].to_i / 1000
+    puts t
+    puts Time.at(t)
+    return settings.mongo_db.getLatestPositionsWithinInterval(Time.at(t-20), Time.at(t)).to_json
+
+end
+
 get '/analytics' do
     erb :main do
         erb :analytics

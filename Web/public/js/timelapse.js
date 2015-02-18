@@ -1,4 +1,7 @@
-function TimeLapse() {}
+function TimeLapse() {
+	this.xi = 0;
+	this.xf = 0;
+}
 
 TimeLapse.prototype = {
 	constructor: TimeLapse,
@@ -10,34 +13,44 @@ TimeLapse.prototype = {
 	 * {x: Time [Date], y: Customers Count [Int]}
 	 */
 	drawChart: function(idSVG, data) {
+		this.id = idSVG;
 		var that = this;
-		var vis = d3.select(idSVG);
-		
 
 		nv.addGraph(function() {
-  			var chart = nv.models.lineChart()
+  			that.chart = nv.models.lineChart()
 				.width($(idSVG).attr('width'))
 				.height($(idSVG).attr('height'))
 				.interactive(false)
 				.showLegend(false)
 				.showXAxis(true)
 				.showYAxis(true);
-			chart.xAxis
+			that.chart.xAxis
 				.axisLabel('Time')
 				.tickFormat(function(d) { return d3.time.format('%H:%M')(new Date(d));})
-			chart.yAxis
+			that.chart.yAxis
       				.axisLabel('Customers')
       				.tickFormat(d3.format('1.0f'));
 					
-			chart.forceY(0);
+			that.chart.forceY(0);
 			
-			vis
-				.datum(data)
-				.call(chart);
-
-			nv.utils.windowResize(function() { chart.update() });
+			that.updateChart(data);
+			nv.utils.windowResize(function() { that.chart.update() });
 			return chart;
 		});
+	},
+	/*
+	 *
+	 * Change data in chart
+	 *
+	 */
+	updateChart: function(data) {
+		d3.select(this.id)
+		  .datum(data)
+		  .call(this.chart);
+
+		this.xi = Math.min.apply(Math, data[0].values.map(function (val) {return val.x; }));
+		this.xf = Math.max.apply(Math, data[0].values.map(function (val) {return val.x; }));
+		this.selector.attr('x', 0);
 	},
 	/*
 	 * Draw selector on <svg> as chart overlay.
@@ -62,16 +75,16 @@ TimeLapse.prototype = {
 			.attr('height', HEIGHT-MARGINS.bottom);
 			
 		var drag = d3.behavior.drag()
-			.on('dragstart', function() { rectangle.style('opacity', 1)})
+			.on('dragstart', function() { that.selector.style('opacity', 1)})
 			.on('drag', function () {
-				rectangle.attr('x', Math.max(0, Math.min(d3.event.x - container.attr('x'), container.attr('width')-BAR_SIZE)));
+				that.selector.attr('x', Math.max(0, Math.min(d3.event.x - container.attr('x'), container.attr('width')-BAR_SIZE)));
 				that.selectorMoved(
-					rectangle.attr('x') / container.attr('width')
+					that.selector.attr('x') / container.attr('width')
 				);
 			})
-			.on('dragend', function() { rectangle.style('opacity', .4)});
+			.on('dragend', function() { that.selector.style('opacity', .4)});
 
-		var rectangle = container.append('rect')
+		that.selector = container.append('rect')
 					 .attr('id', 'selector')
 					 .attr('width', BAR_SIZE) //71
 					 .attr('height', HEIGHT-MARGINS.top)

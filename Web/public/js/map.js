@@ -32,6 +32,7 @@ LiveMap.prototype = {
 	// TODO Documentation, move coords to fit width/height
 	addCustomer:function (xi, yi, ri) 
 	{
+		this.customers = [];
 		this.customers.push({x: xi, y: yi, radius: ri});
 	}
 }
