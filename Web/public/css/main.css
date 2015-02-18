@@ -36,3 +36,36 @@
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+/** CREATE ACCOUNT **/
+.form-create{
+  max-width: 500px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-create .form-create-heading,
+.form-create {
+  margin-bottom: 10px;
+  font-weight: normal;
+}
+.form-create .form-create {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-create .form-control:focus {
+  z-index: 2;
+}
+.form-create input {
+  margin-top: 0px;
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.form-create p {
+  margin: 0px;
+}
+

@@ -17,6 +17,11 @@ helpers do
     def authenticated?
         not session[:identity].nil?
     end
+    def pop_errors
+        tmp = session[:errors] || []
+        session[:errors] = []
+        return tmp
+    end
 end
 
 get '/' do
@@ -76,27 +81,33 @@ end
 
 get '/login' do
     erb :main do
+        puts "-------------ERRORS-----------------"
+        puts session[:errors]
         erb :login
     end
 end
 
 post '/login/attempt' do
     if settings.mongo_db.authenticate(params['username'], params['password'])
-	redirect to '/login/invalid'
+        (session[:errors] ||= []).push("Invalid login")
+	redirect to '/login'
     else
 	session[:identity] = params['username']
 	redirect to '/'
     end
 end
 
-get '/login/*' do
-     @error = "Invalid login" unless params[:splat].find("invalid").nil?
-     erb :main do
-         erb :login
-     end
-end
-
 get '/logout' do
     session.delete(:identity)
     redirect to '/'
+end
+
+get '/create_account' do
+    erb :main do
+        erb :create_account
+    end
+end
+
+post '/create_account/attempt' do
+
 end
