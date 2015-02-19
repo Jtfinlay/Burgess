@@ -12,7 +12,7 @@ BODY_START="{$ID\"data\":["
 BODY_END="]}"
 
 block=""
-INTERVAL=750 # milliseconds
+INTERVAL=1200 # milliseconds
 
 send()
 {

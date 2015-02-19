@@ -5,9 +5,11 @@ INR="$HX:"
 
 MAC="$INR$INR$INR$INR$INR$HX"
 REGEX="[[:blank:]]*$MAC[[:blank:]]*\($MAC\)[[:blank:]]*\(-[[:digit:]]*\).*"
-OUTPUT="{\"mac\":\"\1\",\"strength\":\"\2\",\"time\":\"$(date)\"}"
 
 while read line
 do
-    sed -n "s/$REGEX/$OUTPUT/gip"
+    # output needs to be re-init each time otherwise the date is just the start
+    # date of the script
+    OUTPUT="{\"mac\":\"\1\",\"strength\":\"\2\",\"time\":\"$(date)\"}"
+    echo "$line" | sed -n "s/$REGEX/$OUTPUT/gip"
 done
