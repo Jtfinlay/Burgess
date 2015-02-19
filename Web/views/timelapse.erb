@@ -55,39 +55,30 @@
 	</svg>
 	<link href='/css/timelapse.css' rel='stylesheet'>
 	<script type="text/javascript" src="/js/timelapse.js"></script>
+	<script type="text/javascript" src="/js/positionblock.js"></script>
 	<script type="text/javascript">
 		var timeLapse = new TimeLapse();
-		var data = [];
-                $("#datetimepicker").val(formatDate());
-		queryData(function (result) {
-                	timeLapse.drawChart("#chart", [{values: JSON.parse(result), key: "Customers"}]);
+		var dataBlock = new PositionBlock();
+                $("#datetimepicker").val(formatDate(new Date));
+		dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), function (result) {
+                	timeLapse.drawChart("#chart", [{values: dataBlock.getCustomersHourly(), key: "Customers"}]);
                 	timeLapse.drawSelector("#time");
                 	timeLapse.selectorMoved = function(x) {
                        		var t = timeLapse.xi + x * (timeLapse.xf - timeLapse.xi);
-                        	$.post("timelapse/positions", {"time": t},
-                                	function (result) {
-                                        	if (!result) return;
-                                        	var r = JSON.parse(result);
-						data = r;
-                                        	// TODO - If multiple..
-                                        	map.addCustomer(r[0].x, r[0].y, 10);
-                                        	map.draw();
-                                	}
-				)
+				$.each(dataBlock.getMostRecent(t-20000,t), function(i,d) {
+					map.addCustomer(d.x, d.y, 10);
+				});
+				map.draw();
                 	}
 		});
 		function onDateSelected() {
-			queryData(function(result) {
-				timeLapse.updateChart([{key: "Customers", values: JSON.parse(result)}]);
+			dataBlock.requestData(($("#datetimepicker").val()+"-"+(new Date).getTimezoneOffset()),
+				function() {
+				timeLapse.updateChart([{key: "Customers", values: dataBlock.getCustomersHourly()}]);
 			});
 		}
-		function formatDate() {
-			var d = new Date();
+		function formatDate(d) {
 			return (d.getMonth()+1)+"-"+d.getDate()+"-"+d.getFullYear();
-		}
-                function queryData(fn) {
-			$.post("timelapse/date", 
-				{"value": $("#datetimepicker").val()+"-"+(new Date()).getTimezoneOffset()}, fn);
 		}
 	</script>
 

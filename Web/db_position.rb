@@ -2,8 +2,6 @@ require 'rubygems'
 require 'mongo'
 require 'json/ext'
 
-require './position_block'
-
 include Mongo
 
 class PositionData
@@ -24,8 +22,9 @@ class PositionData
     def getPositionsOverDay(y, m, d, timezone)
         ti = Time.new(y,m,d).to_i + timezone*60
         tf = ti + (3600*24)
-        return PositionBlock.new(ti, tf,
-            @position.find({"time" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a)
+        result = @position.find({"time" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
+	result.each_index{|i| result[i]['time'] = result[i]['time'].to_i}
+	return result
     end
 
 end

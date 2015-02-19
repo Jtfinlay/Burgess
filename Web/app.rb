@@ -79,15 +79,7 @@ class BurgessApp < Sinatra::Base
 
     post '/timelapse/date' do
         v = params[:value].split('-')
-        puts v
-        session[:positions] = settings.db_position.getPositionsOverDay(v[2].to_i, v[0].to_i, v[1].to_i, v[3].to_i)
-        return session[:positions].queryCustomersHourly.to_json
-    end
-
-    post '/timelapse/positions' do
-        t = Utils.StandardizeTime_s(params[:time].to_i)
-        puts session[:positions].data.count
-        return session[:positions].queryMostRecent(t-20, t).to_json
+        return settings.db_position.getPositionsOverDay(v[2].to_i, v[0].to_i, v[1].to_i, v[3].to_i).to_json
     end
 
     ### AUTHENTICATION ###
