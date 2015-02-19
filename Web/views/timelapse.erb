@@ -1,15 +1,10 @@
-<h1>Time Lapse</h1>
-<% if not authenticated? %>
-	<p>Please authenticate</p>
-<% else %>
-
 
 	<link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/vendor/datetimepicker/jquery.datetimepicker.css" rel="stylesheet">
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
-	<!-- TIME SELECTION -->
+	<!-- DATE SELECTION -->
 	<script src="/vendor/datetimepicker/jquery.datetimepicker.js"></script>
 
 	<div id='timeBar' style='padding-left: 60px'>
@@ -50,6 +45,7 @@
                 map.loadResources();
         </script>
 
+	<!-- CHART -->
 	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 	<script type='text/javascript' src='/vendor/NVD3/nv.d3.js'></script>
 	<link href='/vendor/NVD3/nv.d3.css' rel='stylesheet'>
@@ -59,31 +55,30 @@
 	</svg>
 	<link href='/css/timelapse.css' rel='stylesheet'>
 	<script type="text/javascript" src="/js/timelapse.js"></script>
+	<script type="text/javascript" src="/js/positionblock.js"></script>
 	<script type="text/javascript">
 		var timeLapse = new TimeLapse();
-		var data = <%= settings.db.getCustomersOverDay() %>;
-		timeLapse.drawChart("#chart", [{values: data, key: "Customers", color: '#ff7f0e'}]);
-		timeLapse.drawSelector("#time");
-		timeLapse.selectorMoved = function(x) {
-			var t = timeLapse.xi + x * (timeLapse.xf - timeLapse.xi);
-			$.post("timelapse/positions",
-			       {"time": t},
-				function (result) {
-					if (!result) return;
-					var r = JSON.parse(result);
-					// TODO - If multiple..
-					map.addCustomer(r[0].x, r[0].y, 10);
-					map.draw();
-				})
-		}
-		var data2;
-		function onDateSelected() {
-			$.post( "timelapse/date", 
-				{"value": $("#datetimepicker").val()},
-				function (result) { 
-					timeLapse.updateChart([{key: "Customers", values: JSON.parse(result), color: '#ff7f0e'}]);
+		var dataBlock = new PositionBlock();
+                $("#datetimepicker").val(formatDate(new Date));
+		dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), function (result) {
+                	timeLapse.drawChart("#chart", [{values: dataBlock.getCustomersHourly(), key: "Customers"}]);
+                	timeLapse.drawSelector("#time");
+                	timeLapse.selectorMoved = function(x) {
+                       		var t = timeLapse.xi + x * (timeLapse.xf - timeLapse.xi);
+				$.each(dataBlock.getMostRecent(t-20000,t), function(i,d) {
+					map.addCustomer(d.x, d.y, 10);
 				});
+				map.draw();
+                	}
+		});
+		function onDateSelected() {
+			dataBlock.requestData(($("#datetimepicker").val()+"-"+(new Date).getTimezoneOffset()),
+				function() {
+				timeLapse.updateChart([{key: "Customers", values: dataBlock.getCustomersHourly()}]);
+			});
+		}
+		function formatDate(d) {
+			return (d.getMonth()+1)+"-"+d.getDate()+"-"+d.getFullYear();
 		}
 	</script>
 
-<% end %>
