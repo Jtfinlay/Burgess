@@ -1,7 +1,14 @@
-<form action='/login/attempt' method='post' class='form-inline well'>
+<div class="container">
 
-	<input type='text' name='username' placeholder='Username' autofocus><br/>
-        <input type='password' name='password' placeholder='Password' autofocus><br/>
-        <input class='btn primary' type='submit' value='log in'><br/>
+      <form action='/login' method='post' class="form-signin">
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <label for="inputEmail" class="sr-only">Username</label>
+        <input type="text" name='username' id="inputEmail" class="form-control" placeholder="Username" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" name='password' id="inputPassword" class="form-control" placeholder="Password" required>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+	<hr/>
+	<p>Don't have an account? <a href='/signup'>Get started now.</a></p>
+      </form>
 
-</form>
+</div> <!-- /container -->
