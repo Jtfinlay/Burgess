@@ -5,7 +5,8 @@
 import express = require('express');
 import bodyParser = require('body-parser');
 import mongodb = require('mongodb');
-import wifiEntry = require('./WifiEntry');
+import wifi = require('./WifiPositionSolver');
+import constants = require('../Constants');
 
 interface RawWifiEntry {
 	mac: string;
@@ -25,11 +26,11 @@ interface RawWifiData {
 export class Receiver {
 
 	private m_db: mongodb.Db;
-	private m_server: mongodb.Server;
+	private m_solver: wifi.PositionSolver;
 
-	constructor() {
-		this.m_server = new mongodb.Server('localhost', 27017, { auto_reconnect: true })
-		this.m_db = new mongodb.Db('raw', this.m_server, { safe:true });
+	constructor(solver: wifi.PositionSolver, db: mongodb.Db) {
+		this.m_solver = solver;
+		this.m_db = db;
 	}
 
 	run(): void {
@@ -44,7 +45,9 @@ export class Receiver {
 
 		var self = this;
 		app.post('/rawWifi', function (req: express.Request, res: express.Response) {
-			self.saveRawToDB(req.body);
+			var macsToUpdate = self.saveRawToDB(req.body, function (macsToUpdate) {
+				self.m_solver.solveFor(macsToUpdate);
+			});
 			res.sendStatus(200);
 		});
 
@@ -52,35 +55,38 @@ export class Receiver {
 		app.listen(port);
 	}
 
-	private saveRawToDB(raw: RawWifiData) {
-		this.m_db.open(function (err, db) {
+	private saveRawToDB(raw: RawWifiData, cb: (updatedMacs: string[]) => void): void {
+		var updatedMacs: string[] = [];
+		var macSet = {};
+		var self = this;
+
+		this.m_db.collection(constants.RAW_WIFI_COLLECTION, function (err: Error, rawWifiCollection: mongodb.Collection): void {
 			if (err) {
-				console.log("Error opening raw Wifi DB : " + err);
+				console.log("Error opening raw Wifi DB collection: " + err);
 				return;
 			}
-			db.collection('rawWifi', function (err: Error, rawWifiCollection: mongodb.Collection): void {
-				if (err) {
-					console.log("Error opening raw Wifi DB collection: " + err);
-					return;
-				}
 
-				var entries: wifiEntry.WifiEntry[] = [];
+			var entries: wifi.WifiEntry[] = [];
 
-				raw.wifiData.forEach(function (val, index, array) {
-					val.data.forEach(function (rawEntry, idx, arr) {
-						var entry = new wifiEntry.WifiEntry(rawEntry.mac, rawEntry.strength, rawEntry.time, val.id);
-						entries.push(entry);
-					});
-				});
-
-				rawWifiCollection.insert(entries, function (error, result) {
-					if (error) {
-						console.log("Error saving entry to DB : " + error);
-					}
+			raw.wifiData.forEach(function (val, index, array) {
+				val.data.forEach(function (rawEntry, idx, arr) {
+					var entry = new wifi.WifiEntry(rawEntry.mac, rawEntry.strength, rawEntry.time, val.id);
+					entries.push(entry);
+					macSet[entry.mac] = entry.mac;
 				});
 			});
 
-			db.close();
+			rawWifiCollection.insert(entries, function (error, result) {
+				if (error) {
+					console.log("Error saving entry to DB : " + error);
+				}
+			});
+
+			for (var id in macSet) {
+				updatedMacs.push(id);
+			}
+
+			cb(updatedMacs);
 		});
 	}
 }

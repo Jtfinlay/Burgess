@@ -41,7 +41,8 @@
     <TypeScriptCompile Include="server.ts" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <TypeScriptCompile Include="Wifi\WifiEntry.ts" />
+    <TypeScriptCompile Include="Constants.ts" />
+    <TypeScriptCompile Include="Wifi\WifiPositionSolver.ts" />
     <TypeScriptCompile Include="Wifi\WifiReceiver.ts" />
   </ItemGroup>
   <ItemGroup>
