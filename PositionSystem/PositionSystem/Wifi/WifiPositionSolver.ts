@@ -80,16 +80,16 @@ class Circle {
 		if (d > this.radius() + c.radius()) {
 			return []; // no points intersect
 		}
-		if(d < Math.abs(this.radius() - c.radius()) {
+		if(d < Math.abs(this.radius() - c.radius())) {
 			return null; // all points intersect so no solution... these return values are rather arbitrary...
 		}
 
 		var a = (this.radius() * this.radius() - c.radius() * c.radius() + d * d) / (2.0 * d);
 		var b = d - a;
-		var h = this.radius() * this.radius() - a * a;
+		var h = Math.sqrt(this.radius() * this.radius() - a * a);
 		
 		// p2 = center + a * (p1-p0) / d
-		var p1MinusP0 = c.center().SubtractVector(this.center());
+		var p1MinusP0 = this.center().SubtractVector(c.center());
 		var p2 = this.center().AddVector(p1MinusP0.MultVector(a / d));
 
 		// Note the plus minus!
@@ -123,13 +123,13 @@ export class PositionSolver {
 		// TODO::JT store this in DB and retrieve. Just hacking together for the time being
 		this.m_stations = {
 			"vm-drone": {
-				id: "vm-drone", point: { x: 0, y: 0 }
+				id: "vm-drone", point: new Point(0, 0)
 			},
 			"vm-drone2": {
-				id: "vm-drone2", point: { x: 0, y: 15 }
+				id: "vm-drone2", point: new Point(0, 15)
 			},
 			"vm-drone3": {
-				id: "vm-drone3", point: { x: 25, y: 0 }
+				id: "vm-drone3", point: new Point(25, 0)
 			}
 		}
 	}
@@ -185,21 +185,56 @@ export class PositionSolver {
 		});
 	}
 
+	private StorePosition(mac: String, pos: Point, uncertainty: number): void{
+		console.log("mac : " + mac + " pos : " + JSON.stringify(pos) + " u : " + uncertainty);
+	}
+
 	private CalculatePosition(mac: String, latestEntries: WifiEntry[]) {
-		// can't perform trilateration without at least 3 measurments
-		if (latestEntries.length > 3) {
+		// can't perform trilateration without at least 3 measurements
+		if (latestEntries.length >= 3) {
 			var pairs = this.GenerateStationPairs(latestEntries);
+			var points = this.DeterminePoints(pairs, latestEntries);
+			var pos = this.AveragePoints(points);
+			var uncertainty = this.CalcStdDeviation(pos, points);
+
+			this.StorePosition(mac, pos, uncertainty);
 		}
 	}
 
-	private DeterminePoints(pairs:WifiEntryPair[]): Point[] {
+	private AveragePoints(points: Point[]): Point {
+		var x: number = 0;
+		var y: number = 0;
+		points.forEach(function (point, idx, arr) {
+			x += point.x();
+			y += point.y();
+		});
+
+		return new Point(x / points.length, y / points.length);
+	}
+
+	private CalcStdDeviation(meanPoint: Point, points: Point[]): number {
+		var deltasSqrd: number[] = [];
+		points.forEach(function (p, idx, arr) {
+			var delta = meanPoint.SubtractVector(p).Magnitude();
+			deltasSqrd.push(delta * delta); // strictly speaking there is a minus zero here
+		});
+
+		var total = 0;
+		deltasSqrd.forEach(function (delta, idx, arr) {
+			total += delta;
+		});
+
+		return Math.sqrt(total / points.length);
+	}
+
+	private DeterminePoints(pairs:WifiEntryPair[], entries:WifiEntry[]): Point[] {
 		var result: Point[] = [];
 		var self = this;
 
 		pairs.forEach(function (pair, index, arr) {
-			var p = self.DeterminePoint(pair);
+			var p = self.DeterminePoint(pair, entries);
 			if (p != null) {
-				result.push();
+				result.push(p);
 			}
 		});
 
@@ -214,33 +249,62 @@ export class PositionSolver {
 	///
 	private FSPL(dbm: number): number {
 
-		return 10 ^ ((27.55 - (20 * Math.log(2412) / Math.log(10)) + Math.abs(dbm)) / 20.0);
+		return Math.pow(10.0, ((27.55 - (20.0 * Math.log(2412.0) / Math.log(10.0)) + Math.abs(dbm)) / 20.0));
 	}
 
 	private GetStationLocation(stationName): Point {
 		var result = null;
 		var station:Station = this.m_stations[stationName];
 		if (station != null) {
-			result = new Point(station.point.x, station.point.y);
+			result = new Point(station.point.x(), station.point.y());
 		}
 
 		return result;
 	}
 
-	private VoteForPoint(points: Point[], entries: WifiEntry[]): Point {
-		var pointsCounter:number[] = []; // key: point, value: vote count
+	private VoteForPoint(points: Point[], entries: WifiEntry[], pair:WifiEntryPair): Point {
+		var self = this;
+		var pointsCounter:number[] = [];
 		points.forEach(function (val, idx, arr) {
-			pointsCounter[idx] = 0;
+			pointsCounter.push(0);
 		});
 
 		var stationCircles: Circle[] = [];
-		entries.forEach(function(station, idx, arr) {
-
+		entries.forEach(function(entry, idx, arr) {
+			if (entry != pair.first && entry != pair.second) {
+				var radius = self.FSPL(entry.strength);
+				var pos =self.GetStationLocation(entry.stationId);
+				stationCircles.push(new Circle(radius, pos));
+			}
 		});
 
-		entries.forEach(function (entry, index, array): void {
+		stationCircles.forEach(function (circle, idx, arr) {
+			var idxToVoteFor = 0;
+			var minDist = Number.MAX_VALUE;
 
+			points.forEach(function (point, index, pointArr) {
+				var expectedDist = circle.radius();
+				var actualDist = circle.center().SubtractVector(point).Magnitude();
+				var delta = Math.abs(expectedDist - actualDist);
+				if (delta < minDist) {
+					idxToVoteFor = index;
+					minDist = delta;
+				}
+			});
+
+			++pointsCounter[idxToVoteFor];
 		});
+
+		var selectedPointIndex = 0;
+		var maxCount = 0;
+		pointsCounter.forEach(function (count, idx, arr) {
+			if (count > maxCount) {
+				maxCount = count;
+				selectedPointIndex = idx;
+			}
+		});
+
+		return points[selectedPointIndex];
 	}
 
 	private DeterminePoint(pair: WifiEntryPair, entries:WifiEntry[]): Point {
@@ -250,9 +314,9 @@ export class PositionSolver {
 
 		var firstStationLocation = this.GetStationLocation(pair.first.stationId);
 		var secondStationLocation = this.GetStationLocation(pair.second.stationId);
-		var vecBetweenStations = firstStationLocation.SubtractVector(secondStationLocation);
 		
 		if (firstStationLocation != null && secondStationLocation != null) {
+			var vecBetweenStations = firstStationLocation.SubtractVector(secondStationLocation);
 			var distBetweenStations = vecBetweenStations.Magnitude();
 
 			// we have 1 of 2 cases. Either the point is so far from each station that there is no intersection of the circles
@@ -265,11 +329,12 @@ export class PositionSolver {
 			}
 			else {
 				var c1 = new Circle(firstDist, firstStationLocation);
-				var c2 = new Circle(firstDist, firstStationLocation);
+				var c2 = new Circle(secondDist, secondStationLocation);
 
 				var intersections = c1.FindIntersections(c2);
 				if (intersections != null) {
 					// need to select 1 of the 2 points... lets vote!
+					result = this.VoteForPoint(intersections, entries, pair);
 				}
 			}
 		}
