@@ -5,15 +5,22 @@ import WifiSolver = require('./Wifi/WifiPositionSolver');
 import constants = require('./Constants');
 import mongo = require('mongodb');
 
-mongo.MongoClient.connect(constants.DB_URL, function (err, db) {
+mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
 	if (err) {
-		console.log("Failed to connect to DB : " + err)
+		console.log("Failed to connect to raw DB : " + err)
 		return;
 	}
 
-	var solver = new WifiSolver.PositionSolver(db);
+	mongo.MongoClient.connect(constants.POS_DB_URL, function (err, posDB) {
+		if (err) {
+			console.log("Failed to connect to position DB : " + err)
+			return;
+		}
 
-	var wifiRxer = new WifiReceiver.Receiver(solver, db);
-	wifiRxer.run();
+		var solver = new WifiSolver.PositionSolver(rawDB, posDB);
+
+		var wifiRxer = new WifiReceiver.Receiver(solver, rawDB);
+		wifiRxer.run();
+	});
 });
 
