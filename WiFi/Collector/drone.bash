@@ -14,5 +14,5 @@ fi
 echo "Starting up..."
 sudo airmon-ng start wlan0
 echo "Running..."
-#sudo airodump-ng mon0 2>&1 | ./formatter.bash | ./sender.bash "$1"
-cat dump.txt | ./formatter.bash | ./sender.bash "$1"
+sudo airodump-ng mon0 2>&1 | ./formatter.bash # | ./sender.bash "$1"
+#cat dump.txt | ./formatter.bash | ./sender.bash "$1"
