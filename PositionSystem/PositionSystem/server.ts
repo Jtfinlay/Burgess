@@ -13,7 +13,7 @@ mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
 
 	mongo.MongoClient.connect(constants.POS_DB_URL, function (err, posDB) {
 		if (err) {
-			console.log("Failed to connect to raw DB : " + err)
+			console.log("Failed to connect to position DB : " + err)
 			return;
 		}
 

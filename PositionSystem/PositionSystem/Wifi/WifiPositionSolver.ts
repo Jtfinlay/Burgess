@@ -135,7 +135,7 @@ export class PositionSolver {
 			var pos = this.AveragePoints(points);
 			var uncertainty = this.CalcStdDeviation(pos, points);
 
-			result = new common.PositionEntry(mac, pos.x(), pos.y(), uncertainty, new Date().toString(), "");
+			result = new common.PositionEntry(mac, pos.x(), pos.y(), uncertainty, new Date(), "");
 		}
 
 		return result;
@@ -273,7 +273,7 @@ export class PositionSolver {
 
 				var intersections = c1.FindIntersections(c2);
 				if (intersections != null) {
-					// need to select 1 of the 2common.Points... lets vote!
+					// need to select 1 of the  points... lets vote!
 					result = this.VoteForPoint(intersections, entries, pair);
 				}
 			}

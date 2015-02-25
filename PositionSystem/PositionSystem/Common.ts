@@ -8,12 +8,8 @@
 		public x: number,
 		public y: number,
 		public uncertainty: number,
-		public time: string,
-		public bluetooth: string) {
-
-	}
-
-
+		public time: Date,
+		public bluetooth: string) { }
 }
 
 export class WifiEntry {
@@ -21,9 +17,7 @@ export class WifiEntry {
 		public mac: string,
 		public strength: number,
 		public time: string,
-		public stationId: string) {
-
-	}
+		public stationId: string) { }
 }
 
 export class Point {
