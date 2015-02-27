@@ -39,39 +39,27 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/' do
-        erb :main do
-             erb :home
-        end
+         erb :home
     end
 
     get '/about' do
-        erb :main do
-            erb :about
-        end
+        erb :about
     end
 
     get '/livefeed' do
-        erb :main do
-            erb :livefeed
-        end
+        erb :livefeed
     end
 
     get '/timelapse' do
-        erb :main do
-            erb :timelapse
-        end
+        erb :timelapse
     end
 
     get '/analytics' do
-        erb :main do
-            erb :analytics
-        end
+        erb :analytics
     end
 
     get '/settings' do
-        erb :main do
-            erb :settings
-        end
+        erb :settings
     end
 
 
@@ -85,9 +73,7 @@ class BurgessApp < Sinatra::Base
     ### AUTHENTICATION ###
 
     get '/login' do
-        erb :main do
-            erb :login
-        end
+        erb :login
     end
 
     post '/login' do
@@ -106,9 +92,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/signup' do
-        erb :main do
-            erb :signup
-        end
+        erb :signup
     end
 
     post '/signup' do
