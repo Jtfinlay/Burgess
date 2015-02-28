@@ -1,13 +1,11 @@
 require 'rubygems'
-require 'mongo'
 require 'json/ext'
-
-include Mongo
+require_relative './mongo_singleton'
 
 class PositionData
 
     def initialize
-        conn = MongoClient.new("localhost", 27017)
+        conn = MongoSingleton::instance
         db = conn.db('retailers')
         @position = db['position']
     end

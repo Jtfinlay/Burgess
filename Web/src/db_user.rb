@@ -1,14 +1,14 @@
 require 'rubygems'
-require 'mongo'
 require 'json/ext'
-require './src/user'
+require_relative './user'
+require_relative './mongo_singleton'
 
 include Mongo
 
 class UserData
 
     def initialize
-        conn = MongoClient.new("localhost", 27017)
+        conn = MongoSingleton::instance
         db = conn.db('retailers')
         @userData = db['userData']
     end
