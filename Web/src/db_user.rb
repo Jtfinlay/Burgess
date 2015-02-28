@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'mongo'
 require 'json/ext'
-require './user'
+require './src/user'
 
 include Mongo
 

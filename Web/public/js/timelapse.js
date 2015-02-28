@@ -1,103 +1,44 @@
-function TimeLapse() {
-	this.xi = 0;
-	this.xf = 0;
+/** DATE TIME PICKER **/
+$("#datetimepicker").datetimepicker({
+	format: 'm-d-Y',
+	lang:'en',
+	timepicker:false,
+	defaultDate: '2012/04/23'
+});
+
+
+/** RETAIL MAP **/
+var map = new LiveMap("live_map", 600, 400);
+map.addCustomer(70,30,8);
+map.addCustomer(40,370,10);
+map.addCustomer(300,20,12);
+map.loadResources();
+
+/** LOGIC **/
+function onDateSelected() {
+    dataBlock.requestData(($("#datetimepicker").val()+"-"+(new Date).getTimezoneOffset()),
+    function() {
+        timeSelect.updateChart([{key: "Customers", values: dataBlock.getCustomersHourly()}]);
+    });
+}
+function formatDate(d) {
+    return (d.getMonth()+1)+"-"+d.getDate()+"-"+d.getFullYear();
 }
 
-TimeLapse.prototype = {
-	constructor: TimeLapse,
-	/*
-	 * Draw chart on <svg> from customer data.
-	 *
-	 * idSVG: <id> of <svg> object
-	 * data: Customer data in the format:
-	 * {x: Time [Date], y: Customers Count [Int]}
-	 */
-	drawChart: function(idSVG, data) {
-		this.id = idSVG;
-		var that = this;
-
-		nv.addGraph(function() {
-  			that.chart = nv.models.lineChart()
-				.width($(idSVG).attr('width'))
-				.height($(idSVG).attr('height'))
-				.interactive(false)
-				.showLegend(false)
-				.showXAxis(true)
-				.showYAxis(true);
-			that.chart.xAxis
-				.axisLabel('Time')
-				.tickFormat(function(d) { return d3.time.format('%H:%M')(new Date(d));})
-			that.chart.yAxis
-      				.axisLabel('Customers')
-      				.tickFormat(d3.format('1.0f'));
-					
-			that.chart.forceY(0);
-			
-			that.updateChart(data);
-			nv.utils.windowResize(function() { that.chart.update() });
-			return chart;
+var timeSelect = new TimeSelect();
+var dataBlock = new PositionBlock();
+$("#datetimepicker").val(formatDate(new Date));
+dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), function (result) {
+	timeSelect.drawChart("#chart", [{values: dataBlock.getCustomersHourly(), key: "Customers"}]);
+	timeSelect.drawSelector("#time");
+	timeSelect.selectorMoved = function(x) {
+	var t = timeSelect.xi + x * (timeSelect.xf - timeSelect.xi);
+		$.each(dataBlock.getMostRecent(t-20000,t), function(i,d) {
+			map.addCustomer(d.x, d.y, 10);
 		});
-	},
-	/*
-	 *
-	 * Change data in chart
-	 *
-	 */
-	updateChart: function(data) {
-		d3.select(this.id)
-		  .datum(data)
-		  .call(this.chart);
+		map.draw();
+	}
+});
+$("#datetimeselected").click(onDateSelected);
 
-		this.xi = Math.min.apply(Math, data[0].values.map(function (val) {return val.x; }));
-		this.xf = Math.max.apply(Math, data[0].values.map(function (val) {return val.x; }));
-		this.selector.attr('x', 0);
-	},
-	/*
-	 * Draw selector on <svg> as chart overlay.
-	 *
-	 * idSVG: <id> of <svg> object
-	 */
-	drawSelector: function(idSVG) {
-		
-		var that = this;
-		var vis = d3.select(idSVG);
 
-		var BAR_SIZE = 4;
-		var MARGINS = { left: 60, top: 20, right: 80, bottom: 70 };
-		var WIDTH = $(idSVG).attr('width');
-		var HEIGHT = $(idSVG).attr('height');
-
-		var container = vis
-			.append('svg')
-			.attr('x', MARGINS.left)
-			.attr('y', MARGINS.top)
-			.attr('width', WIDTH-MARGINS.right)
-			.attr('height', HEIGHT-MARGINS.bottom);
-			
-		var drag = d3.behavior.drag()
-			.on('dragstart', function() { that.selector.style('opacity', 1)})
-			.on('drag', function () {
-				that.selector.attr('x', Math.max(0, Math.min(d3.event.x - container.attr('x'), container.attr('width')-BAR_SIZE)));
-				that.selectorMoved(
-					that.selector.attr('x') / container.attr('width')
-				);
-			})
-			.on('dragend', function() { that.selector.style('opacity', .4)});
-
-		that.selector = container.append('rect')
-					 .attr('id', 'selector')
-					 .attr('width', BAR_SIZE) //71
-					 .attr('height', HEIGHT-MARGINS.top)
-					 .attr('fill', 'blue')
-					 .attr('cursor', 'pointer')
-					 .style('opacity', .4)
-					 .call(drag);
-
-	},
-	/*
-	 * Hook for when selector is moved.
-	 *
-	 * x: Location on x-axis within [0, 1]
-	 */
-	selectorMoved: function(x) {}
-}

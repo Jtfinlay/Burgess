@@ -1,16 +1,13 @@
 require 'rubygems'
 require 'bundler/setup'
-require 'sinatra'
 require 'bcrypt'
 
-require './db_user'
-require './db_position'
+require './src/js'
+require './src/db_user'
+require './src/db_position'
 
 class BurgessApp < Sinatra::Base
-
-    def route
-        request.path
-    end
+	helpers Sinatra::JavaScripts
 
     configure do
         enable :sessions
@@ -39,39 +36,29 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/' do
-        erb :main do
-             erb :home
-        end
+        erb :home
     end
 
     get '/about' do
-        erb :main do
-            erb :about
-        end
+        erb :about
     end
 
     get '/livefeed' do
-        erb :main do
-            erb :livefeed
-        end
+		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
+        erb :livefeed
     end
 
     get '/timelapse' do
-        erb :main do
-            erb :timelapse
-        end
+		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
+        erb :timelapse
     end
 
     get '/analytics' do
-        erb :main do
-            erb :analytics
-        end
+        erb :analytics
     end
 
     get '/settings' do
-        erb :main do
-            erb :settings
-        end
+        erb :settings
     end
 
 
@@ -85,9 +72,7 @@ class BurgessApp < Sinatra::Base
     ### AUTHENTICATION ###
 
     get '/login' do
-        erb :main do
-            erb :login
-        end
+        erb :login
     end
 
     post '/login' do
@@ -106,9 +91,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/signup' do
-        erb :main do
-            erb :signup
-        end
+        erb :signup
     end
 
     post '/signup' do
