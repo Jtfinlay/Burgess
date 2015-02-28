@@ -1,6 +1,3 @@
-
-
-
 class Utils
 
     def self.StandardizeTime_s(t)

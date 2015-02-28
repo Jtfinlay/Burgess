@@ -1,16 +1,13 @@
 require 'rubygems'
 require 'bundler/setup'
-require 'sinatra'
 require 'bcrypt'
 
-require './db_user'
-require './db_position'
+require './src/js'
+require './src/db_user'
+require './src/db_position'
 
 class BurgessApp < Sinatra::Base
-
-    def route
-        request.path
-    end
+	helpers Sinatra::JavaScripts
 
     configure do
         enable :sessions
@@ -39,7 +36,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/' do
-         erb :home
+        erb :home
     end
 
     get '/about' do
@@ -47,10 +44,12 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/livefeed' do
+		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
         erb :livefeed
     end
 
     get '/timelapse' do
+		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
         erb :timelapse
     end
 
