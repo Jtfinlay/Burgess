@@ -32,10 +32,10 @@ dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), f
 	timeSelect.drawChart("#chart", [{values: dataBlock.getCustomersHourly(), key: "Customers"}]);
 	timeSelect.drawSelector("#time");
 	timeSelect.selectorMoved = function(x) {
-	var t = timeSelect.xi + x * (timeSelect.xf - timeSelect.xi);
-		$.each(dataBlock.getMostRecent(t-20000,t), function(i,d) {
-			map.addCustomer(d.x, d.y, 10);
-		});
+		var t = timeSelect.xi + x * (timeSelect.xf - timeSelect.xi);
+			$.each(dataBlock.getMostRecent(t-20000,t), function(i,d) {
+				map.addCustomer(d.x, d.y, 10);
+			});
 		map.draw();
 	}
 });

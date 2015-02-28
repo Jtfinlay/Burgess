@@ -96,7 +96,7 @@ class BurgessApp < Sinatra::Base
 
     post '/signup' do
         (user = User.new).createUser(params['username'], params['password'], params['company'], params['storeID'])
-    
+ 
         push_error("Username taken") if not settings.db_user.getUser(params['username']).nil?
         push_error("Passwords must match") if not user.validatePassword(params['re-password'])
 
