@@ -1,5 +1,5 @@
 function PositionBlock() {
-	this.data = [];
+	this.data = {};
 	this.tf = 0;
 	this.ti = 0;
 }
@@ -16,52 +16,73 @@ PositionBlock.prototype = {
 			function(result) { that.loadData(result); callback(); }
 		)	
 	},
+	/** Format data from post return **/
 	loadData: function(result) {
-		var that = this;
-		this.data = [];
-		$.each(JSON.parse(result), function(index, v) {
-			that.data.push(new Position(v.x, v.y, v.bluetooth, v.wifi, v.time*1000));
-		});
-		//this.tf = Math.max.apply(Math,this.data.map(function(d){return d.time}));
-		//this.ti = Math.min.apply(Math,this.data.map(function(d){return d.time}));	
+        var self = this;
+        this.data = {};
+
+        fart = result;
+
+        $.each(JSON.parse(result), function(index, v) {
+            self.data[v.t] = [];
+            $.each(v.data, function(index, e) {
+                self.data[v.t].push(new Position(e.mac, e.x, e.y, e.radius));
+            });
+        });
 	},
+	/** Get number of unique customers per hour **/
 	getCustomersHourly: function() {
 		result = [];
 		var i;
 		for (i=this.ti; i<this.tf; i+= 3600*1000) {
 			result.push({
 				"x": i,
-				"y": this.getUniques(this.getWithinInterval(i,i+3600*1000),"wifi").length
+				"y": this.getUniqueDevices(this.getWithinInterval(i,i+3600*1000)).length
 			});
 		}
 		return result;
 	},
-	
-	getMostRecent: function(ti, tf) {
-		return this.getUniques(this.getWithinInterval(ti,tf).sort(function(a,b)
-		{
-			if (a.time == b.time) return 0;
-			if (a.time < b.time) return 1;
-			return -1;
-		}),"wifi");
+	/** Binary search for position **/
+	getUserPositions: function(t) {
+		var values = Object.keys(this.data);
+		var error = 20000;
+
+		var minIndex = 0;
+		var maxIndex = values.length - 1;
+		var currentIndex;
+		var currentElement;
+
+		while (minIndex <= maxIndex) {
+			currentIndex = (minIndex + maxIndex) / 2 | 0;
+        	currentElement = values[currentIndex];
+ 
+        	if (currentElement < t-error) {
+            	minIndex = currentIndex + 1;
+        	}
+        	else if (currentElement > t+error) {
+            	maxIndex = currentIndex - 1;
+        	}
+        	else {
+            	return this.data[values[currentIndex]];
+        	}
+		}
+
+		return [];
 	},
-	
 	getWithinInterval: function(ti, tf) {
-		return $.grep(this.data, function(d,i) {
-			return d.time > ti && d.time < tf;
+		return $.grep(Object.keys(this.data), function(d,i) {
+			return d > ti && d < tf;
 		});
 	},
-	
-	getUniques: function(array, field) {
-		var results = [];
-		var field_array = [];
-		$.each(array, function(i, item) {
-			if ($.inArray(item[field],field_array) == -1) {
-				field_array.push(item[field]);
-				results.push(item);
-			}
+	getUniqueDevices: function(keys) {
+		var self = this;
+		var result = {};
+		$.each(keys, function(i, key) {
+			$.each(self.data[key], function(i, e) {
+				result[e.id] = true;
+			});
 		});
-		return results;
+		return Object.keys(result);
 	},
 	parseTimes: function(date) {
 		var split = date.split('-');
@@ -71,13 +92,11 @@ PositionBlock.prototype = {
 	}
 }
 
-
-function Position(x, y, bluetooth, wifi, time) {
+function Position(id, x, y, radius) {
+	this.id = id;
 	this.x = x;
 	this.y = y;
-	this.bluetooth = bluetooth;
-	this.wifi = wifi;
-	this.time = time;
+	this.radius = radius;
 }
 Position.prototype = {
 	constructor: PositionBlock

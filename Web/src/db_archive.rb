@@ -18,6 +18,9 @@ class ArchiveData
 		archiveDataWithin(ti, tf)
 	end
 
+	#
+	# Transfer data within times (sec) from position db to archived db
+	#
 	def archiveDataWithin(ti, tf)
 		(ti..tf).step(20).each { |t|
             entries = Hash.new
@@ -30,9 +33,21 @@ class ArchiveData
                         radius: e["radius"]||10}
                 end
             }
-            @archived.insert({t: Time.at(t), data: entries.values})
+            @archived.insert({t: Time.at(t), data: entries.values}) if not entries.empty?
         }
 
+	end
+
+	#
+	# Query archived data for given day
+	#
+	def getPositionsOverDay(y, m, d, timezone)
+		ti = Time.new(y,m,d).to_i + timezone*60
+		tf = ti + (3600*24)
+
+		result = @archived.find({"t" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
+		result.each_index{|i| result[i]['t'] = result[i]['t'].to_i*1000}
+		return result
 	end
 
 end

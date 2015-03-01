@@ -5,6 +5,7 @@ require 'bcrypt'
 require './src/js'
 require './src/db_user'
 require './src/db_position'
+require './src/db_archive'
 
 class BurgessApp < Sinatra::Base
 	helpers Sinatra::JavaScripts
@@ -13,6 +14,7 @@ class BurgessApp < Sinatra::Base
         enable :sessions
         set :db_user, UserData.new
         set :db_position, PositionData.new
+		set :db_archived, ArchiveData.new
     end
 
     helpers do
@@ -66,7 +68,7 @@ class BurgessApp < Sinatra::Base
 
     post '/timelapse/date' do
         v = params[:value].split('-')
-        return settings.db_position.getPositionsOverDay(v[2].to_i, v[0].to_i, v[1].to_i, v[3].to_i).to_json
+		return settings.db_archived.getPositionsOverDay(v[2].to_i, v[0].to_i, v[1].to_i, v[3].to_i).to_json
     end
 
     ### AUTHENTICATION ###
