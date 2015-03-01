@@ -105,8 +105,14 @@ TimeSelect.prototype = {
 	 */
 	translateSelector: function(dx) {
 		var x = parseInt(this.selector.attr('x'))+dx;
-		this.selector.attr('x', x);
-		this.selectorMoved(x / this.container.attr('width'));
+		var prop = x / this.container.attr('width');
+		if (prop >= 1) {
+			this.stop();
+			this.selectorMoved(1);
+		} else {
+			this.selector.attr('x', x);
+			this.selectorMoved(prop);
+		}
 	},
 	
 	/*

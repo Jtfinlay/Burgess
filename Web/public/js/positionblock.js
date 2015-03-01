@@ -21,8 +21,6 @@ PositionBlock.prototype = {
         var self = this;
         this.data = {};
 
-        fart = result;
-
         $.each(JSON.parse(result), function(index, v) {
             self.data[v.t] = [];
             $.each(v.data, function(index, e) {

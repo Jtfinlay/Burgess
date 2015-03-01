@@ -18,7 +18,7 @@ LiveMap.prototype = {
 	// TODO Documentation
 	draw:function () {
 		jc.start(this.id);	
-		jc.rect(0, this.width, this.height, 'rgba(100, 100, 100, 1)', 1);
+		jc.rect(0, 0, this.width, this.height, 'rgba(200, 200, 200, 1)', 1);
 		jc.image(this.iBackground, 0, 0, this.width, this.height);
 
 		$.each(this.customers, function(i, c) 
@@ -28,11 +28,11 @@ LiveMap.prototype = {
 		});
 		
 		jc.start(this.id);
+		this.customers = [];
 	},
 	// TODO Documentation, move coords to fit width/height
 	addCustomer:function (xi, yi, ri) 
 	{
-		this.customers = [];
 		this.customers.push({x: xi, y: yi, radius: ri});
 	}
 }
