@@ -9,9 +9,6 @@ $("#datetimepicker").datetimepicker({
 
 /** RETAIL MAP **/
 var map = new LiveMap("live_map", 600, 400);
-map.addCustomer(70,30,8);
-map.addCustomer(40,370,10);
-map.addCustomer(300,20,12);
 map.loadResources();
 
 /** LOGIC **/
