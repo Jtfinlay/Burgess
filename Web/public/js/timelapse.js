@@ -21,6 +21,10 @@ function onDateSelected() {
         timeSelect.updateChart([{key: "Customers", values: dataBlock.getCustomersHourly()}]);
     });
 }
+var selectTimer;
+function onPlaySelected() {
+	timeSelect.play(1);
+}
 function formatDate(d) {
     return (d.getMonth()+1)+"-"+d.getDate()+"-"+d.getFullYear();
 }
@@ -40,5 +44,6 @@ dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), f
 	}
 });
 $("#datetimeselected").click(onDateSelected);
-
+$("#btnPlay").click(function(){timeSelect.play(1)});
+$("#btnStop").click(function(){timeSelect.stop()});
 

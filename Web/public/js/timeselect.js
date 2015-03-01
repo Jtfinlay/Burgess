@@ -59,7 +59,7 @@ TimeSelect.prototype = {
 	 */
 	drawSelector: function(idSVG) {
 		
-		var that = this;
+		var self = this;
 		var vis = d3.select(idSVG);
 
 		var BAR_SIZE = 4;
@@ -67,7 +67,7 @@ TimeSelect.prototype = {
 		var WIDTH = $(idSVG).attr('width');
 		var HEIGHT = $(idSVG).attr('height');
 
-		var container = vis
+		this.container = vis
 			.append('svg')
 			.attr('x', MARGINS.left)
 			.attr('y', MARGINS.top)
@@ -75,16 +75,16 @@ TimeSelect.prototype = {
 			.attr('height', HEIGHT-MARGINS.bottom);
 			
 		var drag = d3.behavior.drag()
-			.on('dragstart', function() { that.selector.style('opacity', 1)})
+			.on('dragstart', function() { self.selector.style('opacity', 1)})
 			.on('drag', function () {
-				that.selector.attr('x', Math.max(0, Math.min(d3.event.x - container.attr('x'), container.attr('width')-BAR_SIZE)));
-				that.selectorMoved(
-					that.selector.attr('x') / container.attr('width')
+				self.selector.attr('x', Math.max(0, Math.min(d3.event.x - self.container.attr('x'), self.container.attr('width')-BAR_SIZE)));
+				self.selectorMoved(
+					self.selector.attr('x') / self.container.attr('width')
 				);
 			})
-			.on('dragend', function() { that.selector.style('opacity', .4)});
+			.on('dragend', function() { self.selector.style('opacity', .4)});
 
-		that.selector = container.append('rect')
+		self.selector = self.container.append('rect')
 					 .attr('id', 'selector')
 					 .attr('width', BAR_SIZE) //71
 					 .attr('height', HEIGHT-MARGINS.top)
@@ -92,12 +92,34 @@ TimeSelect.prototype = {
 					 .attr('cursor', 'pointer')
 					 .style('opacity', .4)
 					 .call(drag);
-
 	},
 	/*
 	 * Hook for when selector is moved.
 	 *
 	 * x: Location on x-axis within [0, 1]
 	 */
-	selectorMoved: function(x) {}
+	selectorMoved: function(x) {},
+	
+	/*
+	 * Move the selector by a set amount.
+	 */
+	translateSelector: function(dx) {
+		var x = parseInt(this.selector.attr('x'))+dx;
+		this.selector.attr('x', x);
+		this.selectorMoved(x / this.container.attr('width'));
+	},
+	
+	/*
+	 * Start moving selector automatically.
+	 */
+	play: function(rate) {
+		var self = this;
+		self.timer = self.timer || setInterval(function() {
+			self.translateSelector(rate);	
+		}, 100);
+	},
+	stop: function() {
+		clearInterval(this.timer);
+		this.timer = null;
+	}
 }
