@@ -36,20 +36,19 @@ LiveMap.prototype = {
 
 		$.each(this.customers, function(i, c) 
 		{
-			console.log(c.x + "," + c.y)
 			var x = (c.x / self.width_m) * self.width_px;
 			var y = (c.y / self.height_m) * self.height_px;
 			var r = (c.radius / self.width_m) * self.width_px;
-			jc.circle(x, y, r, 'rgba(0,255,0,0.25)', true);
-			jc.circle(x, y, 4, 'rgba(255,0,0,0.5)', true);
+			jc.circle(x, y, r, 'rgba('+(255*c.priority)+','+(255*(1-c.priority))+',0,0.25)', true);
+			jc.circle(x, y, 6, 'rgba('+(255*c.priority)+',0,'+(255*(1-c.priority))+',0.5)', true);
 		});
 		
 		jc.start(this.id);
 		this.customers = [];
 	},
 	// TODO Documentation, move coords to fit width/height
-	addCustomer:function (xi, yi, ri) 
+	addCustomer:function (xi, yi, ri, pi) 
 	{
-		this.customers.push({x: xi, y: yi, radius: ri});
+		this.customers.push({x: xi, y: yi, radius: ri, priority: pi});
 	}
 }

@@ -38,7 +38,8 @@ dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), f
 		var t = timeSelect.xi + x * (timeSelect.xf - timeSelect.xi);
 		var positions = dataBlock.getUserPositions(t);
 		$.each(positions, function(i,d) {
-			map.addCustomer(d.x, d.y, d.radius);
+			console.log(d)
+			map.addCustomer(d.x, d.y, d.radius, d.priority);
 		});
 		map.draw();
 		positions = null;

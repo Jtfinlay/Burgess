@@ -24,7 +24,7 @@ PositionBlock.prototype = {
         $.each(JSON.parse(result), function(index, v) {
             self.data[v.t] = [];
             $.each(v.data, function(index, e) {
-                self.data[v.t].push(new Position(e.mac, e.x, e.y, e.radius));
+                self.data[v.t].push(new Position(e.mac, e.x, e.y, e.radius, e.priority));
             });
         });
 	},
@@ -90,11 +90,12 @@ PositionBlock.prototype = {
 	}
 }
 
-function Position(id, x, y, radius) {
+function Position(id, x, y, radius, priority) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
 	this.radius = radius;
+	this.priority = priority;
 }
 Position.prototype = {
 	constructor: PositionBlock
