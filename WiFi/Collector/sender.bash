@@ -31,7 +31,7 @@ send()
     toSend="$BODY_START $arr $BODY_END"
     
     curl --silent -m 10 -H "Content-Type: application/json" --data "$toSend" "$DEST"
-    rm "./tmp.txt"
+    rm -f "./tmp.txt"
 }
 
 lastTimeSent="$(($(date +%s%N)/1000000))"
