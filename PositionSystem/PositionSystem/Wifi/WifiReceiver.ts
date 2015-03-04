@@ -1,12 +1,13 @@
-﻿/// <reference path="../Scripts/typings/express/express.d.ts" />
-/// <reference path="../Scripts/typings/body-parser/body-parser.d.ts" />
-/// <reference path="../Scripts/typings/mongodb/mongodb.d.ts" />
+﻿/// <reference path='../Scripts/typings/express/express.d.ts' />
+/// <reference path='../Scripts/typings/body-parser/body-parser.d.ts' />
+/// <reference path='../Scripts/typings/mongodb/mongodb.d.ts' />
 
 import express = require('express');
 import bodyParser = require('body-parser');
 import mongodb = require('mongodb');
 import wifi = require('./WifiPositionSolver');
 import constants = require('../Constants');
+import common = require('../Common');
 
 interface RawWifiEntry {
 	mac: string;
@@ -51,7 +52,7 @@ export class Receiver {
 			res.sendStatus(200);
 		});
 
-		console.log("Gathering Wifi Raw Data...");
+		console.log('Gathering Wifi Raw Data...');
 		app.listen(port);
 	}
 
@@ -62,15 +63,15 @@ export class Receiver {
 
 		this.m_db.collection(constants.RAW_WIFI_COLLECTION, function (err: Error, rawWifiCollection: mongodb.Collection): void {
 			if (err) {
-				console.log("Error opening raw Wifi DB collection: " + err);
+				console.log('Error opening raw Wifi DB collection: ' + err);
 				return;
 			}
 
-			var entries: wifi.WifiEntry[] = [];
+			var entries: common.WifiEntry[] = [];
 
 			raw.wifiData.forEach(function (val, index, array) {
 				val.data.forEach(function (rawEntry, idx, arr) {
-					var entry = new wifi.WifiEntry(rawEntry.mac, rawEntry.strength, rawEntry.time, val.id);
+					var entry = new common.WifiEntry(rawEntry.mac, rawEntry.strength, rawEntry.time, val.id);
 					entries.push(entry);
 					macSet[entry.mac] = entry.mac;
 				});
@@ -78,7 +79,7 @@ export class Receiver {
 
 			rawWifiCollection.insert(entries, function (error, result) {
 				if (error) {
-					console.log("Error saving entry to DB : " + error);
+					console.log('Error saving entry to DB : ' + error);
 				}
 			});
 
