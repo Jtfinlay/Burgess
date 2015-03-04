@@ -1,0 +1,3 @@
+[submodule "aircrack-bws"]
+	path = aircrack-bws
+	url = https://github.com/jesseDtucker/aircrack-bws
