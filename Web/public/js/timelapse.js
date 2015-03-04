@@ -6,10 +6,12 @@ $("#datetimepicker").datetimepicker({
 	defaultDate: '2012/04/23'
 });
 
-
 /** RETAIL MAP **/
-var map = new LiveMap("live_map", 600, 400);
-map.loadResources();
+var map;
+$.get("map/size", function(result) {
+	var details = JSON.parse(result);
+	map = new LiveMap("live_map", details.width, details.height, details.store_img);
+});
 
 /** LOGIC **/
 function onDateSelected() {
@@ -34,13 +36,15 @@ dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), f
 	timeSelect.drawSelector("#time");
 	timeSelect.selectorMoved = function(x) {
 		var t = timeSelect.xi + x * (timeSelect.xf - timeSelect.xi);
-		$.each(dataBlock.getUserPositions(t), function(i,d) {
-			map.addCustomer(d.x, d.y, 10);
+		var positions = dataBlock.getUserPositions(t);
+		$.each(positions, function(i,d) {
+			map.addCustomer(d.x, d.y, d.radius);
 		});
 		map.draw();
+		positions = null;
 	}
 });
 $("#datetimeselected").click(onDateSelected);
-$("#btnPlay").click(function(){timeSelect.play(1)});
+$("#btnPlay").click(function(){timeSelect.play(0.1)});
 $("#btnStop").click(function(){timeSelect.stop()});
 

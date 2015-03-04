@@ -4,3 +4,4 @@ gem "sinatra"
 gem "mongo"
 gem "bson_ext"
 gem "bcrypt"
+gem 'ruby-progressbar', '~> 1.7.1'

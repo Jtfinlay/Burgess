@@ -1,7 +1,10 @@
+<% if not authenticated? %>
+	<p>Please authenticate.</p>
+<% else %>
+
 <link href="/vendor/datetimepicker/jquery.datetimepicker.css" rel="stylesheet">
 <link href='/vendor/NVD3/nv.d3.css' rel='stylesheet'>
 <link href='/css/timelapse.css' rel='stylesheet'>
-
 
 <div id='timeBar' style='padding-left: 60px'>
 	<button id='btnPlay' type='button' class='btn btn-default' aria-label='Play'>
@@ -30,3 +33,5 @@
 	<svg id="chart" width="680" height="200"></svg>
 	<svg id="time" width="680" height="200"></svg>
 </svg>
+
+<% end %>

@@ -28,8 +28,8 @@ TimeSelect.prototype = {
 				.axisLabel('Time')
 				.tickFormat(function(d) { return d3.time.format('%H:%M')(new Date(d));})
 			that.chart.yAxis
-      				.axisLabel('Customers')
-      				.tickFormat(d3.format('1.0f'));
+      			.axisLabel('Customers')
+      			.tickFormat(d3.format('1.0f'));
 					
 			that.chart.forceY(0);
 			
@@ -104,7 +104,7 @@ TimeSelect.prototype = {
 	 * Move the selector by a set amount.
 	 */
 	translateSelector: function(dx) {
-		var x = parseInt(this.selector.attr('x'))+dx;
+		var x = parseFloat(this.selector.attr('x'))+dx;
 		var prop = x / this.container.attr('width');
 		if (prop >= 1) {
 			this.stop();

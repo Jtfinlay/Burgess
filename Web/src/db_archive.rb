@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'json/ext'
+require 'ruby-progressbar'
 require_relative './mongo_singleton'
 
 class ArchiveData
@@ -22,18 +23,21 @@ class ArchiveData
 	# Transfer data within times (sec) from position db to archived db
 	#
 	def archiveDataWithin(ti, tf)
-		(ti..tf).step(20).each { |t|
+		p = ProgressBar.create(:total => (tf - ti)/5+1)
+		(ti..tf).step(5).each { |t|
             entries = Hash.new
             @position.find({"time" => {"$gte" => Time.at(t), "$lt" => Time.at(t+20)}}).to_a.each{|e|
-                if entries[e["wifi"]].nil? or entries[e["wifi"]].radius > e["radius"]
+                if entries[e["wifi"]].nil? or entries[e["wifi"]][:radius] > e["radius"]
                     entries[e["wifi"]] = {
                         mac: e["wifi"],
                         x: e["x"],
                         y: e["y"],
+						priority: e["priority"],
                         radius: e["radius"]||10}
                 end
             }
             @archived.insert({t: Time.at(t), data: entries.values}) if not entries.empty?
+			p.increment
         }
 
 	end

@@ -10,6 +10,7 @@ GEM
     rack (1.6.0)
     rack-protection (1.5.3)
       rack
+    ruby-progressbar (1.7.1)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -23,4 +24,5 @@ DEPENDENCIES
   bcrypt
   bson_ext
   mongo
+  ruby-progressbar (~> 1.7.1)
   sinatra

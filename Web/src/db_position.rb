@@ -42,17 +42,4 @@ class PositionData
 		end
 	end
 
-	def getPositionsForLapse(y, m, d, timezone)
-		ti = Time.new(y,m,d).to_i + timezone*60
-        tf = ti + (3600*24)
-        result = []
-
-        (ti..tf).step(20).each do |t|
-			@position.find({"time" => {"$gt" => Time.at(t), "$lte" => Time.at(t+20)}}).to_a.each{|e|
-				result << e
-			}
-		end
-
-	end
-
 end

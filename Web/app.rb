@@ -47,6 +47,7 @@ class BurgessApp < Sinatra::Base
 
     get '/livefeed' do
 		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
+		puts session[:identity]
         erb :livefeed
     end
 
@@ -63,6 +64,14 @@ class BurgessApp < Sinatra::Base
         erb :settings
     end
 
+	### MAP ###
+
+    get '/map/size' do
+        if authenticated?
+            return session[:identity].getMapDetails.to_json
+        end
+		return nil
+    end
 
     ### TIME LAPSE ###
 
