@@ -57,10 +57,12 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/analytics' do
+		js :knockout, :nvd3, 'analytics'
         erb :analytics
     end
 
     get '/settings' do
+		js :knockout, 'knockout/settings'
         erb :settings
     end
 

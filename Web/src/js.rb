@@ -23,6 +23,8 @@ module Sinatra
 
 		def path_to script
 			case script
+			when :knockout then ["http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.js",
+				"/js/knockout/models.js"]
 			when :datetime then ["/vendor/datetimepicker/jquery.datetimepicker.js"]
 			when :jcanvas then ["/vendor/canvascript/jCanvaScript.1.5.18.min.js"]
 			when :nvd3 then ["http://d3js.org/d3.v3.min.js", "/vendor/NVD3/nv.d3.min.js"]

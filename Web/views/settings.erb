@@ -1,1 +1,44 @@
-<p>Settings</p>
+<h1>Settings</h1>
+
+<hr/>
+
+<h3>Employees</h3>
+<button class="btn btn-default btn-success" type="button" data-bind="visible: updated; click: store">Store changes</button>
+
+<table>
+	<thead><tr>
+		<th>Employee Name</th><th/><th>MAC Address</th><th>Authentication Code</th>
+	</tr></thead>
+	<tbody data-bind="foreach: employees">
+		<tr>
+			<td><input type="text" class="form-control" data-bind="value: firstName"></td>
+			<td><input type="text" class="form-control" data-bind="value: lastName"></td>
+			<td><input type="text" class="form-control" placeholder="Not connected" data-bind="value: mac" disabled></td>
+			<td>
+				<div class="input-group">
+					<input type="text" class="form-control" data-bind="value: auth_token">
+					<span class="input-group-btn">
+						<button class="btn btn-default" data-bind="click: renew_token" type="button">Renew</button>
+					</span>
+				</div>
+			</td>
+			<td>
+				<button class="btn btn-default btn-danger" type="button" data-bind="click: $root.removeEmployee">
+					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+				</button>
+			</td>
+		</tr>
+	</tbody>
+
+	<!-- New employee -->
+	<tbody>
+		<tr><td><br/></td></tr>
+        <tr>
+            <td><input type="text" class="form-control" data-bind="value: new_firstName" placeholder="First name"></td>
+            <td><input type="text" class="form-control" data-bind="value: $root.new_lastName" placeholder="Last name"></td>
+            <td><button class="btn btn-primary" type="button" data-bind="click: $root.addCustomer">Add</button>
+        </tr>
+	</tbody>
+
+</table>
+		
