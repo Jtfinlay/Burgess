@@ -1,3 +1,0 @@
- {"mac":"0C:3E:9F:01:5D:8A","strength":"-49","time":"Wed Feb 25 15:12:25 MST 2015"},
- {"mac":"6C:40:08:BD:0F:92","strength":"-50","time":"Wed Feb 25 15:12:25 MST 2015"},
-
