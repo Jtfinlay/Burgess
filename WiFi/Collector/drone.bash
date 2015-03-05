@@ -12,7 +12,6 @@ if [ $# -eq 0 ]; then
 fi
 
 echo "Starting up..."
-sudo airmon-ng start wlan0
+sudo ../../aircrack-bws/aircrack-ng-1.2-rc1/scripts/airmon-ng start wlan1
 echo "Running..."
-#sudo airodump-ng mon0 2>&1 | ./formatter.bash | ./sender.bash "$1"
-cat dump.txt | ./formatter.bash | ./sender.bash "$1"
+sudo ../../aircrack-bws/aircrack-ng-1.2-rc1/src/airodump-ng mon0 2>&1 | ./formatter.bash | ./sender.bash "$1"

@@ -7,7 +7,7 @@ fi
 
 ID="\"id\":\"$1\", "
 
-DEST="http://192.168.1.73:8000/drone"
+DEST="http://172.28.68.179:8000/drone"
 BODY_START="{$ID\"data\":["
 BODY_END="]}"
 
@@ -31,7 +31,7 @@ send()
     toSend="$BODY_START $arr $BODY_END"
     
     curl --silent -m 10 -H "Content-Type: application/json" --data "$toSend" "$DEST"
-    rm "./tmp.txt"
+    rm -f "./tmp.txt"
 }
 
 lastTimeSent="$(($(date +%s%N)/1000000))"

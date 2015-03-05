@@ -1,10 +1,10 @@
 #!/bin/bash
 
-HX='[[:xdigit:]]\{1,2\}'
+HX='[[:xdigit:]]\{2\}'
 INR="$HX:"
 
 MAC="$INR$INR$INR$INR$INR$HX"
-REGEX="[[:blank:]]*$MAC[[:blank:]]*\($MAC\)[[:blank:]]*\(-[[:digit:]]*\).*"
+REGEX=".*\($MAC\)[[:blank:]]*\(-[[:digit:]]*\).*$"
 
 while read line
 do
