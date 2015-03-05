@@ -66,6 +66,16 @@ class BurgessApp < Sinatra::Base
         erb :settings
     end
 
+	### EMPLOYEES ###
+
+	get '/employees' do
+		puts session[:identity].id
+		if authenticated?
+			return settings.db_user.getEmployees(session[:identity].id).to_json
+		end
+		return nil
+	end
+
 	### MAP ###
 
     get '/map/size' do

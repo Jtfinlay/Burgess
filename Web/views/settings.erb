@@ -11,8 +11,7 @@
 	</tr></thead>
 	<tbody data-bind="foreach: employees">
 		<tr>
-			<td><input type="text" class="form-control" data-bind="value: firstName"></td>
-			<td><input type="text" class="form-control" data-bind="value: lastName"></td>
+			<td><input type="text" class="form-control" data-bind="value: name"></td>
 			<td><input type="text" class="form-control" placeholder="Not connected" data-bind="value: mac" disabled></td>
 			<td>
 				<div class="input-group">
@@ -34,8 +33,7 @@
 	<tbody>
 		<tr><td><br/></td></tr>
         <tr>
-            <td><input type="text" class="form-control" data-bind="value: new_firstName" placeholder="First name"></td>
-            <td><input type="text" class="form-control" data-bind="value: $root.new_lastName" placeholder="Last name"></td>
+            <td><input type="text" class="form-control" data-bind="value: $root.new_name" placeholder="Name"></td>
             <td><button class="btn btn-primary" type="button" data-bind="click: $root.addCustomer">Add</button>
         </tr>
 	</tbody>

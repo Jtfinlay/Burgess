@@ -1,7 +1,6 @@
 /**
  *	Employee {
- *		firstName: String,
- *		lastName: String,
+ *		name: String,
  *		mac: String,
  *		auth_token: String
  *	}
@@ -10,8 +9,7 @@ function Employee(data) {
 	var self = this;
 	data = data || {};
 
-	self.firstName = ko.observable(data.firstName);
-	self.lastName = ko.observable(data.lastName);
+	self.name = ko.observable(data.name);
 	self.auth_token = ko.observable(data.auth_token || generateID());
 	self.mac = ko.observable(data.mac);
 

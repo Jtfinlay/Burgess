@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'json/ext'
-require_relative './user'
+require_relative './models/user'
 require_relative './mongo_singleton'
 
 include Mongo
@@ -11,6 +11,7 @@ class UserData
         conn = MongoSingleton::instance
         db = conn.db('retailers')
         @userData = db['userData']
+		@employeeData = db['employees']
     end
 
     # 
@@ -34,5 +35,9 @@ class UserData
     def storeUser(user)
         @userData.insert(user.toObject())
     end
+
+	def getEmployees(id)
+		return @employeeData.find({'retailer' => id}).to_a
+	end	
 
 end

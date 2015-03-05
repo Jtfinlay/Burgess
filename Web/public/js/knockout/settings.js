@@ -1,30 +1,22 @@
 function SettingsViewModel() {
 	var self = this;
 
-	self.employees_def = [
-		{
-			firstName: "James", 
-			lastName: "Finlay", 
-			auth_token: "token",
-			mac: "40:B0:FA:68:39:0C"
-		},
-		{
-            firstName: "Jesse",
-            lastName: "Tucker",
-			auth_token: "bbd-e0e-3ab3",
-            mac: "C0:EE:FB:25:F9:B6",
-        },
-		{
-            firstName: "Tyler",
-            lastName: "Meen",
-			auth_token: "8a1-66a-358a",
-            mac: "",
-        }
-	];
-
+	self.employees_def = [];
 	self.employees = ko.observableArray();
-	$.each(self.employees_def, function(key, val) {
-		self.employees.push(new Employee(val));
+	
+	$.get("/employees", function (data) {
+		$.each(JSON.parse(data), function(i, employee) {
+			self.employees_def.push(
+			{
+				"name": employee["name"],
+				"auth_token": employee["auth_code"],
+				"mac": employee["mac"]
+			});
+		});
+
+		$.each(self.employees_def, function(key, val) {
+        	self.employees.push(new Employee(val));
+    	});
 	});
 
 	self.updated = ko.computed(function() {
@@ -34,15 +26,12 @@ function SettingsViewModel() {
 		self.employees.remove(employee);
 	};
 
-	self.new_firstName = ko.observable();
-	self.new_lastName = ko.observable();
+	self.new_name = ko.observable();
 	self.addCustomer = function() {
 		self.employees.push(new Employee({
-			firstName: self.new_firstName(),
-			lastName: self.new_lastName(),
+			name: self.new_name(),
 			mac: ""}));
-		self.new_firstName("");
-		self.new_lastName("");
+		self.new_name("");
 	};
 
 	self.store = function() {

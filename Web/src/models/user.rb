@@ -1,6 +1,7 @@
 require 'bcrypt'
 
 class User
+	attr_accessor :id
 
     def nil?
         return (@username.nil? or @password_hash.nil?)
@@ -8,6 +9,7 @@ class User
 
     def fromObject(user)
         return nil if user.nil?
+		@id = user['_id']
         @username = user['username']
         @company = user['company']
         @storeID = user['storeID']
@@ -37,7 +39,8 @@ class User
 	end
 
     def toObject
-        return {'username'  => @username,
+        return {'_id' 		=> @id,
+				'username'  => @username,
                 'company'   => @company,
                 'storeID'   => @storeID,
                 'joined'    => @joined,
