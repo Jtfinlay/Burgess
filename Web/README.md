@@ -5,6 +5,6 @@ Download and run:
 	git clone https://github.com/Jtfinlay/Burgess.git
 	
 	cd Burgess/Web
-	bundle install					# To install sinatra
+	bundle install --deployment		# To install gems
 	rvmsudo rackup					# To run portal
 

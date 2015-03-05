@@ -7,7 +7,7 @@ class User
         return (@username.nil? or @password_hash.nil?)
     end
 
-    def fromObject(user)
+    def fromDatabase(user)
         return nil if user.nil?
 		@id = user['_id']
         @username = user['username']
@@ -19,6 +19,7 @@ class User
 		@width = user['width'] || 600
 		@height = user['height'] || 400
 		@store_img = user['store_img'] || '/images/store_layout.png'
+		return self
     end
 
     def createUser(username, password, company, storeID)
@@ -28,6 +29,7 @@ class User
         @password_salt = BCrypt::Engine.generate_salt
         @password_hash = BCrypt::Engine.hash_secret(password, @password_salt)
         @joined = Time.now
+		return self
     end
 
     def validatePassword(password)

@@ -1,20 +1,24 @@
 /**
  *	Employee {
+ *		_id: {"$oid": ... },
+ *		retailer: {"$oid": ... },
  *		name: String,
  *		mac: String,
- *		auth_token: String
+ *		auth_code: String
  *	}
  */
 function Employee(data) {
 	var self = this;
 	data = data || {};
 
+	self._id = data._id;
+	self.retailer = data.retailer;
 	self.name = ko.observable(data.name);
-	self.auth_token = ko.observable(data.auth_token || generateID());
+	self.auth_code = ko.observable(data.auth_code || generateID());
 	self.mac = ko.observable(data.mac);
 
 	self.renew_token = function() {
-		self.auth_token(generateID());
+		self.auth_code(generateID());
 	};
 
 }

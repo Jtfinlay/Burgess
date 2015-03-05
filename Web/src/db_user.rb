@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'json/ext'
 require_relative './models/user'
+require_relative './models/employee'
 require_relative './mongo_singleton'
 
 include Mongo
@@ -20,7 +21,7 @@ class UserData
     # Return: Boolean representing success.
     def authenticate(username, password)
         username.downcase!
-	@userData.find({
+		@userData.find({
             "username" => username,
             "password" => password
         }).count.to_json.to_i == 0
@@ -28,8 +29,7 @@ class UserData
 
     def getUser(username)
         username.downcase!
-        (u = User.new).fromObject(@userData.find({'username' => username}).limit(1).to_a[0])
-        return u
+        return User.new.fromDatabase(@userData.find({'username' => username}).limit(1).to_a[0])
     end
     
     def storeUser(user)
@@ -39,5 +39,26 @@ class UserData
 	def getEmployees(id)
 		return @employeeData.find({'retailer' => id}).to_a
 	end	
+
+	def updateEmployees(retail_id, data)
+		data.each do |e|
+			employee = e.toObject
+			employee['retailer'] ||= retail_id
+			@employeeData.update(
+				{:retailer => retail_id, :_id => e.id},
+				employee,
+				{:upsert => true}
+			)
+		end
+	end
+
+	def removeEmployees(retail_id, data)
+		data.each do |e|
+			employee = e.toObject
+			employee['retailer'] ||= retail_id
+			@employeeData.remove({:retailer => retail_id, :_id => e.id})
+		end
+		return
+	end
 
 end

@@ -69,11 +69,17 @@ class BurgessApp < Sinatra::Base
 	### EMPLOYEES ###
 
 	get '/employees' do
-		puts session[:identity].id
 		if authenticated?
 			return settings.db_user.getEmployees(session[:identity].id).to_json
 		end
 		return nil
+	end
+
+	post '/employees' do
+		if authenticated?
+			settings.db_user.updateEmployees(session[:identity].id,Employee.fromArray(JSON.parse(params[:update])))
+			settings.db_user.removeEmployees(session[:identity].id,Employee.fromArray(JSON.parse(params[:remove])))
+		end
 	end
 
 	### MAP ###
@@ -118,7 +124,7 @@ class BurgessApp < Sinatra::Base
     end
 
     post '/signup' do
-        (user = User.new).createUser(params['username'], params['password'], params['company'], params['storeID'])
+        user = User.new.createUser(params['username'], params['password'], params['company'], params['storeID'])
  
         push_error("Username taken") if not settings.db_user.getUser(params['username']).nil?
         push_error("Passwords must match") if not user.validatePassword(params['re-password'])

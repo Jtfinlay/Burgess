@@ -3,11 +3,11 @@
 <hr/>
 
 <h3>Employees</h3>
-<button class="btn btn-default btn-success" type="button" data-bind="visible: updated; click: store">Store changes</button>
+<button class="btn btn-default btn-success" type="button" data-bind="visible: updated, click: store">Store changes</button>
 
 <table>
 	<thead><tr>
-		<th>Employee Name</th><th/><th>MAC Address</th><th>Authentication Code</th>
+		<th>Employee Name</th><th>MAC Address</th><th>Authentication Code</th>
 	</tr></thead>
 	<tbody data-bind="foreach: employees">
 		<tr>
@@ -15,7 +15,7 @@
 			<td><input type="text" class="form-control" placeholder="Not connected" data-bind="value: mac" disabled></td>
 			<td>
 				<div class="input-group">
-					<input type="text" class="form-control" data-bind="value: auth_token">
+					<input type="text" class="form-control" data-bind="value: auth_code">
 					<span class="input-group-btn">
 						<button class="btn btn-default" data-bind="click: renew_token" type="button">Renew</button>
 					</span>

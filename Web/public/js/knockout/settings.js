@@ -2,27 +2,27 @@ function SettingsViewModel() {
 	var self = this;
 
 	self.employees_def = [];
-	self.employees = ko.observableArray();
-	
-	$.get("/employees", function (data) {
-		$.each(JSON.parse(data), function(i, employee) {
-			self.employees_def.push(
-			{
-				"name": employee["name"],
-				"auth_token": employee["auth_code"],
-				"mac": employee["mac"]
+    self.employees = ko.observableArray();
+    self.removed = [];
+
+	self.pullData = function() {
+		$.get("/employees", function (data) {
+			self.employees([]);
+			self.employees_def = [];
+			self.removed = [];
+
+			$.each(JSON.parse(data), function(i, employee) {
+				self.employees_def.push(employee);
+				self.employees.push(new Employee(employee));
 			});
 		});
-
-		$.each(self.employees_def, function(key, val) {
-        	self.employees.push(new Employee(val));
-    	});
-	});
+	};
 
 	self.updated = ko.computed(function() {
 		return !(JSON.stringify(self.employees_def) == ko.toJSON(self.employees()));
 	});
 	self.removeEmployee = function(employee) {
+		self.removed.push(employee);
 		self.employees.remove(employee);
 	};
 
@@ -35,8 +35,13 @@ function SettingsViewModel() {
 	};
 
 	self.store = function() {
-		console.log("TODO");
-	}
+		$.post("/employees", {
+			"update": ko.toJSON(self.employees()),
+			"remove": ko.toJSON(self.removed)
+		}, function() {self.pullData();});
+	};
+
+	self.pullData();
 
 }
 
