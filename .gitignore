@@ -179,6 +179,7 @@ build/
 
 ## Environment normalisation:
 /Web/.bundle/
+/Web/vendor/
 /.bundle/
 /lib/bundler/man/
 
