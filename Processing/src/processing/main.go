@@ -3,42 +3,23 @@
  *	(default 5sec) and places it in the archived database.
  *
  *	Author: James Finlay
- *	Date: March 5th, 2015
+ *	Date: March 6th, 2015
  */
 
 package main
 
 import (
-		"fmt"
-		"time"
-		"gopkg.in/mgo.v2"
-		"gopkg.in/mgo.v2/bson"
+	"fmt"
+	"time"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
-/** Matches db 'position' **/
-type Position struct {
-	Bluetooth string
-	Wifi string
-	X float32
-	Y float32
-	Radius float32
-	Priority float32
-	Time time.Time
-}
-
-/** Matches db 'archived' **/
-type Archived struct {
-	Mac string
-	X float32
-	Y float32
-	Radius float32
-	Priority float32
-}
-
 var (
-	c_pos, c_arch *mgo.Collection					// db connections
+	c_pos *mgo.Collection							// db connection
 	sleep_time time.Duration = 5 * time.Second		// period to aggregate data over
-	offset int64 = int64(1 * time.Second)			// offset in case aggregation is slow
+	offset = int64(1 * time.Second)					// offset in case aggregation is slow
+	host = "ua-bws.cloudapp.net"
 )
 
 /*
@@ -53,60 +34,48 @@ func PullRecentData(tf time.Time) *[]Position {
 	err := c_pos.Find(
 		bson.M{
 			"time": bson.M{
-				"$gte" : ti, 
+				"$gte" : ti,
 				"$lt" : tf,
 			},
 		}).All(&result)
-	if err != nil {
-		fmt.Println(err)
-	}
+	if err != nil { panic(err) }
+
 	return &result
 }
 
-//  Aggregate position data to archived format.
-func AggregateData(data *[]Position) *[]Archived {
+//  Aggregate position data to remove duplicate users
+func AggregateData(data *[]Position) *map[string]*Position {
 	hash := make(map[string]*Position)
-	result := make([]Archived, 0)
 	for i := range *data {
 		element := (*data)[i]
 		if hash[element.Wifi] == nil || hash[element.Wifi].Radius > element.Radius {
 			hash[element.Wifi] = &element
 		}
 	}
-	for _, value := range hash {
-		result = append(result, Archived{value.Wifi, value.X, value.Y, value.Radius, value.Priority})
-	}
-	return &result
-}
-
-// Push aggregated data to the archive database
-func PushData(now time.Time, data *[]Archived) {
-	if (len(*data) == 0) { return }
-	err := c_arch.Insert(
-		bson.M{
-			"t": now,
-			"data": *data,
-		})
-	if err != nil {
-		fmt.Println(err)
-	}
+	return &hash
 }
 
 // Connect to databases, then begin aggregation cycle
 func main() {
-	session, err := mgo.Dial("localhost")
+	fmt.Println("Connecting...")
+	session, err := mgo.Dial(host)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Connection Established!")
 	defer session.Close()
 
 	c_pos = session.DB("retailers").C("position")
 	c_arch = session.DB("retailers").C("archived")
 
 	for {
-		t := time.Now()
-	//	PushData(t, AggregateData(PullRecentData(time.Unix(0, 1425452375000 * int64(time.Millisecond)))))
-		PushData(t, AggregateData(PullRecentData(t)))
+		// t := time.Now()
+		t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
+		data := AggregateData(PullRecentData(t))
+
+		// StoreArchived(t, data)
+
+		// PushData(t, AggregateData(PullRecentData(time.Unix(0, 1425452375000 * int64(time.Millisecond)))))
 		time.Sleep(sleep_time)
 	}
 }
