@@ -10,6 +10,7 @@
 _obj
 _test
 gopkg.in
+pkg
 
 # Architecture specific extensions/prefixes
 *.[568vq]

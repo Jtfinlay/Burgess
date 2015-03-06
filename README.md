@@ -38,6 +38,7 @@ rvmsudo rackup                  # To run portal
  * [NodeJS](http://nodejs.org/) for data collection REST server
 * Data Processing
  * [TypeScript](http://www.typescriptlang.org/) to process metadata into useful position information
+ * [Go](https://golang.org/) to aggregate position data into simplified results for analytics
 * Web Portal
  * [Sinatra](http://www.sinatrarb.com/) web framework
  * [MongoDB](http://www.mongodb.org) database
