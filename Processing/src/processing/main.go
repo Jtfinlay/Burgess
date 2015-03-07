@@ -67,11 +67,14 @@ func main() {
 
 	c_pos = session.DB("retailers").C("position")
 	c_arch = session.DB("retailers").C("archived")
+	c_employ = session.DB("retailers").C("employees")
 
 	for {
 		// t := time.Now()
 		t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
 		data := AggregateData(PullRecentData(t))
+
+		UpdatePriorities(t, data)
 
 		// StoreArchived(t, data)
 
