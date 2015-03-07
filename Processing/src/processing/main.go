@@ -16,9 +16,9 @@ import (
 )
 
 var (
-	c_pos *mgo.Collection							// db connection
-	sleep_time time.Duration = 5 * time.Second		// period to aggregate data over
-	offset = int64(1 * time.Second)					// offset in case aggregation is slow
+	c_pos *mgo.Collection					// db connection
+	sleepDuration = 5 * time.Second			// period to aggregate data over
+	offset = int64(1 * time.Second)			// offset in case aggregation is slow
 	host = "ua-bws.cloudapp.net"
 )
 
@@ -30,7 +30,7 @@ var (
 func PullRecentData(tf time.Time) *[]Position {
 	var result []Position
 
-	ti := time.Unix(0, tf.UnixNano() - int64(sleep_time) - offset)
+	ti := time.Unix(0, tf.UnixNano() - int64(sleepDuration) - offset)
 	err := c_pos.Find(
 		bson.M{
 			"time": bson.M{
@@ -74,11 +74,11 @@ func main() {
 		t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
 		data := AggregateData(PullRecentData(t))
 
-		UpdatePriorities(t, data)
+		UpdatePriorities(data)
 
 		// StoreArchived(t, data)
 
 		// PushData(t, AggregateData(PullRecentData(time.Unix(0, 1425452375000 * int64(time.Millisecond)))))
-		time.Sleep(sleep_time)
+		time.Sleep(sleepDuration)
 	}
 }

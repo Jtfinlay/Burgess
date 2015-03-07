@@ -11,58 +11,91 @@ import (
 	"fmt"
 	"time"
 	"gopkg.in/mgo.v2"
-    "gopkg.in/mgo.v2/bson"
 )
 
 var (
-    Customers = make(map[string]*Customer, 0)               // active Customers
+    Customers = make(map[string]*Customer, 0)        // active Customers
     Employees = make(map[string]*Employee, 0)        // active Employees
     c_employ *mgo.Collection
 
-    EmployeesAll = make(map[bson.ObjectId]*Employee, 0)     // all Employees
+    EmployeesAll = make(map[string]*Employee, 0)     // all Employees
     EmployeePullTime time.Time
+
+    expireDuration = time.Minute
 )
 
 /*
  * Pull employee data into 'EmployeesAll'
  */
-func PullEmployeeData() {
+func pullEmployeeData() {
     var result []Employee
     err := c_employ.Find(nil).All(&result)
     if err != nil { panic(err) }
 
     for _,value := range result {
-        EmployeesAll[value.Id] = &value
+        EmployeesAll[value.MAC] = &value
     }
 }
 
 /*
  * Find employee by MAC address
  */
+func findEmployee(MAC string) *Employee {
+    if Employees[MAC] != nil {
+        return Employees[MAC]
+    }
+    if EmployeesAll[MAC] != nil {
+        Employees[MAC] = EmployeesAll[MAC]
+        Employees[MAC].FirstSeen = time.Now()
+        return Employees[MAC]
+    }
+    return nil
+}
 
 /*
  * Super function for updating priorities. This also helps track analytics-
- * based data. Need to keep this organized :O .
+ * based data.
  */
-func UpdatePriorities(t time.Time, data *map[string]*Position) {
+func UpdatePriorities(data *map[string]*Position) {
     // TODO - Filter by retailer
 
     // If it's been a while, update our EmployeeAll data
-    if t.UnixNano() - EmployeePullTime.UnixNano() > int64(time.Hour) {
-        PullEmployeeData()
-        EmployeePullTime = t
+    if time.Since(EmployeePullTime) > time.Hour {
+        pullEmployeeData()
+        EmployeePullTime = time.Now()
     }
 
-    for key,value := range *data {
-        fmt.Println(key, value)
+    // Update customers / employees
+    for _,value := range *data {
 
-        // Active Employee?
+        // Employee?
+        employee := findEmployee(value.Wifi)
+        if employee != nil {
+            employee.LastSeen = time.Now()
+            employee.Position = *value
+        } else if Customers[value.Wifi] != nil {
+            Customers[value.Wifi].LastSeen = time.Now()
+            Customers[value.Wifi].Position = *value
+        } else {
+            Customers[value.Wifi] = &Customer{value.Wifi, time.Now(),
+                time.Now(), *value, nil}
+        }
+    }
 
-
-        // Check whether employee or customer
-
-        // Update LastSeen & Position
+    // Remove expired data
+    for key,value := range Employees {
+        if time.Since(value.LastSeen) > expireDuration {
+            delete(Employees, key)
+        }
+    }
+    for key,value := range Customers {
+        if time.Since(value.LastSeen) > expireDuration {
+            delete(Customers, key)
+        }
     }
 
     // Perform Priority stuff
+    for key,value := range Customers {
+        fmt.Println(key, value)
+    }
 }

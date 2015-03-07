@@ -27,7 +27,7 @@ type (
 
 	/** Matches db 'archived' **/
 	Archived struct {
-		Mac string
+		MAC string
 		X float32
 		Y float32
 		Radius float32
