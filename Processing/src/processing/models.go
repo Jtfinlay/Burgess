@@ -17,21 +17,21 @@ type (
 	/** Matches db 'position' **/
 	Position struct {
 		Id bson.ObjectId "_id"
-		Bluetooth string
-		Wifi string
-		X float32
-		Y float32
-		Radius float32
-		Time time.Time
+		Bluetooth string "bluetooth"
+		Wifi string "wifi"
+		X float32 "x"
+		Y float32 "y"
+		Radius float32 "radius"
+		Time time.Time "time"
 	}
 
 	/** Matches db 'archived' **/
 	Archived struct {
-		MAC string
-		X float32
-		Y float32
-		Radius float32
-		Priority float32
+		MAC string "mac"
+		X float32 "x"
+		Y float32 "y"
+		Radius float32 "radius"
+		Priority float32 "priority"
 	}
 
 	/** Object representing customer in store **/
@@ -65,7 +65,14 @@ type (
 )
 
 /** Convert Position struct to Archived struct **/
-func ToArchived(value *Position) *Archived {
-	return &Archived{value.Wifi, value.X, value.Y,
-					 value.Radius, float32(0)}
+func (v *Position) toArchived() *Archived {
+	return &Archived{v.Wifi, v.X, v.Y, v.Radius, float32(0)}
+}
+
+/** Returns the Interaction containing specific customer and whether active **/
+func findByCustomer(a []*Interaction, c *Customer) *Interaction {
+	for _,value := range a {
+		if value.active && value.Customer == c { return value }
+	}
+	return nil
 }

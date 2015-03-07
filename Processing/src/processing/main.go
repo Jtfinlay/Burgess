@@ -27,7 +27,7 @@ var (
  *
  * tf: Upper limit for query
  */
-func PullRecentData(tf time.Time) *[]Position {
+func pullRecentData(tf time.Time) *[]Position {
 	var result []Position
 
 	ti := time.Unix(0, tf.UnixNano() - int64(sleepDuration) - offset)
@@ -44,7 +44,7 @@ func PullRecentData(tf time.Time) *[]Position {
 }
 
 //  Aggregate position data to remove duplicate users
-func AggregateData(data *[]Position) *map[string]*Position {
+func aggregateData(data *[]Position) *map[string]*Position {
 	hash := make(map[string]*Position)
 	for i := range *data {
 		element := (*data)[i]
@@ -72,7 +72,7 @@ func main() {
 	for {
 		// t := time.Now()
 		t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
-		data := AggregateData(PullRecentData(t))
+		data := aggregateData(pullRecentData(t))
 
 		UpdatePriorities(data)
 

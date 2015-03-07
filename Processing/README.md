@@ -7,3 +7,8 @@ go get gopkg.in/mgo.v2
 go install processing
 ./bin/processing
 ```
+
+And to run the tests, just run the following from the same directory:
+```
+go test processing -v
+```
