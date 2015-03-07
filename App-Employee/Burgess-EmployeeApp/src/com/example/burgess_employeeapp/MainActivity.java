@@ -10,6 +10,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +27,7 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_main); 
 		
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -68,15 +70,24 @@ public class MainActivity extends ActionBarActivity {
 		final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 		mBluetoothAdapter = bluetoothManager.getAdapter();
 
+		//asks user to enable Bluetooth for collection
 		if (!mBluetoothAdapter.isEnabled()) {
 			Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 		}
 		
+		//enable wifi if it is not enabled. needed to get mac address. set to previous state when done
+		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		boolean previousState = wifiManager.isWifiEnabled();
+		wifiManager.setWifiEnabled(true);
+		WifiInfo wInfo = wifiManager.getConnectionInfo();
+		String macAddress = wInfo.getMacAddress();
+		wifiManager.setWifiEnabled(previousState);
+		
 		if (!scanRunning)
 		{
 			TextView textView = (TextView) findViewById(R.id.text);
-			textView.setText(mBluetoothAdapter.getAddress());
+			textView.setText(macAddress);
 			mBluetoothAdapter.startDiscovery();
 		}
 		else
