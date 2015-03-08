@@ -7,11 +7,18 @@
 **Bluetooth metadata collection** is performed by devices running the android application. The devices monitor for any Bluetooth beacons, collect their MAC addresses and signal strength, and then forwards the metadata along to Tier 2 for processing.
 
 ### Aircrack-bws Setup
-To setup aircrack first make sure you have latest. Then at the root of your repo enter 
+To setup aircrack first make sure you have latest. 
+
+Then follow the instructions at http://www.aircrack-ng.org/doku.php?id=mac80211&DokuWiki=afca843b5c58a99930406b7aa45e2dd2 to install iw. They are at the bottom of the page.
+
+Finally at the root of your repo enter 
 ```
 git submodule init
 git submodule update
 cd aircrack-bws/aircrack-ng-2.1-rc1
+sudo apt-get install libssl-dev
+sudo apt-get install libnl-3-dev
+sudo apt-get install libnl-genl-3-dev
 make
 ```
 
