@@ -132,10 +132,14 @@ export class PositionSolver {
 		if (latestEntries.length >= 3) {
 			var pairs = this.GenerateStationPairs(latestEntries);
 			var points = this.DeterminePoints(pairs, latestEntries);
-			var pos = this.AveragePoints(points);
-			var uncertainty = this.CalcStdDeviation(pos, points);
 
-			result = new common.PositionEntry(mac, pos.x(), pos.y(), uncertainty, new Date(), "");
+			// only do calculations if some points could be determined
+			if (points.length > 0) {
+				var pos = this.AveragePoints(points);
+				var uncertainty = this.CalcStdDeviation(pos, points);
+
+				result = new common.PositionEntry(mac, pos.x(), pos.y(), uncertainty, new Date(), "");
+			}
 		}
 
 		return result;
