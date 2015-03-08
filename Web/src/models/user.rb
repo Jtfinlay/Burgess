@@ -37,7 +37,7 @@ class User
     end
 
 	def getMapDetails
-		return {"width": @width, "height": @height, "store_img": @store_img}
+		return {"width" => @width, "height" => @height, "store_img"=> @store_img}
 	end
 
     def toObject
