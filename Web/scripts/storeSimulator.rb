@@ -108,7 +108,8 @@ end
 class StoreSimulator
   def initialize
     @people = [];
-    @rand = Random.new
+    @rand = Random.new;
+    @snapshotData = [];
   end
 
   def createControlPoints
@@ -163,11 +164,9 @@ class StoreSimulator
   end
 
   def clearDB(from, to)
-    return
-    startTime = Time.at(from).to_datetime
-    endTime = Time.at(to).to_datetime
-    posCollection = @db["position"]
-    posCollection.remove( { '$and' => { '&gte' => startTime, '&lte' => endTime }} );
+    startTime = Time.at(from)
+    endTime = Time.at(to)
+    @posCollection.remove( { '$and' => [ '&gte' => startTime, '&lte' => endTime ]} );
   end
 
   def generateRandomMac
@@ -204,12 +203,36 @@ class StoreSimulator
 
   end
 
-  def createSnapshot
+  def createSnapshot time
+    @people.each do |person|
+      doc =
+      {
+        "bluetooth" => nil,
+        "wifi" => person.mac,
+        "x" => person.position.x,
+        "y" => person.position.y,
+        "time" => Time.at(time),
+        "radius" => 1.0
+      }
+      @snapshotData.push(doc);
+    end
 
   end
 
   def storeSnapshots
+    begin
+      writeOp = @posCollection.initialize_unordered_bulk_op
 
+      @snapshotData.each do |data|
+        writeOp.insert(data)
+      end
+
+      writeOp.execute
+    rescue => ex
+      puts "Failed to insert data to DB. #{ex}"
+    end
+
+    @snapshotData = []
   end
 
   def draw
@@ -237,32 +260,37 @@ class StoreSimulator
     output.each do |line|
       puts line.join
     end
-
-    #slowing things down so I can see what is happening
-    #sleep(0.08)
   end
 
   # duration in seconds, end-time is seconds
-  def run(duration, endTime = Time.now.to_i)
+  def run(showOutput, duration, endTime = Time.now.to_i)
     self.createControlPoints
 
     startTime = endTime - duration;
     currentTime = startTime;
+    counter = 0;
 
     @client = MongoClient.new
     @db = @client.db("retailers");
+    @posCollection = @db["position"]
     self.clearDB(startTime, endTime);
 
     while (currentTime < endTime) do
-
       step(1)
-      # take a snapshot
-      # if interval exceeded store snapshot
-      self.draw
+      self.createSnapshot(currentTime)
+      if STORAGE_INTERVAL <= counter
+        self.storeSnapshots
+        counter = 0
+      end
+      self.draw if showOutput
       currentTime += 1;
+      counter = [counter + 1, STORAGE_INTERVAL].min
     end
+
+    #make sure all data is saved
+    self.storeSnapshots
   end
 end
 
 sim = StoreSimulator.new()
-sim.run(10000);
+sim.run(true, 100);
