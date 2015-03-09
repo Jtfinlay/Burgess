@@ -6,6 +6,7 @@ import express = require('express');
 import bodyParser = require('body-parser');
 import mongodb = require('mongodb');
 import wifi = require('../Wifi/WifiPositionSolver');
+import bluetooth = require('../Bluetooth/BluetoothPositionSolver');
 import constants = require('../Constants');
 import common = require('../Common');
 
@@ -23,11 +24,11 @@ interface RawBluetoothData {
 export class Receiver {
 
 	private m_db: mongodb.Db;
-    private m_solver: wifi.PositionSolver;
+    private m_solver: bluetooth.PositionSolver;
     private m_app: express.Express;
     private m_stationMacs: string[];
 
-	constructor(solver: wifi.PositionSolver, db: mongodb.Db, app: express.Express) {
+	constructor(solver: bluetooth.PositionSolver, db: mongodb.Db, app: express.Express) {
 		this.m_solver = solver;
         this.m_db = db;
         this.m_app = app;

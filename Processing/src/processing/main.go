@@ -16,9 +16,9 @@ import (
 )
 
 var (
-	c_pos *mgo.Collection							// db connection
-	sleep_time time.Duration = 5 * time.Second		// period to aggregate data over
-	offset = int64(1 * time.Second)					// offset in case aggregation is slow
+	c_pos *mgo.Collection					// db connection
+	sleepDuration = 5 * time.Second			// period to aggregate data over
+	offset = int64(1 * time.Second)			// offset in case aggregation is slow
 	host = "ua-bws.cloudapp.net"
 )
 
@@ -27,10 +27,10 @@ var (
  *
  * tf: Upper limit for query
  */
-func PullRecentData(tf time.Time) *[]Position {
+func pullRecentData(tf time.Time) *[]Position {
 	var result []Position
 
-	ti := time.Unix(0, tf.UnixNano() - int64(sleep_time) - offset)
+	ti := time.Unix(0, tf.UnixNano() - int64(sleepDuration) - offset)
 	err := c_pos.Find(
 		bson.M{
 			"time": bson.M{
@@ -44,7 +44,7 @@ func PullRecentData(tf time.Time) *[]Position {
 }
 
 //  Aggregate position data to remove duplicate users
-func AggregateData(data *[]Position) *map[string]*Position {
+func aggregateData(data *[]Position) *map[string]*Position {
 	hash := make(map[string]*Position)
 	for i := range *data {
 		element := (*data)[i]
@@ -67,15 +67,18 @@ func main() {
 
 	c_pos = session.DB("retailers").C("position")
 	c_arch = session.DB("retailers").C("archived")
+	c_employ = session.DB("retailers").C("employees")
 
 	for {
 		// t := time.Now()
 		t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
-		data := AggregateData(PullRecentData(t))
+		data := aggregateData(pullRecentData(t))
+
+		UpdatePriorities(data)
 
 		// StoreArchived(t, data)
 
 		// PushData(t, AggregateData(PullRecentData(time.Unix(0, 1425452375000 * int64(time.Millisecond)))))
-		time.Sleep(sleep_time)
+		time.Sleep(sleepDuration)
 	}
 }

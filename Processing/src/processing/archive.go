@@ -22,7 +22,7 @@ var (
 func FormatArchived(hash *map[string]*Position) *[]Archived {
     result := make([]Archived, 0)
     for _,value := range *hash {
-        result = append(result, *ToArchived(value))
+        result = append(result, *value.toArchived())
     }
     return &result
 }

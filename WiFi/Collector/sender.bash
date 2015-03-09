@@ -7,7 +7,7 @@ fi
 
 ID="\"id\":\"$1\", "
 
-DEST="http://172.28.68.179:8000/drone"
+DEST="http://10.20.61.103:8000/drone"
 BODY_START="{$ID\"data\":["
 BODY_END="]}"
 

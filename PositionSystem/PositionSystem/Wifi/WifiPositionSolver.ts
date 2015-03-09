@@ -27,14 +27,14 @@ export class PositionSolver {
 
 		// TODO::JT store this in DB and retrieve. Just hacking together for the time being
 		this.m_stations = {
-			'vm-drone': {
-				id: 'vm-drone', point: new common.Point(0, 0)
+			'rasp-1': {
+				id: 'rasp-`', point: new common.Point(0.0, 1.0)
 			},
-			'vm-drone2': {
-				id: 'vm-drone2', point: new common.Point(0, 15)
+			'rasp-2': {
+				id: 'rasp-2', point: new common.Point(2.0, 0.0)
 			},
-			'vm-drone3': {
-				id: 'vm-drone3', point: new common.Point(25, 0)
+			'rasp-3': {
+				id: 'rasp-3', point: new common.Point(1.0, 1.0)
 			}
 		}
 	}
@@ -132,10 +132,14 @@ export class PositionSolver {
 		if (latestEntries.length >= 3) {
 			var pairs = this.GenerateStationPairs(latestEntries);
 			var points = this.DeterminePoints(pairs, latestEntries);
-			var pos = this.AveragePoints(points);
-			var uncertainty = this.CalcStdDeviation(pos, points);
 
-			result = new common.PositionEntry(mac, pos.x(), pos.y(), uncertainty, new Date(), "");
+			// only do calculations if some points could be determined
+			if (points.length > 0) {
+				var pos = this.AveragePoints(points);
+				var uncertainty = this.CalcStdDeviation(pos, points);
+
+				result = new common.PositionEntry(mac, pos.x(), pos.y(), uncertainty, new Date(), "");
+			}
 		}
 
 		return result;

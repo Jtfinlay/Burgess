@@ -49,6 +49,7 @@ export class Receiver {
 		var self = this;
 		app.post('/rawWifi', function (req: express.Request, res: express.Response) {
 			var macsToUpdate = self.saveRawToDB(req.body, function (macsToUpdate) {
+				console.log("Solving for : " + macsToUpdate.length);
 				self.m_solver.solveFor(macsToUpdate);
 			});
 			res.sendStatus(200);
