@@ -34,6 +34,8 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Bluetooth\BluetoothReceiver.ts" />
+    <TypeScriptCompile Include="Bluetooth\BluetoothPositionSolver.ts" />
     <TypeScriptCompile Include="Common.ts" />
     <TypeScriptCompile Include="Scripts\typings\body-parser\body-parser.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\express\express.d.ts" />
@@ -47,6 +49,7 @@
     <TypeScriptCompile Include="Wifi\WifiReceiver.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Bluetooth\" />
     <Folder Include="Wifi\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />

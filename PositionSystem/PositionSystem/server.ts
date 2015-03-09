@@ -1,6 +1,8 @@
 ﻿/// <reference path="Scripts/typings/mongodb/mongodb.d.ts" />
 
+import express = require('express');
 import WifiReceiver = require('./Wifi/WifiReceiver');
+import BluetoothReciever = require('./Bluetooth/BluetoothReceiver');
 import WifiSolver = require('./Wifi/WifiPositionSolver');
 import constants = require('./Constants');
 import mongo = require('mongodb');
@@ -17,10 +19,15 @@ mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
 			return;
 		}
 
+        var app = express();
+
 		var solver = new WifiSolver.PositionSolver(rawDB, posDB);
 
-		var wifiRxer = new WifiReceiver.Receiver(solver, rawDB);
-		wifiRxer.run();
+        var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
+        var bluetoothRxer = new BluetoothReciever.Receiver(solver, rawDB, app);
+
+        wifiRxer.run();
+        bluetoothRxer.run();
 	});
 });
 

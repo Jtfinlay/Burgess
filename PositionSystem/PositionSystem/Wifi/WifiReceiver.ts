@@ -27,11 +27,13 @@ interface RawWifiData {
 export class Receiver {
 
 	private m_db: mongodb.Db;
-	private m_solver: wifi.PositionSolver;
+    private m_solver: wifi.PositionSolver;
+    private m_app: express.Express;
 
-	constructor(solver: wifi.PositionSolver, db: mongodb.Db) {
+	constructor(solver: wifi.PositionSolver, db: mongodb.Db, app: express.Express) {
 		this.m_solver = solver;
-		this.m_db = db;
+        this.m_db = db;
+        this.m_app = app;
 	}
 
 	run(): void {
