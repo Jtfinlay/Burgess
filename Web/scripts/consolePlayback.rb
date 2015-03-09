@@ -4,6 +4,7 @@ include Mongo
 
 WIDTH = 13
 HEIGHT = 12
+FPS = 20
 
 class ConsolePlayback
 
@@ -50,15 +51,25 @@ class ConsolePlayback
       endTime = positions.first['time'].to_i
       curTime = startTime
       
+      p = ProgressBar.create(:total => (endTime - startTime + 1))
+      lastDrawTime = Time.now
+      
       while curTime <= endTime
+        start = Time.now
         if positions.last['time'].to_i == curTime
-          draw(positions.last, playbackRate, mac)
+          if (Time.now - lastDrawTime) > (1.0 / FPS)
+            draw(positions.last, playbackRate, mac)
+            lastDrawTime = Time.now
+          end
           positions.pop
         end
-        
-        sleep(1.0 / playbackRate)
+        e = Time.now
         
         curTime += 1
+        p.increment
+        
+        sleepTime = 1.0 / playbackRate - (e - start)
+        sleep(sleepTime) if sleepTime > 0
       end
     else
       puts "Failed to find positions for #{mac}"
