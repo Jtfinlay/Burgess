@@ -65,9 +65,9 @@ type (
 	}
 )
 
-/** Convert Position struct to Archived struct **/
-func (v *Position) toArchived() *Archived {
-	return &Archived{v.Wifi, v.X, v.Y, v.Radius, float32(0)}
+/** Convert Customer struct to Customer struct **/
+func (c *Customer) toArchived() *Archived {
+	return &Archived{c.MAC, c.Position.X, c.Position.Y, c.Position.Radius, c.Priority}
 }
 
 /** Returns the Interaction containing specific customer **/

@@ -145,7 +145,7 @@ func updateInteractions() {
  *	Super function for updating priorities. This also helps track analytics-
  *	based data.
  */
-func UpdatePriorities(data *map[string]*Position) {
+func UpdatePriorities(data *map[string]*Position) *map[string]*Customer {
     // TODO::JF - Filter by retailer
 
     // If it's been a while, update our EmployeeAll data
@@ -157,6 +157,5 @@ func UpdatePriorities(data *map[string]*Position) {
 	updateUsers(data)
 	updateInteractions()
 
-    // Perform Priority stuff
-
+	return &Customers
 }

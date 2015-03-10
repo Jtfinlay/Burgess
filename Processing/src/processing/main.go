@@ -70,15 +70,13 @@ func main() {
 	c_employ = session.DB("retailers").C("employees")
 
 	for {
-		// t := time.Now()
-		t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
+		t := time.Now()
+		// t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
 		data := aggregateData(pullRecentData(t))
+		priorityData := UpdatePriorities(data)
 
-		UpdatePriorities(data)
+		StoreArchived(t, priorityData)
 
-		// StoreArchived(t, data)
-
-		// PushData(t, AggregateData(PullRecentData(time.Unix(0, 1425452375000 * int64(time.Millisecond)))))
 		time.Sleep(sleepDuration)
 	}
 }
