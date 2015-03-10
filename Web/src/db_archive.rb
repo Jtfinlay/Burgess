@@ -9,7 +9,7 @@ class ArchiveData
         conn = MongoSingleton::instance
         db = conn.db('retailers')
         @position = db['position']
-		@archived = db['archived']
+		@archived = db['archived_fake']
     end
 
 	def archiveDataSince(y, m, d, timezone)
