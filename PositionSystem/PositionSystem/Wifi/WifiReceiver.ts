@@ -1,62 +1,44 @@
-﻿/// <reference path='../Scripts/typings/express/express.d.ts' />
-/// <reference path='../Scripts/typings/body-parser/body-parser.d.ts' />
-/// <reference path='../Scripts/typings/mongodb/mongodb.d.ts' />
+﻿/// <reference path='../Scripts/typings/mongodb/mongodb.d.ts' />
+/// <reference path='../Scripts/typings/express/express.d.ts' />
 
 import express = require('express');
-import bodyParser = require('body-parser');
 import mongodb = require('mongodb');
 import wifi = require('./WifiPositionSolver');
 import constants = require('../Constants');
 import common = require('../Common');
 
 interface RawWifiEntry {
-	mac: string;
-	strength: number;
-	time: string;
+    mac: string;
+    strength: number;
+    time: string;
 }
 
 interface DroneData {
-	id: string;
-	data: RawWifiEntry[];
+    id: string;
+    data: RawWifiEntry[];
 }
 
 interface RawWifiData {
-	wifiData: DroneData[];
+    wifiData: DroneData[];
 }
 
 export class Receiver {
 
 	private m_db: mongodb.Db;
     private m_solver: wifi.PositionSolver;
-    private m_app: express.Express;
 
 	constructor(solver: wifi.PositionSolver, db: mongodb.Db, app: express.Express) {
 		this.m_solver = solver;
         this.m_db = db;
-        this.m_app = app;
-	}
 
-	run(): void {
-		var app = express();
-		var port = 9000;
-
-		app.use(bodyParser.urlencoded(
-			{
-				extended: true
-			}));
-		app.use(bodyParser.json());
-
-		var self = this;
-		app.post('/rawWifi', function (req: express.Request, res: express.Response) {
-			var macsToUpdate = self.saveRawToDB(req.body, function (macsToUpdate) {
-				console.log("Solving for : " + macsToUpdate.length);
-				self.m_solver.solveFor(macsToUpdate);
-			});
-			res.sendStatus(200);
-		});
-
-		console.log('Gathering Wifi Raw Data...');
-		app.listen(port);
+        var self = this;
+        app.post('/rawWifi', function (req: express.Request, res: express.Response) {
+            var macsToUpdate = self.saveRawToDB(req.body, function (macsToUpdate) {
+                console.log("Wifi Solving for : " + macsToUpdate.length);
+                self.m_solver.solveFor(macsToUpdate);
+            });
+            res.sendStatus(200);
+        });
 	}
 
 	private saveRawToDB(raw: RawWifiData, cb: (updatedMacs: string[]) => void): void {

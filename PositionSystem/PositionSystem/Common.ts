@@ -23,7 +23,7 @@ export class WifiEntry {
 export class BluetoothEntry {
     constructor(
         public mac: string,
-        public stationId: number,
+        public stationId: string,
         public strength: number,
         public time: string) { }
 }

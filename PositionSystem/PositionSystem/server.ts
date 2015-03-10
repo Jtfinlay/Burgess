@@ -1,6 +1,9 @@
 ﻿/// <reference path="Scripts/typings/mongodb/mongodb.d.ts" />
+/// <reference path='Scripts/typings/express/express.d.ts' />
+/// <reference path='Scripts/typings/body-parser/body-parser.d.ts' />
 
 import express = require('express');
+import bodyParser = require('body-parser');
 import WifiReceiver = require('./Wifi/WifiReceiver');
 import BluetoothReciever = require('./Bluetooth/BluetoothReceiver');
 import WifiSolver = require('./Wifi/WifiPositionSolver');
@@ -14,13 +17,20 @@ mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
 		return;
 	}
 
-	mongo.MongoClient.connect(constants.POS_DB_URL, function (err, posDB) {
-		if (err) {
-			console.log("Failed to connect to position DB : " + err)
+    mongo.MongoClient.connect(constants.POS_DB_URL, function (err, posDB) {
+        if (err) {
+            console.log("Failed to connect to position DB : " + err)
 			return;
-		}
+        }
 
+        var port = 9000;
         var app = express();
+
+        app.use(bodyParser.urlencoded(
+            {
+                extended: true
+            }));
+        app.use(bodyParser.json());
 
         var solver = new WifiSolver.PositionSolver(rawDB, posDB);
         var btSolver = new BluetoothSolver.PositionSolver(rawDB, posDB);
@@ -28,8 +38,7 @@ mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
         var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
         var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, app);
 
-        wifiRxer.run();
-        bluetoothRxer.run();
+        console.log('Gathering Raw Data...');
+        app.listen(port);
 	});
 });
-
