@@ -8,17 +8,17 @@
 package main
 
 import (
-	// "fmt"
+	"models"
 	"time"
 	"gopkg.in/mgo.v2"
 )
 
 var (
-    Customers = make(map[string]*Customer, 0)        // active Customers
-    Employees = make(map[string]*Employee, 0)        // active Employees
+    Customers = make(map[string]*models.Customer, 0)        // active Customers
+    Employees = make(map[string]*models.Employee, 0)        // active Employees
 
 	c_employ *mgo.Collection
-    EmployeesAll = make(map[string]*Employee, 0)     // all Employees
+    EmployeesAll = make(map[string]*models.Employee, 0)     // all Employees
     EmployeePullTime time.Time
 
     userExpiration = 20 * time.Second			// Time until user considered dead
@@ -30,7 +30,7 @@ var (
  *	Pull employee data into 'EmployeesAll'
  */
 func pullEmployeeData() {
-    var result []Employee
+    var result []models.Employee
     err := c_employ.Find(nil).All(&result)
     if err != nil { panic(err) }
 
@@ -42,7 +42,7 @@ func pullEmployeeData() {
 /*
  *	Find employee by MAC address.
  */
-func findEmployee(MAC string) *Employee {
+func findEmployee(MAC string) *models.Employee {
     if Employees[MAC] != nil {
         return Employees[MAC]
     }
@@ -57,7 +57,7 @@ func findEmployee(MAC string) *Employee {
 /*
  *	Update employees & customers with new positions and time
  */
-func updateUsers(data *map[string]*Position) {
+func updateUsers(data *map[string]*models.Position) {
 
     for _,value := range *data {
 
@@ -70,7 +70,7 @@ func updateUsers(data *map[string]*Position) {
             Customers[value.Wifi].LastSeen = time.Now()
             Customers[value.Wifi].Position = *value
         } else {
-            Customers[value.Wifi] = &Customer{value.Wifi, time.Now(),
+            Customers[value.Wifi] = &models.Customer{value.Wifi, time.Now(),
                 time.Now(), *value, time.Now(), 0, nil}
         }
     }
@@ -92,12 +92,12 @@ func updateUsers(data *map[string]*Position) {
 		for i,interaction := range employee.Interactions {
 			if time.Since(interaction.LastTime) > interactionExpiration {
 				// TODO::JF Should store this event for analytics
-				eTime := interaction.getPriorityTime()
+				eTime := interaction.GetPriorityTime()
 				if eTime.UnixNano() > interaction.Customer.ExpiryTime.UnixNano() {
 					interaction.Customer.ExpiryTime = eTime
 				}
 				// kill the interaction
-				interaction.Customer.removeInteraction(interaction)
+				interaction.Customer.RemoveInteraction(interaction)
 				employee.Interactions = append(employee.Interactions[:i],
 					employee.Interactions[i+1:]...)
 			}
@@ -116,11 +116,11 @@ func updateInteractions() {
 			if employee.Position.X < customer.Position.X - interactionDistance {continue}
 			if employee.Position.Y < customer.Position.Y - interactionDistance {continue}
 
-			interaction := findByCustomer(employee.Interactions, customer)
+			interaction := models.FindByCustomer(employee.Interactions, customer)
 			if interaction != nil {
 				interaction.LastTime = time.Now()
 			} else {
-				interaction = &Interaction{employee, customer, time.Now(), time.Now()}
+				interaction = &models.Interaction{employee, customer, time.Now(), time.Now()}
 				customer.Interactions = append(customer.Interactions, interaction)
 				employee.Interactions = append(employee.Interactions, interaction)
 			}
@@ -129,11 +129,11 @@ func updateInteractions() {
 		// Priority
 		if len(customer.Interactions) == 0 {
 			dt := float32(customer.ExpiryTime.UnixNano() -
-				time.Now().UnixNano() + int64(5*time.Second))
+				time.Now().UnixNano() + int64(sleepDuration))
 			if dt == 0 {
 				customer.Priority = 1
 			} else {
-				customer.Priority += (1-customer.Priority)*float32(5*time.Second)/dt
+				customer.Priority += (1-customer.Priority)*float32(sleepDuration)/dt
 			}
 			if customer.Priority > 1 { customer.Priority = 1}
 			if customer.Priority < 0 { customer.Priority = 0}
@@ -145,7 +145,7 @@ func updateInteractions() {
  *	Super function for updating priorities. This also helps track analytics-
  *	based data.
  */
-func UpdatePriorities(data *map[string]*Position) *map[string]*Customer {
+func UpdatePriorities(data *map[string]*models.Position) *map[string]*models.Customer {
     // TODO::JF - Filter by retailer
 
     // If it's been a while, update our EmployeeAll data

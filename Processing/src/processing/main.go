@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"time"
 	"gopkg.in/mgo.v2"
+	"models"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -27,8 +28,8 @@ var (
  *
  * tf: Upper limit for query
  */
-func pullRecentData(tf time.Time) *[]Position {
-	var result []Position
+func pullRecentData(tf time.Time) *[]models.Position {
+	var result []models.Position
 
 	ti := time.Unix(0, tf.UnixNano() - int64(sleepDuration) - offset)
 	err := c_pos.Find(
@@ -44,8 +45,8 @@ func pullRecentData(tf time.Time) *[]Position {
 }
 
 //  Aggregate position data to remove duplicate users
-func aggregateData(data *[]Position) *map[string]*Position {
-	hash := make(map[string]*Position)
+func aggregateData(data *[]models.Position) *map[string]*models.Position {
+	hash := make(map[string]*models.Position)
 	for i := range *data {
 		element := (*data)[i]
 		if hash[element.Wifi] == nil || hash[element.Wifi].Radius > element.Radius {

@@ -5,7 +5,7 @@
  *	Date: March 6th, 2015
  */
 
-package main
+package models
 
 import (
 	"time"
@@ -66,12 +66,12 @@ type (
 )
 
 /** Convert Customer struct to Customer struct **/
-func (c *Customer) toArchived() *Archived {
+func (c *Customer) ToArchived() *Archived {
 	return &Archived{c.MAC, c.Position.X, c.Position.Y, c.Position.Radius, c.Priority}
 }
 
 /** Returns the Interaction containing specific customer **/
-func findByCustomer(a []*Interaction, c *Customer) *Interaction {
+func FindByCustomer(a []*Interaction, c *Customer) *Interaction {
 	for _,value := range a {
 		if value.Customer == c { return value }
 	}
@@ -79,7 +79,7 @@ func findByCustomer(a []*Interaction, c *Customer) *Interaction {
 }
 
 /** Remove interaction from Customer **/
-func (c *Customer) removeInteraction(interaction *Interaction) {
+func (c *Customer) RemoveInteraction(interaction *Interaction) {
 	for i,value := range c.Interactions {
 		if value == interaction {
 			c.Interactions = append(c.Interactions[:i], c.Interactions[i+1:]...)
@@ -88,7 +88,7 @@ func (c *Customer) removeInteraction(interaction *Interaction) {
 }
 
 /** Get preferred wait time for completed interaction **/
-func (i *Interaction) getPriorityTime() time.Time {
+func (i *Interaction) GetPriorityTime() time.Time {
 	t := time.Since(i.StartTime)
 	if t >= (1 * time.Minute) {
 		return time.Unix(0, time.Now().UnixNano() + int64(15*time.Minute))

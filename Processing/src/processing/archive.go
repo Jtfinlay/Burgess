@@ -12,6 +12,7 @@ import (
     "time"
     "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+    "models"
 )
 
 var (
@@ -19,16 +20,16 @@ var (
 )
 
 /** Convert from Customer hash to Archived array **/
-func FormatArchived(hash *map[string]*Customer) *[]Archived {
-    result := make([]Archived, 0)
+func FormatArchived(hash *map[string]*models.Customer) *[]models.Archived {
+    result := make([]models.Archived, 0)
     for _,value := range *hash {
-        result = append(result, *value.toArchived())
+        result = append(result, *value.ToArchived())
     }
     return &result
 }
 
 /** Push aggregated data to the archive database **/
-func StoreArchived(now time.Time, customers *map[string]*Customer) {
+func StoreArchived(now time.Time, customers *map[string]*models.Customer) {
     data := FormatArchived(customers)
     if (len(*data) == 0) { return }
 
