@@ -55,12 +55,12 @@ class BurgessApp < Sinatra::Base
         erb :timelapse
     end
 
-	get '/timelapse/data' do
-		session[:timelast] ||= Time.now - 15
-		session[:timelast] = Time.now - 15 if session[:timelast] > 20
+	get '/livefeed/data' do
+		session[:timelast] ||= Time.now - 5
+		session[:timelast] = Time.now - 5 if session[:timelast] > Time.now - 10
 		result = settings.db_archived.getPositionsSince(session[:timelast])
 		session[:timelast] = Time.now
-		return result
+		return result.to_json
 	end
 
     get '/analytics' do
