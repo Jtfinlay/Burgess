@@ -13,7 +13,6 @@ import (
 	"time"
 	"gopkg.in/mgo.v2"
 	"models"
-	// "livefeed"
 	"priority"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -81,5 +80,4 @@ func main() {
 
 		time.Sleep(sleepDuration)
 	}
-	// livefeed.Run()
 }

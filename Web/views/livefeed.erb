@@ -1,3 +1,11 @@
+<% if not authenticated? %>
+    <p>Please authenticate.</p>
+<% else %>
+
 <h1>Live Feed</h1>
 
 <canvas width="600" height="400" id="live_map"></canvas>
+
+
+
+<% end %>

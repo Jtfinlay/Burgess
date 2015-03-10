@@ -3,7 +3,7 @@
  * system.
  */
 
-package livefeed
+package main
 
 import (
     "fmt"
@@ -19,7 +19,7 @@ var (
     host = "ua-bws.cloudapp.net"
 )
 
-func storeUser(c *models.Archived) {
+func storeUser(c *[1]models.Archived) {
     err := col.Insert(
         bson.M {
             "t": time.Now(),
@@ -28,7 +28,7 @@ func storeUser(c *models.Archived) {
     if err != nil { panic(err) }
 }
 
-func Run() {
+func main() {
     fmt.Println("Connecting...")
     session, err := mgo.Dial(host)
     if err != nil {
@@ -38,14 +38,15 @@ func Run() {
     defer session.Close()
 
     move := float32(1)
-    user := &models.Archived{"zzzzzz", 5, 5, 1, 0}
+    users := &[...]models.Archived{models.Archived{"zzzzzz", 5, 5, 1, 0}}
 
     col = session.DB("retailers").C("archived_fake")
 
     for {
-        user.X += move
+        users[0].X += move
+        fmt.Println("Storing user")
 
-        storeUser(user)
+        storeUser(users)
 
         time.Sleep(sleepDuration)
         move *= -1
