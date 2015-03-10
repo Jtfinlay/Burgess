@@ -21,8 +21,8 @@ var (
     EmployeesAll = make(map[string]*Employee, 0)     // all Employees
     EmployeePullTime time.Time
 
-    userExpiration = time.Minute				// Time until user considered dead
-	interactionExpiration = 10 * time.Second 	// Time until interaction considered dead
+    userExpiration = 20 * time.Second			// Time until user considered dead
+	interactionExpiration =  10*time.Second 	// Time until interaction considered dead
 	interactionDistance = float32(4)			// 4 metres, boundary box
 )
 
@@ -71,7 +71,7 @@ func updateUsers(data *map[string]*Position) {
             Customers[value.Wifi].Position = *value
         } else {
             Customers[value.Wifi] = &Customer{value.Wifi, time.Now(),
-                time.Now(), *value, nil}
+                time.Now(), *value, time.Now(), 0, nil}
         }
     }
 
@@ -88,11 +88,18 @@ func updateUsers(data *map[string]*Position) {
     }
 
 	// Kill expired interactions
-	// TODO::JF Should store these 'events' for analytics
 	for _,employee := range Employees {
-		for _,interaction := range employee.Interactions {
+		for i,interaction := range employee.Interactions {
 			if time.Since(interaction.LastTime) > interactionExpiration {
-				interaction.active = false
+				// TODO::JF Should store this event for analytics
+				eTime := interaction.getPriorityTime()
+				if eTime.UnixNano() > interaction.Customer.ExpiryTime.UnixNano() {
+					interaction.Customer.ExpiryTime = eTime
+				}
+				// kill the interaction
+				interaction.Customer.removeInteraction(interaction)
+				employee.Interactions = append(employee.Interactions[:i],
+					employee.Interactions[i+1:]...)
 			}
 		}
 	}
@@ -102,24 +109,36 @@ func updateUsers(data *map[string]*Position) {
  *	Update interactions between Customers and Employees
  */
 func updateInteractions() {
-	for _,employee := range Employees {
-        for _,customer := range Customers {
-			if employee.Position.X > customer.Position.X + interactionDistance {break}
-			if employee.Position.Y > customer.Position.Y + interactionDistance {break}
-			if employee.Position.X < customer.Position.X - interactionDistance {break}
-			if employee.Position.Y < customer.Position.Y - interactionDistance {break}
+	for _,customer := range Customers {
+		for _,employee := range Employees {
+			if employee.Position.X > customer.Position.X + interactionDistance {continue}
+			if employee.Position.Y > customer.Position.Y + interactionDistance {continue}
+			if employee.Position.X < customer.Position.X - interactionDistance {continue}
+			if employee.Position.Y < customer.Position.Y - interactionDistance {continue}
 
 			interaction := findByCustomer(employee.Interactions, customer)
 			if interaction != nil {
 				interaction.LastTime = time.Now()
 			} else {
-				interaction = &Interaction{employee, customer, time.Now(),
-					time.Now(), true}
+				interaction = &Interaction{employee, customer, time.Now(), time.Now()}
 				customer.Interactions = append(customer.Interactions, interaction)
 				employee.Interactions = append(employee.Interactions, interaction)
 			}
 		}
-    }
+
+		// Priority
+		if len(customer.Interactions) == 0 {
+			dt := float32(customer.ExpiryTime.UnixNano() -
+				time.Now().UnixNano() + int64(5*time.Second))
+			if dt == 0 {
+				customer.Priority = 1
+			} else {
+				customer.Priority += (1-customer.Priority)*float32(5*time.Second)/dt
+			}
+			if customer.Priority > 1 { customer.Priority = 1}
+			if customer.Priority < 0 { customer.Priority = 0}
+		}
+	}
 }
 
 /*
