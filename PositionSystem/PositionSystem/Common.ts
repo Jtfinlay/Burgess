@@ -20,6 +20,14 @@ export class WifiEntry {
 		public stationId: string) { }
 }
 
+export class BluetoothEntry {
+    constructor(
+        public mac: string,
+        public stationId: string,
+        public strength: number,
+        public time: string) { }
+}
+
 export class Point {
 	private m_x: number;
 	private m_y: number;
