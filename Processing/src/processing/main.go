@@ -13,6 +13,8 @@ import (
 	"time"
 	"gopkg.in/mgo.v2"
 	"models"
+	// "livefeed"
+	"priority"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -66,18 +68,18 @@ func main() {
 	fmt.Println("Connection Established!")
 	defer session.Close()
 
-	c_pos = session.DB("retailers").C("position")
-	c_arch = session.DB("retailers").C("archived")
-	c_employ = session.DB("retailers").C("employees")
+	priority.Init(session, sleepDuration)
+
 
 	for {
 		t := time.Now()
 		// t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
 		data := aggregateData(pullRecentData(t))
-		priorityData := UpdatePriorities(data)
+		priorityData := priority.UpdatePriorities(data)
 
-		StoreArchived(t, priorityData)
+		priority.StoreArchived(t, priorityData)
 
 		time.Sleep(sleepDuration)
 	}
+	// livefeed.Run()
 }

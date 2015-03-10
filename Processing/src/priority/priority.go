@@ -1,11 +1,11 @@
 /*
- * This program performs the priority determination of customers.
+ * This program performs the priority calculation for customer help.
  *
  *	Author: James Finlay
  *	Date: March 6th, 2015
  */
 
-package main
+package priority
 
 import (
 	"models"
@@ -29,7 +29,7 @@ var (
 /*
  *	Pull employee data into 'EmployeesAll'
  */
-func pullEmployeeData() {
+func PullEmployeeData() {
     var result []models.Employee
     err := c_employ.Find(nil).All(&result)
     if err != nil { panic(err) }
@@ -42,7 +42,7 @@ func pullEmployeeData() {
 /*
  *	Find employee by MAC address.
  */
-func findEmployee(MAC string) *models.Employee {
+func FindEmployee(MAC string) *models.Employee {
     if Employees[MAC] != nil {
         return Employees[MAC]
     }
@@ -57,12 +57,12 @@ func findEmployee(MAC string) *models.Employee {
 /*
  *	Update employees & customers with new positions and time
  */
-func updateUsers(data *map[string]*models.Position) {
+func UpdateUsers(data *map[string]*models.Position) {
 
     for _,value := range *data {
 
         // Employee?
-        employee := findEmployee(value.Wifi)
+        employee := FindEmployee(value.Wifi)
         if employee != nil {
             employee.LastSeen = time.Now()
             employee.Position = *value
@@ -108,7 +108,7 @@ func updateUsers(data *map[string]*models.Position) {
 /*
  *	Update interactions between Customers and Employees
  */
-func updateInteractions() {
+func UpdateInteractions() {
 	for _,customer := range Customers {
 		for _,employee := range Employees {
 			if employee.Position.X > customer.Position.X + interactionDistance {continue}
@@ -150,12 +150,12 @@ func UpdatePriorities(data *map[string]*models.Position) *map[string]*models.Cus
 
     // If it's been a while, update our EmployeeAll data
     if time.Since(EmployeePullTime) > time.Hour {
-        pullEmployeeData()
+        PullEmployeeData()
         EmployeePullTime = time.Now()
     }
 
-	updateUsers(data)
-	updateInteractions()
+	UpdateUsers(data)
+	UpdateInteractions()
 
 	return &Customers
 }

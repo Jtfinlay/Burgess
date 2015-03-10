@@ -5,34 +5,36 @@
  *	Date: March 7th, 2015
  */
 
-package main
+package priority
 
 import (
     "testing"
     "time"
+    "models"
     "gopkg.in/mgo.v2/bson"
 )
 
 func resetValues() {
-    Customers = make(map[string]*Customer,0)
-    Employees = make(map[string]*Employee, 0)
-    EmployeesAll = make(map[string]*Employee, 0)
+    sleepDuration = 5*time.Second
+    Customers = make(map[string]*models.Customer,0)
+    Employees = make(map[string]*models.Employee, 0)
+    EmployeesAll = make(map[string]*models.Employee, 0)
 }
-func createCustomer(MAC string) *Customer {
-    var pos Position
-    return &Customer{MAC, time.Now(), time.Now(), pos, time.Now(), 0, nil}
+func createCustomer(MAC string) *models.Customer {
+    var pos models.Position
+    return &models.Customer{MAC, time.Now(), time.Now(), pos, time.Now(), 0, nil}
 }
-func createEmployee(MAC string) *Employee {
-    var pos Position
-    return &Employee{"", "", MAC, time.Now(), time.Now(), pos, nil}
+func createEmployee(MAC string) *models.Employee {
+    var pos models.Position
+    return &models.Employee{"", "", MAC, time.Now(), time.Now(), pos, nil}
 }
 func TestUpdateUsers(t *testing.T) {
     resetValues()
     // Set up the data
-    positions := make(map[string]*Position)
-    positions["c1"] = &Position{bson.NewObjectId(), "", "c1", 30, 30, 2, time.Now()}
-    positions["c2"] = &Position{bson.NewObjectId(), "", "c2", 30, 30, 2, time.Now()}
-    positions["e1"] = &Position{bson.NewObjectId(), "", "e1", 10, 10, 2, time.Now()}
+    positions := make(map[string]*models.Position)
+    positions["c1"] = &models.Position{bson.NewObjectId(), "", "c1", 30, 30, 2, time.Now()}
+    positions["c2"] = &models.Position{bson.NewObjectId(), "", "c2", 30, 30, 2, time.Now()}
+    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 10, 10, 2, time.Now()}
 
     EmployeesAll["e1"] = createEmployee("e1")
     Customers["c1"] = createCustomer("c1")
@@ -40,7 +42,7 @@ func TestUpdateUsers(t *testing.T) {
     Customers["c2"].ExpiryTime = time.Unix(0,
         time.Now().UnixNano() - int64(2*userExpiration))
 
-    updateUsers(&positions)
+    UpdateUsers(&positions)
 
     // Length of returned
     if len(Customers) != 2 {
@@ -69,11 +71,11 @@ func TestUpdateInteractions(t *testing.T) {
     resetValues()
 
     // Set up the data
-    positions := make(map[string]*Position)
-    positions["c1"] = &Position{bson.NewObjectId(), "", "c1", 50, 50, 2, time.Now()}
-    positions["c2"] = &Position{bson.NewObjectId(), "", "c2", 100, 100, 2, time.Now()}
-    positions["e1"] = &Position{bson.NewObjectId(), "", "e1", 47, 47, 2, time.Now()}
-    positions["e2"] = &Position{bson.NewObjectId(), "", "e2", 0, 0, 2, time.Now()}
+    positions := make(map[string]*models.Position)
+    positions["c1"] = &models.Position{bson.NewObjectId(), "", "c1", 50, 50, 2, time.Now()}
+    positions["c2"] = &models.Position{bson.NewObjectId(), "", "c2", 100, 100, 2, time.Now()}
+    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 47, 47, 2, time.Now()}
+    positions["e2"] = &models.Position{bson.NewObjectId(), "", "e2", 0, 0, 2, time.Now()}
 
     EmployeesAll["e1"] = createEmployee("e1")
     EmployeesAll["e2"] = createEmployee("e2")
@@ -82,8 +84,8 @@ func TestUpdateInteractions(t *testing.T) {
     Customers["c2"] = createCustomer("c2")
 
     // Execute methods
-    updateUsers(&positions)
-    updateInteractions()
+    UpdateUsers(&positions)
+    UpdateInteractions()
 
     // Tests!!!
     if len(Employees["e1"].Interactions) != 1 {
@@ -107,7 +109,7 @@ func TestUpdateInteractions(t *testing.T) {
     Employees["e1"].Interactions[0].LastTime =
         time.Unix(0,time.Now().UnixNano()-int64(time.Hour))
 
-    updateUsers(&positions)
+    UpdateUsers(&positions)
 
     if len(Employees["e1"].Interactions) > 0 {
         t.Error("UpdateInteractions: e1 should not have any interactions")
@@ -118,15 +120,15 @@ func TestUpdateInteractions(t *testing.T) {
 func TestPriorityValues(t *testing.T) {
     resetValues()
 
-    positions := make(map[string]*Position)
-    positions["c1"] = &Position{bson.NewObjectId(), "", "c1", 0, 0, 2, time.Now()}
-    positions["e1"] = &Position{bson.NewObjectId(), "", "e1", 0, 0, 2, time.Now()}
+    positions := make(map[string]*models.Position)
+    positions["c1"] = &models.Position{bson.NewObjectId(), "", "c1", 0, 0, 2, time.Now()}
+    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 0, 0, 2, time.Now()}
 
     Customers["c1"] = createCustomer("c1")
     Employees["e1"] = createEmployee("e1")
 
-    updateUsers(&positions)
-    updateInteractions()
+    UpdateUsers(&positions)
+    UpdateInteractions()
 
     if Customers["c1"].Priority != 0 {
         t.Error("C1 should have a priority of 0, it has:", Customers["c1"].Priority)
@@ -137,13 +139,13 @@ func TestPriorityValues(t *testing.T) {
         int64(time.Minute))
     positions["c1"].X = 100
 
-    updateUsers(&positions)
+    UpdateUsers(&positions)
 
     // Test at 5sec -> .08333
     Customers["c1"].ExpiryTime =
         time.Unix(0,time.Now().UnixNano()+int64(time.Minute)-int64(5*time.Second))
 
-    updateInteractions()
+    UpdateInteractions()
 
     if Customers["c1"].Priority > .084 || Customers["c1"].Priority < .083 {
         t.Error("C1 should have a priority of 0.08333, it has:", Customers["c1"].Priority)
@@ -153,7 +155,7 @@ func TestPriorityValues(t *testing.T) {
     Customers["c1"].Priority = 0.833333333
     Customers["c1"].ExpiryTime =
         time.Unix(0,time.Now().UnixNano()+int64(5*time.Second))
-    updateInteractions()
+    UpdateInteractions()
 
     if Customers["c1"].Priority > .92 || Customers["c1"].Priority < .91 {
         t.Error("C1 should have a priority of 0.91666, it has:", Customers["c1"].Priority)

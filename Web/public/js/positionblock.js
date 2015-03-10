@@ -6,15 +6,23 @@ function PositionBlock() {
 
 PositionBlock.prototype = {
 	constructor: PositionBlock,
-	
-	requestData: function(date, callback) {
+
+	/** Request data from given date **/
+	requestData_Date: function(date, callback) {
 		var that = this;
 		this.parseTimes(date);
 
 		$.post("timelapse/date",
 			{"value": date},
 			function(result) { that.loadData(result); callback(); }
-		)	
+		)
+	},
+	/** Request live data **/
+	requestData_Live: function(callback) {
+		var self = this;
+		$.get("livefeed/data",
+			function(result) { self.loadData(result); callback(); }
+		)
 	},
 	/** Format data from post return **/
 	loadData: function(result) {
@@ -53,7 +61,7 @@ PositionBlock.prototype = {
 		while (minIndex <= maxIndex) {
 			currentIndex = (minIndex + maxIndex) / 2 | 0;
         	currentElement = values[currentIndex];
- 
+
         	if (currentElement < t-error) {
             	minIndex = currentIndex + 1;
         	}

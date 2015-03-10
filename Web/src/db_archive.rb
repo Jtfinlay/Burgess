@@ -42,6 +42,15 @@ class ArchiveData
 
 	end
 
+    #
+    # Query data since
+    #
+    def getPositionsSince(ti)
+        result = @archived.find({"t" => {"$gt" => Time.at(ti)}}).to_a
+		result.each_index{|i| result[i]['t'] = result[i]['t'].to_i*1000}
+        return result
+    end
+
 	#
 	# Query archived data for given day
 	#

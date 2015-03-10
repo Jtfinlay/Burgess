@@ -10,5 +10,5 @@ go install processing
 
 And to run the tests, just run the following from the same directory:
 ```
-go test processing -v
+go test priority -v
 ```

@@ -5,7 +5,7 @@
  *	Date: March 6th, 2015j
  */
 
-package main
+package priority
 
 import (
     // "fmt"
@@ -17,7 +17,14 @@ import (
 
 var (
     c_arch *mgo.Collection
+    sleepDuration time.Duration
 )
+
+func Init(session *mgo.Session, sleepDur time.Duration) {
+    c_arch = session.DB("retailers").C("archived")
+    c_employ = session.DB("retailers").C("employees")
+    sleepDuration = sleepDur
+}
 
 /** Convert from Customer hash to Archived array **/
 func FormatArchived(hash *map[string]*models.Customer) *[]models.Archived {

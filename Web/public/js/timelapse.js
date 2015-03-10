@@ -15,7 +15,7 @@ $.get("map/size", function(result) {
 
 /** LOGIC **/
 function onDateSelected() {
-    dataBlock.requestData(($("#datetimepicker").val()+"-"+(new Date).getTimezoneOffset()),
+    dataBlock.requestData_Date(($("#datetimepicker").val()+"-"+(new Date).getTimezoneOffset()),
     function() {
         timeSelect.updateChart([{key: "Customers", values: dataBlock.getCustomersHourly()}]);
     });
@@ -31,7 +31,7 @@ function formatDate(d) {
 var timeSelect = new TimeSelect();
 var dataBlock = new PositionBlock();
 $("#datetimepicker").val(formatDate(new Date));
-dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), function (result) {
+dataBlock.requestData_Date(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), function (result) {
 	timeSelect.drawChart("#chart", [{values: dataBlock.getCustomersHourly(), key: "Customers"}]);
 	timeSelect.drawSelector("#time");
 	timeSelect.selectorMoved = function(x) {
@@ -47,4 +47,3 @@ dataBlock.requestData(formatDate(new Date)+"-"+(new Date).getTimezoneOffset(), f
 $("#datetimeselected").click(onDateSelected);
 $("#btnPlay").click(function(){timeSelect.play(0.1)});
 $("#btnStop").click(function(){timeSelect.stop()});
-
