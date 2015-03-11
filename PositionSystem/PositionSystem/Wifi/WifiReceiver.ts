@@ -8,37 +8,33 @@ import constants = require('../Constants');
 import common = require('../Common');
 
 interface RawWifiEntry {
-    mac: string;
-    strength: number;
-    time: string;
-}
-
-interface DroneData {
-    id: string;
-    data: RawWifiEntry[];
+	mac: string;
+	strength: number;
+	time: string;
 }
 
 interface RawWifiData {
-    wifiData: DroneData[];
+	id: string;
+	wifiData: RawWifiEntry[];
 }
 
 export class Receiver {
 
 	private m_db: mongodb.Db;
-    private m_solver: wifi.PositionSolver;
+	private m_solver: wifi.PositionSolver;
 
 	constructor(solver: wifi.PositionSolver, db: mongodb.Db, app: express.Express) {
 		this.m_solver = solver;
-        this.m_db = db;
+		this.m_db = db;
 
-        var self = this;
-        app.post('/rawWifi', function (req: express.Request, res: express.Response) {
-            var macsToUpdate = self.saveRawToDB(req.body, function (macsToUpdate) {
-                console.log("Wifi Solving for : " + macsToUpdate.length);
-                self.m_solver.solveFor(macsToUpdate);
-            });
-            res.sendStatus(200);
-        });
+		var self = this;
+		app.post('/rawWifi', function (req: express.Request, res: express.Response) {
+			var macsToUpdate = self.saveRawToDB(req.body.data, function (macsToUpdate) {
+				console.log("Wifi Solving for : " + macsToUpdate.length);
+				self.m_solver.solveFor(macsToUpdate);
+			});
+			res.sendStatus(200);
+		});
 	}
 
 	private saveRawToDB(raw: RawWifiData, cb: (updatedMacs: string[]) => void): void {
@@ -54,12 +50,10 @@ export class Receiver {
 
 			var entries: common.WifiEntry[] = [];
 
-			raw.wifiData.forEach(function (val, index, array) {
-				val.data.forEach(function (rawEntry, idx, arr) {
-					var entry = new common.WifiEntry(rawEntry.mac, rawEntry.strength, rawEntry.time, val.id);
-					entries.push(entry);
-					macSet[entry.mac] = entry.mac;
-				});
+			raw.wifiData.forEach(function (rawEntry, index, array) {
+				var entry = new common.WifiEntry(rawEntry.mac, rawEntry.strength, rawEntry.time, raw.id);
+				entries.push(entry);
+				macSet[entry.mac] = entry.mac;
 			});
 
 			rawWifiCollection.insert(entries, function (error, result) {
