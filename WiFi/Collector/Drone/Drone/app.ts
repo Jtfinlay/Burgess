@@ -3,7 +3,7 @@
 import request = require('request')
 import readline = require('readline')
 
-var QUEEN_SERVER = "http://127.0.0.1:9000/rawWifi"
+var POS_SERVER = "http://172.28.64.125:9000/rawWifi"
 var port = 8000;
 
 console.log("Drone Running...");
@@ -59,7 +59,7 @@ if (process.argv.length == 3) {
 		request(
 			{
 				method: 'POST',
-				uri: QUEEN_SERVER,
+				uri: POS_SERVER,
 				form:
 				{
 					data: { id: droneId, wifiData: results }
