@@ -19,7 +19,9 @@ function LiveMap(idCanvas, theWidth, theHeight, img) {
 
 LiveMap.prototype = {
 	constructor: LiveMap,
-	// TODO Documentation
+	/*
+	 *	Load background image and any other resources.
+	 */
 	loadResources:function () {
 		that = this;
 		this.iBackground = new Image();
@@ -27,14 +29,17 @@ LiveMap.prototype = {
 		{ that.draw(); };
 		this.iBackground.src = this.img;
 	},
-	// TODO Documentation
+	/*
+	 *	Draw the customers on the screen, with differentiated priority.
+	 *	Also scales the metric locations to pixel.
+	 */
 	draw:function () {
 		var self = this;
-		jc.start(this.id);	
+		jc.start(this.id);
 		jc.rect(0, 0, this.width_px, this.height_px, 'rgba(200, 200, 200, 1)', 1);
 		jc.image(this.iBackground, 0, 0, this.width_px, this.height_px);
 
-		$.each(this.customers, function(i, c) 
+		$.each(this.customers, function(i, c)
 		{
 			var x = (c.x / self.width_m) * self.width_px;
 			var y = (c.y / self.height_m) * self.height_px;
@@ -42,12 +47,14 @@ LiveMap.prototype = {
 			jc.circle(x, y, r, 'rgba('+(255*c.priority)+','+(255*(1-c.priority))+',0,0.25)', true);
 			jc.circle(x, y, 6, 'rgba('+(255*c.priority)+',0,'+(255*(1-c.priority))+',0.5)', true);
 		});
-		
+
 		jc.start(this.id);
 		this.customers = [];
 	},
-	// TODO Documentation, move coords to fit width/height
-	addCustomer:function (xi, yi, ri, pi) 
+	/*
+	 *	Add a customer to the array
+	 */
+	addCustomer:function (xi, yi, ri, pi)
 	{
 		this.customers.push({x: xi, y: yi, radius: ri, priority: pi});
 	}

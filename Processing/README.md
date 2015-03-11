@@ -10,5 +10,12 @@ go install processing
 
 And to run the tests, just run the following from the same directory:
 ```
-go test processing -v
+go test priority -v
+```
+
+'Livefeed' contains a script that pushes make archived data to test the livefeed of the website.
+It acts as a separate program, so run the above with the following changes:
+```
+go install livefeed
+./bin/livefeed
 ```

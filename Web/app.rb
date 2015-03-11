@@ -46,8 +46,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/livefeed' do
-		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
-		puts session[:identity]
+		js :jcanvas, 'map', 'positionblock', 'livefeed'
         erb :livefeed
     end
 
@@ -55,6 +54,14 @@ class BurgessApp < Sinatra::Base
 		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
         erb :timelapse
     end
+
+	get '/livefeed/data' do
+		session[:timelast] ||= Time.now - 5
+		session[:timelast] = Time.now - 5 if session[:timelast] > Time.now - 10
+		result = settings.db_archived.getPositionsSince(session[:timelast])
+		session[:timelast] = Time.now
+		return result.to_json
+	end
 
     get '/analytics' do
 		js :knockout, :nvd3, 'analytics'
@@ -125,7 +132,7 @@ class BurgessApp < Sinatra::Base
 
     post '/signup' do
         user = User.new.createUser(params['username'], params['password'], params['company'], params['storeID'])
- 
+
         push_error("Username taken") if not settings.db_user.getUser(params['username']).nil?
         push_error("Passwords must match") if not user.validatePassword(params['re-password'])
 
