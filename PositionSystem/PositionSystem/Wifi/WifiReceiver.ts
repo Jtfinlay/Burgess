@@ -13,13 +13,9 @@ interface RawWifiEntry {
 	time: string;
 }
 
-interface DroneData {
-	id: string;
-	data: RawWifiEntry[];
-}
-
 interface RawWifiData {
-	wifiData: DroneData[];
+	id: string;
+	wifiData: RawWifiEntry[];
 }
 
 export class Receiver {
@@ -33,7 +29,7 @@ export class Receiver {
 
 		var self = this;
 		app.post('/rawWifi', function (req: express.Request, res: express.Response) {
-			var macsToUpdate = self.saveRawToDB(req.body, function (macsToUpdate) {
+			var macsToUpdate = self.saveRawToDB(req.body.data, function (macsToUpdate) {
 				console.log("Wifi Solving for : " + macsToUpdate.length);
 				self.m_solver.solveFor(macsToUpdate);
 			});
@@ -54,12 +50,10 @@ export class Receiver {
 
 			var entries: common.WifiEntry[] = [];
 
-			raw.wifiData.forEach(function (val, index, array) {
-				val.data.forEach(function (rawEntry, idx, arr) {
-					var entry = new common.WifiEntry(rawEntry.mac, rawEntry.strength, rawEntry.time, val.id);
-					entries.push(entry);
-					macSet[entry.mac] = entry.mac;
-				});
+			raw.wifiData.forEach(function (rawEntry, index, array) {
+				var entry = new common.WifiEntry(rawEntry.mac, rawEntry.strength, rawEntry.time, raw.id);
+				entries.push(entry);
+				macSet[entry.mac] = entry.mac;
 			});
 
 			rawWifiCollection.insert(entries, function (error, result) {
