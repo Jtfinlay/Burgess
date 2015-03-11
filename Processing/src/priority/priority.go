@@ -11,6 +11,7 @@ import (
 	"models"
 	"time"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var (
@@ -18,6 +19,7 @@ var (
     Employees = make(map[string]*models.Employee, 0)        // active Employees
 
 	c_employ *mgo.Collection
+	c_analytics *mgo.Collection
     EmployeesAll = make(map[string]*models.Employee, 0)     // all Employees
     EmployeePullTime time.Time
 
@@ -91,7 +93,10 @@ func UpdateUsers(data *map[string]*models.Position) {
 	for _,employee := range Employees {
 		for i,interaction := range employee.Interactions {
 			if time.Since(interaction.LastTime) > interactionExpiration {
-				// TODO::JF Should store this event for analytics
+				// Store event
+				StoreInteraction(interaction)
+
+				// Set expiry time
 				eTime := interaction.GetPriorityTime()
 				if eTime.UnixNano() > interaction.Customer.ExpiryTime.UnixNano() {
 					interaction.Customer.ExpiryTime = eTime
@@ -103,6 +108,22 @@ func UpdateUsers(data *map[string]*models.Position) {
 			}
 		}
 	}
+}
+
+/*
+ * Push completed interaction to the db
+ */
+func StoreInteraction(i *models.Interaction) {
+	err := c_analytics.Insert(
+		bson.M{
+			"retailer": nil,
+			"employee": i.Employee.Id,
+			"customer": i.Customer.MAC,
+			"startTime": i.StartTime,
+			"endTime": i.LastTime,
+			"elapsedTime": i.LastTime.UnixNano()-i.StartTime.UnixNano(),
+	})
+	if err != nil { panic(err) }
 }
 
 /*
