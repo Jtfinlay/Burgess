@@ -15,6 +15,7 @@ var recievedBlobs: any[] = [];
 app.use(bodyParser.json());
 
 app.post('/drone', function (req: express.Request, res: express.Response) {
+	console.log("got : " + JSON.stringify(req.body));
 	if (req.body.data.length > 0) {
 		recievedBlobs.push(req.body);
 	}
@@ -27,7 +28,6 @@ app.listen(port);
 
 setInterval(function () {
 	var blobsToSend = recievedBlobs
-	var blogStr = JSON.stringify(blobsToSend);
 	recievedBlobs = [];
 	if (blobsToSend.length > 0) {
 

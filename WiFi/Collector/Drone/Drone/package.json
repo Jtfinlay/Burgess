@@ -1,0 +1,13 @@
+{
+  "name": "Drone",
+  "version": "0.0.0",
+  "description": "Drone",
+  "main": "app.js",
+  "author": {
+    "name": "Jesse",
+    "email": ""
+  },
+  "dependencies": {
+    "request": "^2.53.0"
+  }
+}

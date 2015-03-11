@@ -17,28 +17,28 @@ mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
 		return;
 	}
 
-    mongo.MongoClient.connect(constants.POS_DB_URL, function (err, posDB) {
-        if (err) {
-            console.log("Failed to connect to position DB : " + err)
+	mongo.MongoClient.connect(constants.POS_DB_URL, function (err, posDB) {
+		if (err) {
+			console.log("Failed to connect to position DB : " + err)
 			return;
-        }
+		}
 
-        var port = 9000;
-        var app = express();
+		var port = 9000;
+		var app = express();
 
-        app.use(bodyParser.urlencoded(
-            {
-                extended: true
-            }));
-        app.use(bodyParser.json());
+		app.use(bodyParser.urlencoded(
+			{
+				extended: true
+			}));
+		app.use(bodyParser.json());
 
-        var solver = new WifiSolver.PositionSolver(rawDB, posDB);
-        var btSolver = new BluetoothSolver.PositionSolver(rawDB, posDB);
+		var solver = new WifiSolver.PositionSolver(rawDB, posDB);
+		var btSolver = new BluetoothSolver.PositionSolver(rawDB, posDB);
 
-        var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
-        var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, app);
+		var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
+		var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, app);
 
-        console.log('Gathering Raw Data...');
-        app.listen(port);
+		console.log('Gathering Raw Data...');
+		app.listen(port);
 	});
 });
