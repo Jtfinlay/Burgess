@@ -18,6 +18,7 @@ class AnalyticsData
     # Returns employee IDs & elapsedTime
     #
     def getWaitTimes(ti, tf)
+        # TODO::JF This currently doesn't return anything useful.
         return @interactions.find(
         {
             "startTime" => {"$gte" => Time.at(ti)},
