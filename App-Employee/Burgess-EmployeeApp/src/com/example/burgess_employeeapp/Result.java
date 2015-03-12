@@ -25,7 +25,7 @@ public class Result {
 		try {
 			result.put("mac", mac);
 			result.put("source", source);
-			result.put("signalStrength", signalStrength);
+			result.put("strength", signalStrength);
 			result.put("time", time.toString());
 		} catch (JSONException e) {
 			e.printStackTrace();

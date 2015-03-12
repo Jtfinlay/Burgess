@@ -27,14 +27,17 @@ export class PositionSolver {
 
 		// TODO::JT store this in DB and retrieve. Just hacking together for the time being
 		this.m_stations = {
-			'vm-drone': {
-				id: 'vm-drone', point: new common.Point(0, 0)
+			'bt-stn1': {
+                id: 'bt-stn1', point: new common.Point(0, 4.27)
 			},
-			'vm-drone2': {
-				id: 'vm-drone2', point: new common.Point(0, 15)
+			'bt-stn2': {
+                id: 'bt-stn2', point: new common.Point(1.88, 2.14)
 			},
-			'vm-drone3': {
-				id: 'vm-drone3', point: new common.Point(25, 0)
+            'iPad': {
+                id: 'iPad', point: new common.Point(0, 0)
+            },
+            'iPhone': {
+                id: 'iPhone', point: new common.Point(5, 5)
 			}
 		}
 	}

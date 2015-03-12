@@ -3,7 +3,6 @@
 
 import express = require('express');
 import mongodb = require('mongodb');
-import wifi = require('../Wifi/WifiPositionSolver');
 import bluetooth = require('../Bluetooth/BluetoothPositionSolver');
 import constants = require('../Constants');
 import common = require('../Common');
@@ -15,20 +14,14 @@ interface RawBluetoothEntry {
     time: string;
 }
 
-interface RawBluetoothData {
-    bluetoothData: RawBluetoothEntry[];
-}
-
 export class Receiver {
 
 	private m_db: mongodb.Db;
     private m_solver: bluetooth.PositionSolver;
-    private m_stationMacs: any;
 
 	constructor(solver: bluetooth.PositionSolver, db: mongodb.Db, app: express.Express) {
 		this.m_solver = solver;
         this.m_db = db;
-        this.getStationMacs();
 
         var self = this;
         app.post('/rawBluetooth', function (req: express.Request, res: express.Response) {
@@ -40,7 +33,7 @@ export class Receiver {
         });
     }
 
-    private saveRawToDB(raw: RawBluetoothData, cb: (updatedMacs: string[]) => void): void {
+    private saveRawToDB(raw: RawBluetoothEntry[], cb: (updatedMacs: string[]) => void): void {
 		var updatedMacs: string[] = [];
 		var macSet = {};
 		var self = this;
@@ -53,8 +46,8 @@ export class Receiver {
 
 			var entries: common.BluetoothEntry[] = [];
 
-            raw.bluetoothData.forEach(function (val, index, array) {
-                var entry = new common.BluetoothEntry(val.mac, self.getStationID(val.source), val.strength, val.time);
+            raw.forEach(function (val, index, array) {
+                var entry = new common.BluetoothEntry(val.mac, val.source, val.strength, val.time);
                 entries.push(entry);
                 macSet[entry.mac] = entry.mac;
             });
@@ -71,21 +64,5 @@ export class Receiver {
 
 			cb(updatedMacs);
 		});
-    }
-
-    //dummy values until we have the bluetooth dongles from lab
-    private getStationMacs(): void {
-        this.m_stationMacs = {
-            '04:1E:64:C7:A2:15': {
-                id: 'iPad`', mac: '04:1E:64:C7:A2:15'
-            },
-            'E4:98:D6:63:1D:86': {
-                id: 'iPhone', mac: 'E4:98:D6:63:1D:86'
-            }
-        }
-    }
-
-    private getStationID(stationMac: string): string {
-        return this.m_stationMacs[stationMac].id;
     }
 }

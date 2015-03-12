@@ -16,11 +16,12 @@ import org.json.JSONArray;
 import android.util.Log;
 
 public class BluetoothSendMetaData {
-	private final String url = "http://192.168.0.154:9001/rawBluetooth";
+	private final String url = "http://192.168.0.22:9000/rawBluetooth";
 
+	@SuppressWarnings("deprecation")
 	public boolean POST(ArrayList<Result> results){
 		if (results.isEmpty())
-			return true;
+			return false;
 		
 		InputStream inputStream = null;
 		boolean result = false;
