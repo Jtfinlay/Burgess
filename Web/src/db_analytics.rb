@@ -38,9 +38,10 @@ class AnalyticsData
         employees.each{|v|
             result[v] = @interactions.find(
             {
+				"employee" => v,
                 "startTime" => {"$gte" => Time.at(ti)},
                 "endTime" => {"$lte" => Time.at(tf)},
-                "elapseTime" => {"$gte" => minLength*1000}
+                "elapsedTime" => {"$gte" => minLength*1000}
             }).count()
         }
         return result
@@ -55,6 +56,7 @@ class AnalyticsData
         employees.each{|v|
             result[v] = @interactions.find(
             {
+				"employee" => v,
                 "startTime" => {"$gte" => Time.at(ti)},
                 "endTime" => {"$lte" => Time.at(tf)}
             },
@@ -62,6 +64,7 @@ class AnalyticsData
                 :fields => ["elapsedTime"]
             })
         }
+		return result
     end
 
 

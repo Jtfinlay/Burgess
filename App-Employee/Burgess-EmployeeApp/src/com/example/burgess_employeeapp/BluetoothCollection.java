@@ -2,7 +2,8 @@ package com.example.burgess_employeeapp;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-
+import java.util.HashMap;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -15,9 +16,11 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 
 public class BluetoothCollection {
+	private HashMap<String, String> mStationMacs;
+	private String mLocalMacAddress;
+	
 	private BluetoothManager mBluetoothManager;
 	private BluetoothAdapter mBluetoothAdapter;
-	private String mLocalMacAddress;
 	private BluetoothMetadataThread mbtThread;
 	private MainActivity mMainActivity;
 	
@@ -25,8 +28,9 @@ public class BluetoothCollection {
 	
 	private boolean mErrors = false;
 	
-	public BluetoothCollection(BluetoothManager bluetoothManager, WifiManager wifiManager, ConnectivityManager connMgr, MainActivity self, BluetoothMetadataThread btThread, Object syncToken)
+	@SuppressLint("NewApi") public BluetoothCollection(HashMap<String, String> stationMacs, BluetoothManager bluetoothManager, WifiManager wifiManager, ConnectivityManager connMgr, MainActivity self, BluetoothMetadataThread btThread, Object syncToken)
 	{
+		mStationMacs = stationMacs;
 		mBluetoothManager = bluetoothManager;
 		mBluetoothAdapter = mBluetoothManager.getAdapter();
 		mbtThread = btThread;
@@ -76,8 +80,9 @@ public class BluetoothCollection {
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				int  rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
 				Calendar time = Calendar.getInstance();
-
-				mbtThread.addResult(new Result(mLocalMacAddress, device.getAddress(), rssi, time.getTime()));
+				
+				if (mStationMacs.containsKey(device.getAddress()))
+					mbtThread.addResult(new Result(mLocalMacAddress, mStationMacs.get(device.getAddress()), rssi, time.getTime()));
 			}
 			else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
 			{

@@ -1,16 +1,13 @@
 {
-  "name": "Queen",
+  "name": "Drone",
   "version": "0.0.0",
-  "description": "Queen",
+  "description": "Drone",
   "main": "app.js",
   "author": {
     "name": "Jesse",
     "email": ""
   },
   "dependencies": {
-    "body-parser": "^1.12.0",
-    "express": "^4.11.2",
-    "form-data": "^0.2.0",
     "request": "^2.53.0"
   }
 }
