@@ -12,6 +12,10 @@ class ArchiveData
 		@archived = db['archived']
     end
 
+    #
+    # Transfer data since given date from position db to archived db
+    # Quite slow.
+    #
 	def archiveDataSince(y, m, d, timezone)
 		ti = Time.new(y,m,d).to_i + timezone*60
 		tf = Time.now.to_i
@@ -21,6 +25,7 @@ class ArchiveData
 
 	#
 	# Transfer data within times (sec) from position db to archived db
+    # Quite slow.
 	#
 	def archiveDataWithin(ti, tf)
 		p = ProgressBar.create(:total => (tf - ti)/5+1)
@@ -43,7 +48,7 @@ class ArchiveData
 	end
 
     #
-    # Query data since
+    # Query data since given time (sec)
     #
     def getPositionsSince(ti)
         result = @archived.find({"t" => {"$gt" => Time.at(ti)}}).to_a

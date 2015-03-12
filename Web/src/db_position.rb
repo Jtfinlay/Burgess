@@ -42,4 +42,25 @@ class PositionData
 		end
 	end
 
+    #
+    # Pull Customers/hour between the given times (sec)
+    #
+    def getCustomersHourly(ti, tf)
+        # Round down to nearest hour
+        ti = ti - (ti % 60*60)
+        tf = tf - (tf % 60*60)
+
+        result = Hash.new
+        (ti..tf).step(60*60).each do |t|
+            result[t] = @position.find(
+            {
+                "time" => {"$gt" => Time.at(t), "$lte" => Time.at(t+3600)}
+            },
+            {
+                :fields => ["wifi"]
+            })
+        end
+        return result.keys
+    end
+
 end
