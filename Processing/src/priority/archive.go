@@ -23,6 +23,7 @@ var (
 func Init(session *mgo.Session, sleepDur time.Duration) {
     c_arch = session.DB("retailers").C("archived")
     c_employ = session.DB("retailers").C("employees")
+    c_analytics = session.DB("retailers").C("analytics")
     sleepDuration = sleepDur
 }
 

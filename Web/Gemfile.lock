@@ -10,7 +10,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    bcrypt (3.1.10)
+    bcrypt (3.1.10-x86-mingw32)
     bson (1.12.0)
     bson_ext (1.12.0)
       bson (~> 1.12.0)
@@ -23,11 +23,12 @@ GEM
     tilt (2.0.1)
 
 PLATFORMS
-  ruby
+  x86-mingw32
 
 DEPENDENCIES
   bcrypt
   bson_ext
   mongo
+  rack
   ruby-progressbar (~> 1.7.1)
   sinatra!
