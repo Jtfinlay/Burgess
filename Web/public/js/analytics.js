@@ -1,4 +1,8 @@
-$.post("/analytics/specific/helpCount",
-    {"ti":0, "tf":0},
-    function(result) { console.log(result); }
-)
+$.post("/analytics/helpCount",
+    {"ti":1426118400000, "tf":1426204800000},
+    function(result) { console.log("Count:" + result); }
+);
+$.post("analytics/helpTime",
+    {"ti":1426118400000, "tf":1426204800000},
+    function(result) { console.log("Time:" + result); }
+);
