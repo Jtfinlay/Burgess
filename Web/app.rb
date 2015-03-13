@@ -2,6 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'bcrypt'
 
+require './src/utils'
 require './src/js'
 require './src/db_user'
 require './src/db_position'
@@ -66,7 +67,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/analytics' do
-		js :knockout, :nvd3, 'analytics'
+		js :nvd3, :knockout, 'analytics/helpedCountChart', 'knockout/analytics'
         erb :analytics
     end
 
@@ -77,7 +78,7 @@ class BurgessApp < Sinatra::Base
 
 	### ANALYTICS ###
 
-	post '/analytics/specific/helpCount' do
+	post '/analytics/helpCount' do
 		ti = Utils.StandardizeTime_s(params[:ti].to_i)
 		tf = Utils.StandardizeTime_s(params[:tf].to_i)
 		if authenticated?
@@ -87,7 +88,7 @@ class BurgessApp < Sinatra::Base
 		return nil
 	end
 
-	post '/analytics/specific/helpTime' do
+	post '/analytics/helpTime' do
 		ti = Utils.StandardizeTime_s(params[:ti].to_i)
 		tf = Utils.StandardizeTime_s(params[:tf].to_i)
 		if authenticated?

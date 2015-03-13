@@ -1,1 +1,16 @@
-<p>Analytics</p>
+<% if not authenticated? %>
+	<p>Please authenticate.</p>
+<% else %>
+
+<h1>Analytics</h1>
+
+<hr />
+
+<h3>Customers over day</h3>
+
+<!-- CHART -->
+<div id="helpCount">
+	<svg style="height: 400px; width:800px;"></svg>
+</div>
+
+<% end %>
