@@ -50,11 +50,6 @@ class BurgessApp < Sinatra::Base
         erb :livefeed
     end
 
-    get '/timelapse' do
-		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
-        erb :timelapse
-    end
-
 	get '/livefeed/data' do
 		session[:timelast] ||= Time.now - 5
 		session[:timelast] = Time.now - 5 if session[:timelast] > Time.now - 10
@@ -62,6 +57,11 @@ class BurgessApp < Sinatra::Base
 		session[:timelast] = Time.now
 		return result.to_json
 	end
+
+    get '/timelapse' do
+		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
+        erb :timelapse
+    end
 
     get '/analytics' do
 		js :knockout, :nvd3, 'analytics'
@@ -72,6 +72,8 @@ class BurgessApp < Sinatra::Base
 		js :knockout, 'knockout/settings'
         erb :settings
     end
+
+	### ANALYTICS ###
 
 	### EMPLOYEES ###
 

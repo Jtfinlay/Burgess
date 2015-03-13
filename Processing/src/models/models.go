@@ -62,6 +62,7 @@ type (
 		Customer *Customer
 		StartTime time.Time
 		LastTime time.Time
+		PriorityAtStart float32
 	}
 )
 
