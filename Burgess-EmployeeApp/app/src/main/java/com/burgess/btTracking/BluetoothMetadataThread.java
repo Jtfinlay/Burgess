@@ -6,44 +6,45 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 
-import com.burgess.employeeApp.MainActivity;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class BluetoothMetadataThread extends Thread
 {
-	private ArrayList<Result> mResults;
-	private BluetoothCollection mBTCollector;
-	private BluetoothSendMetaData mBTSender;
+	private ArrayList<Result> m_results;
+	private BluetoothCollection m_bluetoothCollector;
+	private BluetoothSendMetaData m_bluetoothSender;
 
-	private Object mSyncToken = new Object();
-	private PowerManager.WakeLock mWakeLock;
+	private final Object m_syncToken = new Object();
+	private PowerManager.WakeLock m_wakeLock;
 
-	public BluetoothMetadataThread(BluetoothManager bluetoothManager, WifiManager wifiManager, ConnectivityManager connMgr, MainActivity self)
+	public BluetoothMetadataThread(BluetoothManager bluetoothManager,
+	                               WifiManager wifiManager,
+	                               ConnectivityManager connMgr,
+	                               Context context)
 	{
-		mBTCollector = new BluetoothCollection(getStationMacs(), bluetoothManager, wifiManager, connMgr, self, this, mSyncToken);
-		mBTSender = new BluetoothSendMetaData();
+		m_bluetoothCollector = new BluetoothCollection(getStationMacs(), bluetoothManager, wifiManager, connMgr, context, this, m_syncToken);
+		m_bluetoothSender = new BluetoothSendMetaData();
 
 		//runs cpu in background to transmit location data while phone is asleep
-		PowerManager pm = (PowerManager) self.getApplicationContext().getSystemService(Context.POWER_SERVICE);
-		mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WakeLock");
+		PowerManager pm = (PowerManager) context.getApplicationContext().getSystemService(Context.POWER_SERVICE);
+		m_wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WakeLock");
 	}
 
 	public void run()
 	{
 		while (true)
 		{
-			mWakeLock.acquire();
+			m_wakeLock.acquire();
 
-			synchronized (mSyncToken)
+			synchronized (m_syncToken)
 			{
 				try
 				{
-					mResults = new ArrayList<Result>();
-					mBTCollector.startCollection(mResults);
-					mSyncToken.wait();
-					mBTSender.POST(mResults);
+					m_results = new ArrayList<Result>();
+					m_bluetoothCollector.startCollection(m_results);
+					m_syncToken.wait();
+					m_bluetoothSender.POST(m_results);
 
 				}
 				catch (InterruptedException e)
@@ -57,7 +58,7 @@ public class BluetoothMetadataThread extends Thread
 
 	public void addResult(Result newResult)
 	{
-		mResults.add(newResult);
+		m_results.add(newResult);
 	}
 
 	//get from database when setup

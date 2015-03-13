@@ -19,7 +19,6 @@ public class BluetoothSendMetaData
 {
 	private final String url = "http://192.168.0.22:9000/rawBluetooth";
 
-	@SuppressWarnings("deprecation")
 	public boolean POST(ArrayList<Result> results)
 	{
 		if (results.isEmpty())
@@ -27,7 +26,7 @@ public class BluetoothSendMetaData
 			return false;
 		}
 
-		InputStream inputStream = null;
+		InputStream inputStream;
 		boolean result = false;
 		try
 		{

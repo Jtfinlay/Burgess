@@ -44,7 +44,13 @@ public class MainActivity extends ActionBarActivity
 			startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 		}
 
-		m_bluetoothThread = new BluetoothMetadataThread(bluetoothManager, (WifiManager) getSystemService(Context.WIFI_SERVICE), (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE), this);
+		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+
+		m_bluetoothThread = new BluetoothMetadataThread(bluetoothManager,
+		                                                wifiManager,
+		                                                connectivityManager,
+		                                                this.getApplicationContext());
 		m_bluetoothThread.start();
 	}
 
