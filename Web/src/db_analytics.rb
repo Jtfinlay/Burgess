@@ -18,6 +18,7 @@ class AnalyticsData
     # Returns employee IDs & elapsedTime
     #
     def getWaitTimes(ti, tf)
+        # TODO::JF This currently doesn't return anything useful.
         return @interactions.find(
         {
             "startTime" => {"$gte" => Time.at(ti)},
@@ -35,7 +36,7 @@ class AnalyticsData
     def getEmployeeHelpCount(ti, tf, minLength, employees)
         result = Hash.new
         employees.each{|v|
-            result[v] = @interactions.find(
+            result[v["_id"]] = @interactions.find(
             {
 				"employee" => v,
                 "startTime" => {"$gte" => Time.at(ti)},
@@ -53,7 +54,7 @@ class AnalyticsData
     def getEmployeeHelpTime(ti, tf, employees)
         result = Hash.new
         employees.each{|v|
-            result[v] = @interactions.find(
+            result[v["_id"]] = @interactions.find(
             {
 				"employee" => v,
                 "startTime" => {"$gte" => Time.at(ti)},
@@ -61,10 +62,9 @@ class AnalyticsData
             },
             {
                 :fields => ["elapsedTime"]
-            })
+            }).to_a.map{|v| v["elapsedTime"]}
         }
 		return result
     end
-
 
 end

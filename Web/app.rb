@@ -2,10 +2,12 @@ require 'rubygems'
 require 'bundler/setup'
 require 'bcrypt'
 
+require './src/utils'
 require './src/js'
 require './src/db_user'
 require './src/db_position'
 require './src/db_archive'
+require './src/db_analytics'
 
 class BurgessApp < Sinatra::Base
 	helpers Sinatra::JavaScripts
@@ -15,6 +17,7 @@ class BurgessApp < Sinatra::Base
         set :db_user, UserData.new
         set :db_position, PositionData.new
 		set :db_archived, ArchiveData.new
+		set :db_analytics, AnalyticsData.new
     end
 
     helpers do
@@ -64,7 +67,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/analytics' do
-		js :knockout, :nvd3, 'analytics'
+		js :nvd3, :knockout, 'analytics/helpedTimeChart', 'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
         erb :analytics
     end
 
@@ -74,6 +77,26 @@ class BurgessApp < Sinatra::Base
     end
 
 	### ANALYTICS ###
+
+	post '/analytics/helpCount' do
+		ti = Utils.StandardizeTime_s(params[:ti].to_i)
+		tf = Utils.StandardizeTime_s(params[:tf].to_i)
+		if authenticated?
+			employees = settings.db_user.getEmployees(session[:identity].id)
+			return settings.db_analytics.getEmployeeHelpCount(ti,tf,10,employees).to_json
+		end
+		return nil
+	end
+
+	post '/analytics/helpTime' do
+		ti = Utils.StandardizeTime_s(params[:ti].to_i)
+		tf = Utils.StandardizeTime_s(params[:tf].to_i)
+		if authenticated?
+			employees = settings.db_user.getEmployees(session[:identity].id)
+			return settings.db_analytics.getEmployeeHelpTime(ti,tf,employees).to_json
+		end
+		return nil
+	end
 
 	### EMPLOYEES ###
 
