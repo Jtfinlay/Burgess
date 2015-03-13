@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -25,16 +24,10 @@ public class MainActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_main);
 		
 		final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-		BluetoothAdapter m_bluetoothAdapter = bluetoothManager.getAdapter();
-
-		if(m_bluetoothAdapter == null)
-		{
-			Toast.makeText(getApplicationContext(), "No Bluetooth available!", Toast.LENGTH_LONG).show();
-			return;
-		}
+		BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
 
 		//asks user to enable Bluetooth for collection, if not already on
-		if (!m_bluetoothAdapter.isEnabled()) {
+		if (!mBluetoothAdapter.isEnabled()) {
 			Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 		}
