@@ -67,7 +67,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/analytics' do
-		js :nvd3, :knockout, 'analytics/helpedTimeChart', 'analytics/helpedCountChart', 'knockout/analytics'
+		js :nvd3, :knockout, 'analytics/helpedTimeChart', 'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
         erb :analytics
     end
 

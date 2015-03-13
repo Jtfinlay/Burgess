@@ -1,6 +1,7 @@
 /* GRAPH */
 var helpedCountChart = new HelpedCountChart();
 var helpedTimeChart = new HelpedTimeChart();
+var peakChart = new PeakChart();
 
 
 function AnalyticsViewModel() {
@@ -78,9 +79,16 @@ function AnalyticsViewModel() {
 			helpedCountChart.formatData(self.employees));
 		helpedTimeChart.drawChart("#helpTime svg",
 			helpedTimeChart.formatData(self.employees));
+
+		$.get("http://nvd3.org/examples/stackedAreaData.json",
+			function(data) {
+				peakChart.drawChart("#peakHours svg", data);
+				crap = data;
+		});
 	};
 }
 var vm = new AnalyticsViewModel();
+var crap;
 $(function() {
 	ko.applyBindings(vm);
 });
