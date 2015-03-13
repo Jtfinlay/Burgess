@@ -1,16 +1,17 @@
-package com.example.burgess_employeeapp;
-
-import java.util.Date;
+package com.burgess.btTracking;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Result {
+import java.util.Date;
+
+public final class Result
+{
 	private String mac;
 	private String source;
 	private int signalStrength;
 	private Date time;
-	
+
 	public Result(String mac, String source, int signalStrength, Date time)
 	{
 		this.mac = mac;
@@ -18,37 +19,41 @@ public class Result {
 		this.signalStrength = signalStrength;
 		this.time = time;
 	}
-	
-	public JSONObject getJSON() {
+
+	public JSONObject getJSON()
+	{
 		JSONObject result = new JSONObject();
-		
-		try {
+
+		try
+		{
 			result.put("mac", mac);
 			result.put("source", source);
 			result.put("strength", signalStrength);
 			result.put("time", time.toString());
-		} catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
-		
+
 		return result;
 	}
-	
+
 	public String getMAC()
 	{
 		return this.mac;
 	}
-	
+
 	public String getSource()
 	{
 		return this.source;
 	}
-	
+
 	public int getSignalStrength()
 	{
 		return this.signalStrength;
 	}
-	
+
 	public Date getTime()
 	{
 		return this.time;
