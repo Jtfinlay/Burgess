@@ -1,6 +1,5 @@
 package com.burgess.btTracking;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -31,7 +30,6 @@ public class BluetoothCollection
 
 	private boolean m_errors = false;
 
-	@SuppressLint("NewApi")
 	public BluetoothCollection(HashMap<String, String> stationMacs,
 	                           BluetoothManager bluetoothManager,
 	                           WifiManager wifiManager,
