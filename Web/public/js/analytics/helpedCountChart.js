@@ -4,18 +4,18 @@ HelpedCountChart.prototype = {
 	constructor: HelpedCountChart,
 	
 	formatData: function(employees) {
-		var data = [];
+		var count = [];
 		$.each(employees, function(i,v) {
-			data.push({
+			count.push({
 				"label": v.name(),
 				"value": v.helpCount
 			})
 		});
 		return [{
-			"key": "Helped Count",
+			"key": "Today",
 			"color": "#1f77b4",
-			"values": data
-		}]
+			"values": count
+		}];
 	},
 	
 	drawChart: function(idSVG, data) {
@@ -28,10 +28,10 @@ HelpedCountChart.prototype = {
 				.y(function(d) { return d.value })
 				.margin({top:30, right:20, bottom:50, left:100})
 				.showYAxis(false)
-				.showLegend(false)
+				.showLegend(true)
 				.showControls(false)
 				.showValues(true)
-				.tooltips(true);
+				.tooltips(false);
 
 			d3.select(idSVG)
 				.datum(data)

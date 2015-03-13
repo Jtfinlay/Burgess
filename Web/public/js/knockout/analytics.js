@@ -1,5 +1,6 @@
 /* GRAPH */
 var helpedCountChart = new HelpedCountChart();
+var helpedTimeChart = new HelpedTimeChart();
 
 
 function AnalyticsViewModel() {
@@ -73,9 +74,10 @@ function AnalyticsViewModel() {
 		});
 
 		/** Update charts **/
-		console.log(helpedCountChart.formatData(self.employees));
 		helpedCountChart.drawChart("#helpCount svg", 
 			helpedCountChart.formatData(self.employees));
+		helpedTimeChart.drawChart("#helpTime svg",
+			helpedTimeChart.formatData(self.employees));
 	};
 }
 var vm = new AnalyticsViewModel();
