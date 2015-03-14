@@ -36,9 +36,9 @@ class AnalyticsData
     def getEmployeeHelpCount(ti, tf, minLength, employees)
         result = Hash.new
         employees.each{|v|
-            result[v["_id"]] = @interactions.find(
+            result[v] = @interactions.find(
             {
-				"employee" => v,
+				"employee" => {"_id" => v},
                 "startTime" => {"$gte" => Time.at(ti)},
                 "endTime" => {"$lte" => Time.at(tf)},
                 "elapsedTime" => {"$gte" => minLength*1000}
@@ -54,15 +54,15 @@ class AnalyticsData
     def getEmployeeHelpTime(ti, tf, employees)
         result = Hash.new
         employees.each{|v|
-            result[v["_id"]] = @interactions.find(
+            result[v] = @interactions.find(
             {
-				"employee" => v,
+				"employee" => {"_id" => v},
                 "startTime" => {"$gte" => Time.at(ti)},
                 "endTime" => {"$lte" => Time.at(tf)}
             },
             {
                 :fields => ["elapsedTime"]
-            }).to_a.map{|v| v["elapsedTime"]}
+            }).to_a.map{|r| r["elapsedTime"]}
         }
 		return result
     end

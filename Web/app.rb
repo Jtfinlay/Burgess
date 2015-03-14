@@ -83,7 +83,8 @@ class BurgessApp < Sinatra::Base
 		tf = Utils.StandardizeTime_s(params[:tf].to_i)
 		if authenticated?
 			employees = settings.db_user.getEmployees(session[:identity].id)
-			return settings.db_analytics.getEmployeeHelpCount(ti,tf,10,employees).to_json
+			employees.map!{|e| e["_id"]}
+            return settings.db_analytics.getEmployeeHelpCount(ti,tf,10,employees).to_json
 		end
 		return nil
 	end
@@ -93,10 +94,21 @@ class BurgessApp < Sinatra::Base
 		tf = Utils.StandardizeTime_s(params[:tf].to_i)
 		if authenticated?
 			employees = settings.db_user.getEmployees(session[:identity].id)
+            employees.map!{|e| e["_id"]}
 			return settings.db_analytics.getEmployeeHelpTime(ti,tf,employees).to_json
 		end
 		return nil
 	end
+
+    post '/analytics/customersHourly' do
+        ti = Utils.StandardizeTime_s(params[:ti].to_i)
+        tf = Utils.StandardizeTime_s(params[:tf].to_i)
+        if authenticated?
+            result = settings.db_position.getCustomersHourly(ti, tf)
+            return result.to_json
+        end
+        return nil
+    end
 
 	### EMPLOYEES ###
 

@@ -2,7 +2,6 @@ require 'test/unit'
 require_relative '../db_analytics'
 
 class AnalyticsTest < Test::Unit::TestCase
-	#attr_accessor :coll, :empl, :anal
     class << self
 
         # Runs at start
@@ -59,8 +58,8 @@ class AnalyticsTest < Test::Unit::TestCase
     end
 
     def test_getEmployeeHelpCount
-        ti = Time.new(2014,1,1,2,0,0,0).to_i
-        es = @@empl.find({},{:fields=>["_id"]}).to_a.map{|v| v["_id"]}
+        ti = Time.new(2014,1,1,2,0,0).to_i
+        es = @@empl.find({},{:fields=>["_id"]}).to_a
         @@coll.insert([
             {"employee"=>es[0], "startTime"=>Time.at(ti),"elapsedTime"=>1,
              "endTime"=>Time.at(ti+20), "customer" => "mac"},
@@ -71,7 +70,9 @@ class AnalyticsTest < Test::Unit::TestCase
 			{"employee"=>es[1], "startTime"=>Time.at(ti+40), "elapsedTime"=>1,
 			 "endTime"=>Time.at(ti+40+3), "customer" => "spook"}
         ])
+        es.map!{|v| v["_id"]}
         result = @@anal.getEmployeeHelpCount(ti,ti+60*60*24,0,es)
+        
         assert_equal 3, result[es[0]]
 		assert_equal 1, result[es[1]]
 		assert_equal 0, result[es[2]]
@@ -79,7 +80,7 @@ class AnalyticsTest < Test::Unit::TestCase
 
     def test_getEmployeeHelpTime
         ti = Time.new(2014,1,1,2,0,0,0).to_i
-        es = @@empl.find({},{:fields=>["_id"]}).to_a.map{|v| v["_id"]}
+        es = @@empl.find({},{:fields=>["_id"]}).to_a
         @@coll.insert([
             {"employee"=>es[0], "startTime"=>Time.at(ti),
              "endTime"=>Time.at(ti+20), "elapsedTime"=>20*1000},
@@ -90,13 +91,12 @@ class AnalyticsTest < Test::Unit::TestCase
 			{"employee"=>es[1], "startTime"=>Time.at(ti+10),
 			 "endTime"=>Time.at(ti+10+13), "elapsedTime"=>13*1000}
         ])
+        es.map!{|v| v["_id"]}
         result = @@anal.getEmployeeHelpTime(ti,ti+60*60*24,es)
-        assert_equal 1000*(20+40+20),
-					result[es[0]].inject(0.0){|sum,el|sum+el["elapsedTime"]}
-		assert_equal 1000*13,
-					result[es[1]].inject(0.0){|sum,el|sum+el["elapsedTime"]}
-		assert_equal 0, 
-					result[es[2]].inject(0.0){|sum,el|sum+el["elapseTimed"]}
+
+        assert_equal 1000*(20+40+20), result[es[0]].inject(0.0){|sum,el|sum+el}
+		assert_equal 1000*13, result[es[1]].inject(0.0){|sum,el|sum+el}
+		assert_equal 0, result[es[2]].inject(0.0){|sum,el|sum+el}
     end
 	
 end

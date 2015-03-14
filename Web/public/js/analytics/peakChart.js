@@ -3,7 +3,12 @@ function PeakChart() {}
 PeakChart.prototype = {
 	constructor: PeakChart,
 
-    formatData: function(employees) {
+    formatData: function(customers) {
+    	return [{
+    		"key": "Customers",
+    		"color": "#d62728",
+    		"values": customers
+    	}]
     },
 
     drawChart: function(idSVG, data) {
@@ -22,11 +27,10 @@ PeakChart.prototype = {
 				.clipEdge(true);
 
 			self.chart.xAxis
-				.tickFormat(function(d) {
-					return d3.time.format('%x')(new Date(d))
-			});
+				.showMaxMin(false)
+				.tickFormat(function(d) {return d3.time.format('%H:%M')(new Date(parseInt(d)))});
 			self.chart.yAxis
-				.tickFormat(d3.format(',.2f'));
+				.tickFormat(d3.format(',1'));
 			d3.select(idSVG)
 				.datum(data)
 				.call(self.chart);

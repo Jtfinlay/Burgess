@@ -3,6 +3,7 @@ require 'json/ext'
 require_relative './mongo_singleton'
 
 class PositionData
+    attr_accessor :position
 
     def initialize
         conn = MongoSingleton::instance
@@ -20,29 +21,13 @@ class PositionData
     def getPositionsOverDay(y, m, d, timezone)
         ti = Time.new(y,m,d).to_i + timezone*60
         tf = ti + (3600*24)
-        result = @position.find({"time" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
+        result = @position.find({"time" => 
+            {"$gte" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
 		result.each_index{|i| result[i]['time'] = result[i]['time'].to_i}
 		return result
     end
 
-	#
-	# This is very slow.
-	#
-	def getPositionsForLapse_REDUCE(y, m, d, timezone)
-		ti = Time.new(y,m,d).to_i + timezone*60
-		tf = ti + (3600*24)
-		result = []
-
-		map = "function() {emit(this.wifi, {'data' : {'x':this.x, 'y':this.y, 'radius':this.radius}}); }"
-		reduce = "function(id, data) { return data[0]; }"
-
-		(ti..tf).step(20).each do |t|
-			opts = {:out => {:inline=>1}, :raw=>true, query: {"time" => {"$gt" => Time.at(t), "$lte" => Time.at(t+20)}}}
-			result << @position.map_reduce(map, reduce, opts)["results"]
-		end
-	end
-
-    #
+    #r
     # Pull Customers/hour between the given times (sec)
     #
     def getCustomersHourly(ti, tf)
@@ -51,16 +36,13 @@ class PositionData
         tf = tf - (tf % 60*60)
 
         result = Hash.new
-        (ti..tf).step(60*60).each do |t|
-            result[t] = @position.find(
+        (ti..tf-1).step(60*60).each do |t|
+            result[t*1000] = @position.distinct("wifi",
             {
-                "time" => {"$gt" => Time.at(t), "$lte" => Time.at(t+3600)}
-            },
-            {
-                :fields => ["wifi"]
-            })
+                "time" => {"$gte" => Time.at(t), "$lt" => Time.at(t+3600)}
+            }).count
         end
-        return result.keys
+        return result
     end
 
 end

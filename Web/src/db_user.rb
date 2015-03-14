@@ -37,7 +37,7 @@ class UserData
     end
 
 	def getEmployees(id)
-		return @employeeData.find({'retailer' => id}).to_a
+		return @employeeData.find({'retailer' => id},{}).to_a
 	end	
 
 	def updateEmployees(retail_id, data)

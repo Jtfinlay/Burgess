@@ -10,6 +10,7 @@ function AnalyticsViewModel() {
 	self.employees = [];
 	self.helpCount = [];
 	self.helpTime = [];
+	self.peakTimes = [];
 	
 	/* 
 	 *	Pull analytical data between given times
@@ -18,8 +19,20 @@ function AnalyticsViewModel() {
 		self.employees = [];
 		self.helpCount = [];
 		self.helpTime = [];
+		self.peakTimes = [];
 		self.REST = 0;
 		self.REST_total = 3;
+
+		$.post("/analytics/customersHourly",
+			{"ti":1425798000000, "tf":1425884399000},
+			function(data) {
+				$.each(JSON.parse(data), function(key, value) {
+				 	self.peakTimes.push([key,value])
+				})
+				peakChart.drawChart("#peakHours svg",
+					peakChart.formatData(self.peakTimes))
+			}
+		);
 
 		$.post("/analytics/helpCount",
     		{"ti":1426118400000, "tf":1426204800000},
@@ -66,6 +79,7 @@ function AnalyticsViewModel() {
 			});
 		});
 		
+		
 		$.each(self.helpCount, function(i, data) {
 			$.map($.grep(self.employees, function(e) {
 				return e._id.$oid == data[0];
@@ -79,16 +93,10 @@ function AnalyticsViewModel() {
 			helpedCountChart.formatData(self.employees));
 		helpedTimeChart.drawChart("#helpTime svg",
 			helpedTimeChart.formatData(self.employees));
-
-		$.get("http://nvd3.org/examples/stackedAreaData.json",
-			function(data) {
-				peakChart.drawChart("#peakHours svg", data);
-				crap = data;
-		});
 	};
 }
+
 var vm = new AnalyticsViewModel();
-var crap;
 $(function() {
 	ko.applyBindings(vm);
 });
