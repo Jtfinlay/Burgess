@@ -23,8 +23,10 @@ function AnalyticsViewModel() {
 		self.REST = 0;
 		self.REST_total = 3;
 
+		console.log("Params: " + ti + ", "+ tf)
+
 		$.post("/analytics/customersHourly",
-			{"ti":1425798000000, "tf":1425884399000},
+			{"ti":ti, "tf":tf},
 			function(data) {
 				$.each(JSON.parse(data), function(key, value) {
 				 	self.peakTimes.push([key,value])
@@ -33,9 +35,8 @@ function AnalyticsViewModel() {
 					peakChart.formatData(self.peakTimes))
 			}
 		);
-
 		$.post("/analytics/helpCount",
-    		{"ti":1426118400000, "tf":1426204800000},
+    		{"ti":ti, "tf":tf},
     		function(data) {
 				$.each(JSON.parse(data), function(key, value) {
 					self.helpCount.push([key,value])
@@ -45,7 +46,7 @@ function AnalyticsViewModel() {
     		}
 		);
 		$.post("/analytics/helpTime",
-			{"ti":1426118400000, "tf":1426204800000},
+			{"ti":ti, "tf":tf},
 			function(data) {
 				$.each(JSON.parse(data), function(key, value) {
 					self.helpTime.push([key,value])
@@ -101,8 +102,24 @@ $(function() {
 	ko.applyBindings(vm);
 });
 
+var formatDate = function(d) {
+	return String.leftPad(d.getMonth() + 1, 2, '0') + '-' + String.leftPad(d.getDate(), 2, '0') + '-' + d.getFullYear();
+}
 
 /* Init Logic */
 var ti = 1426118400000
 var tf = 1426204800000
-vm.pullData(ti,tf);
+// vm.pullData(ti,tf);
+
+/* Date time picker */
+$("#datetimepicker").datetimepicker({
+	format:'m-d-Y',
+	lang:'en',
+	timepicker:false
+});
+$("#datetimepicker").val(formatDate(new Date()));
+$("#datetimeselected").click(function() {
+	m = (new Date($("#datetimepicker").val())).getTime()
+	vm.pullData(m, m+24*3600*1000);
+});
+$("#datetimeselected").click();

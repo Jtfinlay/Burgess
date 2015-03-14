@@ -5,7 +5,7 @@ PeakChart.prototype = {
 
     formatData: function(customers) {
     	return [{
-    		"key": "Customers",
+    		"key": "Customers Today",
     		"color": "#d62728",
     		"values": customers
     	}]

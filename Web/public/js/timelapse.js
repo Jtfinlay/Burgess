@@ -2,8 +2,7 @@
 $("#datetimepicker").datetimepicker({
 	format: 'm-d-Y',
 	lang:'en',
-	timepicker:false,
-	defaultDate: '2012/04/23'
+	timepicker:false
 });
 
 /** RETAIL MAP **/

@@ -44,10 +44,6 @@ class BurgessApp < Sinatra::Base
         erb :home
     end
 
-    get '/about' do
-        erb :about
-    end
-
     get '/livefeed' do
 		js :jcanvas, 'map', 'positionblock', 'livefeed'
         erb :livefeed
@@ -67,7 +63,8 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/analytics' do
-		js :nvd3, :knockout, 'analytics/helpedTimeChart', 'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
+		js :nvd3, :knockout, :datetime, 'analytics/helpedTimeChart', 
+            'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
         erb :analytics
     end
 
