@@ -74,9 +74,12 @@ func main() {
 		t := time.Now()
 		// t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
 		data := aggregateData(pullRecentData(t))
-		priorityData := priority.UpdatePriorities(data)
+		priority.UpdatePriorities(data)
 
-		priority.StoreArchived(t, priorityData)
+		customers = priority.GetCustomers()
+		employees = priority.GetEmployees()
+
+		priority.StoreArchived(t, customers, employees)
 
 		time.Sleep(sleepDuration)
 	}

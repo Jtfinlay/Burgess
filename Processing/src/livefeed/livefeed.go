@@ -15,11 +15,11 @@ import (
 
 var (
     col *mgo.Collection
-    sleepDuration = 5 * time.Second
+    sleepDuration = 1 * time.Second
     host = "ua-bws.cloudapp.net"
 )
 
-func storeUser(c *[1]models.Archived) {
+func storeUser(c *[2]models.Archived) {
     err := col.Insert(
         bson.M {
             "t": time.Now(),
@@ -38,13 +38,15 @@ func main() {
     defer session.Close()
 
     move := float32(1)
-    users := &[...]models.Archived{models.Archived{"zzzzzz", 5, 5, 1, 0}}
+    users := &[...]models.Archived{ models.Archived{"zzzzzz", 5, 3.5, 1, 0, false},
+                                    models.Archived{"eeeeee", 5, 6.8, 1, 0, true}}
 
     col = session.DB("retailers").C("archived_fake")
 
     for {
         users[0].X += move
-        fmt.Println("Storing user")
+        users[1].X -= move
+        fmt.Println("Storing user at", time.Now().UnixNano())
 
         storeUser(users)
 

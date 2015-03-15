@@ -17,7 +17,7 @@ import (
 var (
     Customers = make(map[string]*models.Customer, 0)        // active Customers
     Employees = make(map[string]*models.Employee, 0)        // active Employees
-
+    DEBUG bool
 	c_employ *mgo.Collection
 	c_interactions *mgo.Collection
     EmployeesAll = make(map[string]*models.Employee, 0)     // all Employees
@@ -93,6 +93,7 @@ func UpdateUsers(data *map[string]*models.Position) {
 	for _,employee := range Employees {
 		for i,interaction := range employee.Interactions {
 			if time.Since(interaction.LastTime) > interactionExpiration {
+
 				// Store event
 				StoreInteraction(interaction)
 
@@ -114,7 +115,9 @@ func UpdateUsers(data *map[string]*models.Position) {
  * Push completed interaction to the db
  */
 func StoreInteraction(i *models.Interaction) {
-	err := c_analytics.Insert(
+	if DEBUG {return}
+
+	err := c_interactions.Insert(
 		bson.M{
 			"retailer": nil,
 			"employee": i.Employee.Id,
@@ -151,7 +154,7 @@ func UpdateInteractions() {
 			}
 		}
 
-		// Priority
+		// Calculate Priority
 		if len(customer.Interactions) == 0 {
 			dt := float32(customer.ExpiryTime.UnixNano() -
 				time.Now().UnixNano() + int64(sleepDuration))
@@ -163,6 +166,11 @@ func UpdateInteractions() {
 			if customer.Priority > 1 { customer.Priority = 1}
 			if customer.Priority < 0 { customer.Priority = 0}
 		}
+
+		// TODO::JF Send push notification
+		if customer.Priority == 1 {
+
+		}
 	}
 }
 
@@ -170,7 +178,7 @@ func UpdateInteractions() {
  *	Super function for updating priorities. This also helps track analytics-
  *	based data.
  */
-func UpdatePriorities(data *map[string]*models.Position) *map[string]*models.Customer {
+func UpdatePriorities(data *map[string]*models.Position) {
     // TODO::JF - Filter by retailer
 
     // If it's been a while, update our EmployeeAll data
@@ -181,6 +189,12 @@ func UpdatePriorities(data *map[string]*models.Position) *map[string]*models.Cus
 
 	UpdateUsers(data)
 	UpdateInteractions()
+}
 
+func GetCustomers() *map[string]*models.Customer {
 	return &Customers
+}
+
+func GetEmployees() *map[string]*models.Employee {
+	return &Employees
 }

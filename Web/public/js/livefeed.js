@@ -6,10 +6,12 @@ $.get("map/size", function(result) {
 });
 
 var refreshMapData = function() {
-    dataBlock.requestData_Live(function(result) {
+    dataBlock.requestData_Live(function() {
+        if (!map) return;
 		var positions = dataBlock.getUserPositions((new Date()).getTime());
+        // console.log((new Date()).getTime() - parseInt(Object.keys(dataBlock.data)[0]))
         $.each(positions, function(i,d) {
-            map.addCustomer(d.x, d.y, d.radius, d.priority);
+            map.addCustomer(d.x, d.y, d.radius, d.priority, d.employee);
         });
         map.draw();
         positions = null;
@@ -17,8 +19,8 @@ var refreshMapData = function() {
     })
 }
 
+var dataBlock = new PositionBlock();
+refreshMapData();
 var timer = setInterval(function() {
     refreshMapData();
-}, 6000)
-
-var dataBlock = new PositionBlock();
+}, 1000)

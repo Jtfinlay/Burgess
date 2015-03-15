@@ -23,12 +23,21 @@ var (
 func Init(session *mgo.Session, sleepDur time.Duration) {
     c_arch = session.DB("retailers").C("archived")
     c_employ = session.DB("retailers").C("employees")
-    c_analytics = session.DB("retailers").C("analytics")
+    c_interactions = session.DB("retailers").C("analytics")
     sleepDuration = sleepDur
 }
 
 /** Convert from Customer hash to Archived array **/
-func FormatArchived(hash *map[string]*models.Customer) *[]models.Archived {
+func custToArchived(hash *map[string]*models.Customer) *[]models.Archived {
+    result := make([]models.Archived, 0)
+    for _,value := range *hash {
+        result = append(result, *value.ToArchived())
+    }
+    return &result
+}
+
+/** Convert from Employee hash to Archived array **/
+func emplToArchived(hash *map[string]*models.Employee) *[]models.Archived {
     result := make([]models.Archived, 0)
     for _,value := range *hash {
         result = append(result, *value.ToArchived())
@@ -37,14 +46,14 @@ func FormatArchived(hash *map[string]*models.Customer) *[]models.Archived {
 }
 
 /** Push aggregated data to the archive database **/
-func StoreArchived(now time.Time, customers *map[string]*models.Customer) {
-    data := FormatArchived(customers)
-    if (len(*data) == 0) { return }
+func StoreArchived(now time.Time, customers *map[string]*models.Customer, employees *map[string]*models.Employee) {
+    data := append(*custToArchived(customers), *emplToArchived(employees)...)
+    if (len(data) == 0) { return }
 
     err := c_arch.Insert(
     	bson.M{
     		"t": now,
-    		"data": *data,
+    		"data": data,
     	})
     if err != nil { panic(err) }
 }

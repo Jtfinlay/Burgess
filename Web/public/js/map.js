@@ -44,8 +44,13 @@ LiveMap.prototype = {
 			var x = (c.x / self.width_m) * self.width_px;
 			var y = (c.y / self.height_m) * self.height_px;
 			var r = (c.radius / self.width_m) * self.width_px;
-			jc.circle(x, y, r, 'rgba('+(255*c.priority)+','+(255*(1-c.priority))+',0,0.25)', true);
-			jc.circle(x, y, 6, 'rgba('+(255*c.priority)+',0,'+(255*(1-c.priority))+',0.5)', true);
+			if (c.employee) {
+				jc.circle(x, y, r, 'rgba(0,0,150,0.25)', true);
+				jc.rect(x-6, y-6, 12, 12, 'rgba(0,0,0,0.5', 1);
+			} else {
+				jc.circle(x, y, r, 'rgba('+(255*c.priority)+','+(255*(1-c.priority))+',0,0.25)', true);
+				jc.circle(x, y, 6, 'rgba('+(255*c.priority)+',0,'+(255*(1-c.priority))+',0.5)', true);
+			}
 		});
 
 		jc.start(this.id);
@@ -54,8 +59,8 @@ LiveMap.prototype = {
 	/*
 	 *	Add a customer to the array
 	 */
-	addCustomer:function (xi, yi, ri, pi)
+	addCustomer:function (xi, yi, ri, pi, employee)
 	{
-		this.customers.push({x: xi, y: yi, radius: ri, priority: pi});
+		this.customers.push({x: xi, y: yi, radius: ri, priority: pi, employee: employee});
 	}
 }

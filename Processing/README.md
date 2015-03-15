@@ -8,9 +8,10 @@ go install processing
 ./bin/processing
 ```
 
-And to run the tests, just run the following from the same directory:
+And to run the tests, just run the following from 'Processing' directory:
 ```
 go test priority -v
+go test models -v
 ```
 
 'Livefeed' contains a script that pushes make archived data to test the livefeed of the website.

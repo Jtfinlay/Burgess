@@ -32,7 +32,7 @@ PositionBlock.prototype = {
         $.each(JSON.parse(result), function(index, v) {
             self.data[v.t] = [];
             $.each(v.data, function(index, e) {
-                self.data[v.t].push(new Position(e.mac, e.x, e.y, e.radius, e.priority));
+                self.data[v.t].push(new Position(e.mac, e.x, e.y, e.radius, e.priority, e.employee));
             });
         });
 	},
@@ -51,7 +51,7 @@ PositionBlock.prototype = {
 	/** Binary search for position **/
 	getUserPositions: function(t) {
 		var values = Object.keys(this.data);
-		var error = 20000;
+		var error = 40000;
 
 		var minIndex = 0;
 		var maxIndex = values.length - 1;
@@ -98,12 +98,13 @@ PositionBlock.prototype = {
 	}
 }
 
-function Position(id, x, y, radius, priority) {
+function Position(id, x, y, radius, priority, employee) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
 	this.radius = radius;
 	this.priority = priority;
+	this.employee = employee;
 }
 Position.prototype = {
 	constructor: PositionBlock
