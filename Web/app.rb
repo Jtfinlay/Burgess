@@ -45,7 +45,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/livefeed' do
-		js :jcanvas, 'map', 'positionblock', 'livefeed'
+		js :jcanvas, :knockout, 'map', 'knockout/livefeed'
         erb :livefeed
     end
 

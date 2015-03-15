@@ -23,8 +23,6 @@ function AnalyticsViewModel() {
 		self.REST = 0;
 		self.REST_total = 3;
 
-		console.log("Params: " + ti + ", "+ tf)
-
 		$.post("/analytics/customersHourly",
 			{"ti":ti, "tf":tf},
 			function(data) {
@@ -105,11 +103,6 @@ $(function() {
 var formatDate = function(d) {
 	return String.leftPad(d.getMonth() + 1, 2, '0') + '-' + String.leftPad(d.getDate(), 2, '0') + '-' + d.getFullYear();
 }
-
-/* Init Logic */
-var ti = 1426118400000
-var tf = 1426204800000
-// vm.pullData(ti,tf);
 
 /* Date time picker */
 $("#datetimepicker").datetimepicker({

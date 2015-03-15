@@ -4,7 +4,24 @@
 
 <h1>Live Feed</h1>
 
-<canvas width="600" height="400" id="live_map"></canvas>
+<hr />
+
+<div class='row'>
+	<div class='col-sm-7'>
+		<canvas id="live_map" width="600" height="400"></canvas>
+	</div>
+	<div class='col-sm-5'>
+		<h4>Employees</h4>
+		<table>
+			<tbody data-bind="foreach: employees">
+				<tr>
+					<td><div data-bind="style:{background:color}" style="width:12px; height:12px;"></div></td>
+					<td><p data-bind="text: name"/></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
 
 
 

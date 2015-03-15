@@ -39,7 +39,7 @@ func main() {
 
     move := float32(1)
     users := &[...]models.Archived{ models.Archived{"zzzzzz", 5, 3.5, 1, 0, false},
-                                    models.Archived{"eeeeee", 5, 6.8, 1, 0, true}}
+                                    models.Archived{"40:B0:FA:68:39:0C", 5, 6.8, 1, 0, true}}
 
     col = session.DB("retailers").C("archived_fake")
 
