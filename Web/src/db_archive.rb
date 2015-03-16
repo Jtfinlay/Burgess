@@ -59,13 +59,23 @@ class ArchiveData
 	#
 	# Query archived data for given day
 	#
-	def getPositionsOverDay(y, m, d, timezone)
-		ti = Time.new(y,m,d).to_i + timezone*60
-		tf = ti + (3600*24)
+	# def getPositionsOverDay(y, m, d, timezone)
+	# 	ti = Time.new(y,m,d).to_i + timezone*60
+	# 	tf = ti + (3600*24)
 
-		result = @archived.find({"t" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
-		result.each_index{|i| result[i]['t'] = result[i]['t'].to_i*1000}
-		return result
-	end
+	# 	result = @archived.find({"t" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
+	# 	result.each_index{|i| result[i]['t'] = result[i]['t'].to_i*1000}
+	# 	return result
+	# end
+    def getPositionsOverDay(t, timezone)
+        t = Time.at(t)
+        ti = Time.new(t.year, t.month, t.day).to_i + timezone*60
+        tf = ti + (3600*24)
+        puts ti
+
+        result = @archived.find({"t" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
+        result.each_index{|i| result[i]['t'] = result[i]['t'].to_i*1000}
+        return result
+    end
 
 end
