@@ -22,28 +22,20 @@ public class BluetoothCollection
 
 	private BluetoothManager m_bluetoothManager;
 	private BluetoothAdapter m_bluetoothAdapter;
-	private BluetoothMetadataThread m_btThread;
 	private BroadcastReceiver m_receiver;
-	private Context m_context;
 
-	private final Object m_syncToken;
+	private ArrayList<BluetoothListener> m_listeners = new ArrayList<>();
 
 	private boolean m_errors = false;
 
 	public BluetoothCollection(HashMap<String, String> stationMacs,
 	                           BluetoothManager bluetoothManager,
 	                           WifiManager wifiManager,
-	                           ConnectivityManager connMgr,
-	                           Context context,
-	                           BluetoothMetadataThread btThread,
-	                           Object syncToken)
+	                           ConnectivityManager connMgr)
 	{
 		m_stationMacs = stationMacs;
 		m_bluetoothManager = bluetoothManager;
 		m_bluetoothAdapter = m_bluetoothManager.getAdapter();
-		m_btThread = btThread;
-		m_context = context;
-		m_syncToken = syncToken;
 
 		//wifi needs to be enabled to get the MAC.
 		boolean previousState = wifiManager.isWifiEnabled();
@@ -60,12 +52,12 @@ public class BluetoothCollection
 	}
 
 	// TODO::JT figure out what is going on here and clean up
-	public void startCollection(ArrayList<Result> results)
+	public void startCollection(ArrayList<Result> results, Context context)
 	{
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(BluetoothDevice.ACTION_FOUND);
 		filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-		m_context.registerReceiver(m_receiver, filter);
+		context.registerReceiver(m_receiver, filter);
 
 		m_bluetoothAdapter.startDiscovery();
 	}
@@ -81,8 +73,25 @@ public class BluetoothCollection
 		return networkInfo != null && networkInfo.isConnected();
 	}
 
+	public ListenForData(BluetoothListener listener)
+	{
+		m_listeners.add(listener);
+	}
+
+	public void RemoveListener(BluetoothListener listener)
+	{
+		m_listeners.remove(listener);
+	}
+
+	public interface BluetoothListener
+	{
+		void OnDataReady(ArrayList<Result> results);
+	}
+
 	private class BluetoothReceiver extends BroadcastReceiver
 	{
+		private ArrayList<Result>
+
 		public void onReceive(Context context, Intent intent)
 		{
 			String action = intent.getAction();

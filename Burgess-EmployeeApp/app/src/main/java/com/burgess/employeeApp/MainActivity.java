@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.burgess.btTracking.BluetoothCollection;
 import com.burgess.btTracking.BluetoothMetadataThread;
 
 public class MainActivity extends ActionBarActivity
@@ -20,7 +21,7 @@ public class MainActivity extends ActionBarActivity
 
 	private final static int REQUEST_ENABLE_BT = 55;
 
-	private BluetoothMetadataThread m_bluetoothThread;
+	private BluetoothCollection m_bluetoothSignalCollector;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -47,19 +48,8 @@ public class MainActivity extends ActionBarActivity
 		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
 
-		m_bluetoothThread = new BluetoothMetadataThread(bluetoothManager,
-		                                                wifiManager,
-		                                                connectivityManager,
-		                                                this.getApplicationContext());
-		m_bluetoothThread.start();
-	}
-
-	@Override
-	protected void onDestroy()
-	{
-		m_bluetoothThread.StopCollection();
-
-		super.onDestroy();
+		m_bluetoothSignalCollector = new BluetoothCollection(null /* TODO::JT */, bluetoothManager, connectivityManager, wifiManager);
+		m_bluetoothSignalCollector.startCollection();
 	}
 
 	@Override
