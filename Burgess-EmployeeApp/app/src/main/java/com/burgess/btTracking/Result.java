@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 import java.util.Date;
 
-public final class Result
+public final class Result implements Comparable<Result>
 {
 	private String mac;
 	private String source;
@@ -57,5 +57,11 @@ public final class Result
 	public Date getTime()
 	{
 		return this.time;
+	}
+
+	@Override
+	public int compareTo(Result another)
+	{
+		return mac.compareTo(another.getMAC());
 	}
 }

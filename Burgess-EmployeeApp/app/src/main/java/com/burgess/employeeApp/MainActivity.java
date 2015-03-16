@@ -55,6 +55,14 @@ public class MainActivity extends ActionBarActivity
 	}
 
 	@Override
+	protected void onDestroy()
+	{
+		m_bluetoothThread.StopCollection();
+
+		super.onDestroy();
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -69,10 +77,18 @@ public class MainActivity extends ActionBarActivity
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == com.burgess.employeeApp.R.id.action_settings)
+		boolean wasHandled = false;
+		switch (id)
 		{
-			return true;
+			case com.burgess.employeeApp.R.id.action_settings:
+				break;
+			case com.burgess.employeeApp.R.id.action_openBTView:
+				wasHandled = true;
+				Intent intent = new Intent(this, ViewBTActivity.class);
+				startActivity(intent);
+				break;
 		}
-		return super.onOptionsItemSelected(item);
+
+		return wasHandled || super.onOptionsItemSelected(item);
 	}
 }
