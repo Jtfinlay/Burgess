@@ -27,22 +27,4 @@ class PositionData
 		return result
     end
 
-    #r
-    # Pull Customers/hour between the given times (sec)
-    #
-    def getCustomersHourly(ti, tf)
-        # Round down to nearest hour
-        ti = ti - (ti % 60*60)
-        tf = tf - (tf % 60*60)
-
-        result = Hash.new
-        (ti..tf-1).step(60*60).each do |t|
-            result[t*1000] = @position.distinct("wifi",
-            {
-                "time" => {"$gte" => Time.at(t), "$lt" => Time.at(t+3600)}
-            }).count
-        end
-        return result
-    end
-
 end

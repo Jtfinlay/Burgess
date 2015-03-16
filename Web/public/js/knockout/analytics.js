@@ -26,8 +26,9 @@ function AnalyticsViewModel() {
 		$.post("/analytics/customersHourly",
 			{"ti":ti, "tf":tf},
 			function(data) {
-				$.each(JSON.parse(data), function(key, value) {
-				 	self.peakTimes.push([key,value])
+				$.each(JSON.parse(data), function(index, value) {
+					console.log(value);
+				 	self.peakTimes.push([value.x, value.y])
 				})
 				peakChart.drawChart("#peakHours svg",
 					peakChart.formatData(self.peakTimes))

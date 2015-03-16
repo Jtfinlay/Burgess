@@ -1,5 +1,9 @@
-var formatDate = function(d) {
+var dateToString = function(d) {
 	return String.leftPad(d.getMonth() + 1, 2, '0') + '-' + String.leftPad(d.getDate(), 2, '0') + '-' + d.getFullYear();
+}
+var stringToDate = function(s) {
+	var split = s.split('-');
+	return new Date(split[2],parseInt(split[0])-1,split[1]);
 }
 
 /** TIME SELECT **/
@@ -7,7 +11,6 @@ var timeSelect = new TimeSelect();
 timeSelect.drawChart("#chart", [{key: "Customers", values: []}]);
 timeSelect.drawSelector("#time");
 timeSelect.selectorMoved = function(x) { vm.timePercent(x); }
-
 
 function PlaybackViewModel() {
 	var self = this;
@@ -20,7 +23,7 @@ function PlaybackViewModel() {
 		return new Date(timeSelect.xi + self.timePercent() * (timeSelect.xf - timeSelect.xi));
 	});
 	self.playing = ko.observable(false);
-	self.dateSelected = ko.observable(formatDate(new Date()));
+	self.dateSelected = ko.observable(dateToString(new Date()));
 
 	self.play = function() {
 		timeSelect.play(0.1);
@@ -31,8 +34,8 @@ function PlaybackViewModel() {
 		self.playing(false);
 	};
 	self.pullData = function() {
-		date = self.dateSelected();
-		var time = new Date(date).getTime();
+		var date = self.dateSelected();
+		var time = stringToDate(date).getTime();
 		$.post("/playback/date",
 			{"t": time, "timezone":(new Date).getTimezoneOffset()},
 			function (result) {
@@ -51,8 +54,8 @@ function PlaybackViewModel() {
 			{"ti":time, "tf":time+24*3600*1000},
 			function(result) {
 				var data = [];
-				$.each(JSON.parse(result), function(key, value) {
-					data.push({"x":key, "y": value});
+				$.each(JSON.parse(result), function(i, value) {
+					data.push(value);
 				});
 				timeSelect.updateChart([{key: "Customers", values: data}]);
 			}

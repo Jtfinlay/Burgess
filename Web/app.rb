@@ -101,8 +101,7 @@ class BurgessApp < Sinatra::Base
         ti = Utils.StandardizeTime_s(params[:ti].to_i)
         tf = Utils.StandardizeTime_s(params[:tf].to_i)
         if authenticated?
-            result = settings.db_position.getCustomersHourly(ti, tf)
-            return result.to_json
+            return settings.db_archived.getCustomersHourly(ti, tf).to_json
         end
         return nil
     end

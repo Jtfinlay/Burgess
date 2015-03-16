@@ -59,22 +59,38 @@ class ArchiveData
 	#
 	# Query archived data for given day
 	#
-	# def getPositionsOverDay(y, m, d, timezone)
-	# 	ti = Time.new(y,m,d).to_i + timezone*60
-	# 	tf = ti + (3600*24)
-
-	# 	result = @archived.find({"t" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
-	# 	result.each_index{|i| result[i]['t'] = result[i]['t'].to_i*1000}
-	# 	return result
-	# end
     def getPositionsOverDay(t, timezone)
         t = Time.at(t)
         ti = Time.new(t.year, t.month, t.day).to_i + timezone*60
         tf = ti + (3600*24)
-        puts ti
 
         result = @archived.find({"t" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
         result.each_index{|i| result[i]['t'] = result[i]['t'].to_i*1000}
+        return result
+    end
+
+    #
+    # Pull Customers/hour between the given times (sec)
+    #
+    # This is somehow faster than a 'distinct' mongo query. I hate databases.
+    #
+    def getCustomersHourly(ti, tf)
+        # Round down to nearest hour
+        ti -= (ti % 60*60)
+        tf -= (tf % 60*60)
+
+        data = @archived.find({"t" => {"$gt" => Time.at(ti), "$lte" => Time.at(tf)}}).to_a
+        data.each_index{|i| data[i]['t'] = data[i]['t'].to_i}
+
+        result = [];
+        (ti..tf-1).step(60*60).each do |t|
+            result.push({
+                "x": t*1000,
+                "y": data.select{|o| o["t"].to_i > t and o["t"].to_i < t+60*60}
+                    .map{|v| v["data"]}.flatten.select{|v| !v["employee"]}.map{|v| v["mac"]}.uniq.count
+            })
+        end
+
         return result
     end
 
