@@ -44,12 +44,8 @@ class BurgessApp < Sinatra::Base
         erb :home
     end
 
-    get '/about' do
-        erb :about
-    end
-
     get '/livefeed' do
-		js :jcanvas, 'map', 'positionblock', 'livefeed'
+		js :jcanvas, :knockout, 'map', 'knockout/livefeed'
         erb :livefeed
     end
 
@@ -61,13 +57,14 @@ class BurgessApp < Sinatra::Base
 		return result.to_json
 	end
 
-    get '/timelapse' do
-		js :datetime, :jcanvas, :nvd3, 'map', 'timeselect', 'positionblock', 'timelapse'
-        erb :timelapse
+    get '/playback' do
+		js :datetime, :knockout, :jcanvas, :nvd3, 'map', 'timeselect', 'knockout/playback'
+        erb :playback
     end
 
     get '/analytics' do
-		js :nvd3, :knockout, 'analytics/helpedTimeChart', 'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
+		js :nvd3, :knockout, :datetime, 'analytics/helpedTimeChart', 
+            'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
         erb :analytics
     end
 
@@ -135,11 +132,12 @@ class BurgessApp < Sinatra::Base
 		return nil
     end
 
-    ### TIME LAPSE ###
+    ### PLAY BACK ###
 
-    post '/timelapse/date' do
-        v = params[:value].split('-')
-		return settings.db_archived.getPositionsOverDay(v[2].to_i, v[0].to_i, v[1].to_i, v[3].to_i).to_json
+    post '/playback/date' do
+        t = Utils.StandardizeTime_s(params[:t].to_i)
+        timezone = params[:timezone].to_i
+		return settings.db_archived.getPositionsOverDay(t, timezone).to_json
     end
 
     ### AUTHENTICATION ###

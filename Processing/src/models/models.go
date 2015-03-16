@@ -32,6 +32,7 @@ type (
 		Y float32 "y"
 		Radius float32 "radius"
 		Priority float32 "priority"
+		Employee bool "employee"
 	}
 
 	/** Object representing customer in store **/
@@ -66,9 +67,14 @@ type (
 	}
 )
 
-/** Convert Customer struct to Customer struct **/
+/** Convert Customer struct to Archived struct **/
 func (c *Customer) ToArchived() *Archived {
-	return &Archived{c.MAC, c.Position.X, c.Position.Y, c.Position.Radius, c.Priority}
+	return &Archived{c.MAC, c.Position.X, c.Position.Y, c.Position.Radius, c.Priority, false}
+}
+
+/** Convert Employee struct to Archived struct **/
+func (e *Employee) ToArchived() *Archived {
+	return &Archived{e.MAC, e.Position.X, e.Position.Y, e.Position.Radius, 0, true}
 }
 
 /** Returns the Interaction containing specific customer **/

@@ -1,3 +1,7 @@
+/*
+ *	Manages drawing and updating the LiveFeed to display positions in real time.
+ */
+
 function LiveMap(idCanvas, theWidth, theHeight, img) {
 	var self = this;
 	this.id = idCanvas;
@@ -23,39 +27,26 @@ LiveMap.prototype = {
 	 *	Load background image and any other resources.
 	 */
 	loadResources:function () {
-		that = this;
+		var self = this;
 		this.iBackground = new Image();
-		this.iBackground.onload=function()
-		{ that.draw(); };
+		this.iBackground.onload=function() { self.draw(); };
 		this.iBackground.src = this.img;
 	},
 	/*
-	 *	Draw the customers on the screen, with differentiated priority.
-	 *	Also scales the metric locations to pixel.
+	 *	Draw the customers & employees on the screen.
 	 */
-	draw:function () {
+	draw:function (drawables) {
 		var self = this;
+		drawables = drawables || [];
+
 		jc.start(this.id);
 		jc.rect(0, 0, this.width_px, this.height_px, 'rgba(200, 200, 200, 1)', 1);
 		jc.image(this.iBackground, 0, 0, this.width_px, this.height_px);
 
-		$.each(this.customers, function(i, c)
-		{
-			var x = (c.x / self.width_m) * self.width_px;
-			var y = (c.y / self.height_m) * self.height_px;
-			var r = (c.radius / self.width_m) * self.width_px;
-			jc.circle(x, y, r, 'rgba('+(255*c.priority)+','+(255*(1-c.priority))+',0,0.25)', true);
-			jc.circle(x, y, 6, 'rgba('+(255*c.priority)+',0,'+(255*(1-c.priority))+',0.5)', true);
+		$.each(drawables, function(i, c) {
+			c.draw(self.width_m, self.width_px, self.height_m, self.height_px);
 		});
-
 		jc.start(this.id);
-		this.customers = [];
-	},
-	/*
-	 *	Add a customer to the array
-	 */
-	addCustomer:function (xi, yi, ri, pi)
-	{
-		this.customers.push({x: xi, y: yi, radius: ri, priority: pi});
 	}
 }
+

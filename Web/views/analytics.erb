@@ -2,11 +2,26 @@
 	<p>Please authenticate.</p>
 <% else %>
 
+
+<link href="/vendor/datetimepicker/jquery.datetimepicker.css" rel="stylesheet">
 <link href='/vendor/NVD3/nv.d3.css' rel='stylesheet'>
 
 <h1>Analytics</h1>
 
 <hr />
+
+<p>Try '03-08-2015' or '03-12-2015' for results</p>
+<!-- Date time selector -->
+<div id='timeBar' class="row">
+	<div class='col-sm-3 wrapper' style='display:inline-block; vertical-align:bottom;'>
+		<div class='input-group'>
+			<input id="datetimepicker" type="text" class='form-control'></input>
+			<span class='input-group-btn'>
+				<button id='datetimeselected' class='btn btn-default' type='button'>Go</button>
+			</span>
+		</div>
+	</div>
+</div>
 
 <!-- Peak hours -->
 <div class="row">

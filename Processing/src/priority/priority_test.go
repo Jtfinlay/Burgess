@@ -15,6 +15,7 @@ import (
 )
 
 func resetValues() {
+    DEBUG = true
     sleepDuration = 5*time.Second
     Customers = make(map[string]*models.Customer,0)
     Employees = make(map[string]*models.Employee, 0)

@@ -21,6 +21,7 @@ HelpedCountChart.prototype = {
 	drawChart: function(idSVG, data) {
 		this.id = idSVG;
 		var self = this;
+		if (self.chart != null) { return self.updateChart(data); }
 		
 		nv.addGraph(function() {
 			self.chart = nv.models.multiBarHorizontalChart()

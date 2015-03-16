@@ -1,0 +1,41 @@
+<% if not authenticated? %>
+	<p>Please authenticate.</p>
+<% else %>
+
+<link href="/vendor/datetimepicker/jquery.datetimepicker.css" rel="stylesheet">
+<link href='/vendor/NVD3/nv.d3.css' rel='stylesheet'>
+<link href='/css/timelapse.css' rel='stylesheet'>
+
+<h1>Playback</h1>
+
+<p>03-04-2015</p>
+<div class='row'>
+	<div id='timeBar' style='padding-left: 60px'>
+		<div class='col-sm-1'>
+			<button id='btnPlay' data-bind="visible: !playing(), click: play" type='button' class='btn btn-default' aria-label='Play'>
+				<span class='glyphicon glyphicon-play' aria-hidden='true' style='color:green'></span>
+			</button>
+		    <button id='btnStop' data-bind="visible: playing, click: stop" type='button' class='btn btn-default' aria-label='Stop'>
+		        <span class='glyphicon glyphicon-stop' aria-hidden='true' style='color:red'></span>
+		    </button>
+		</div>
+		<div class='input-group col-sm-4 wrapper'>
+			<input id="datetimepicker" type="text" class='form-control' data-bind='value: dateSelected'></input>
+			<span class='input-group-btn'>
+				<button data-bind="click: pullData" class='btn btn-default' type='button'>Go</button>
+			</span>
+		</div>
+	</div>
+</div>
+
+<!-- MAP -->
+<canvas width="600" height="400" id="live_map" style='padding-left: 60px;'></canvas>
+
+<!-- CHART -->
+<p data-bind="text: timeString"></p>
+<svg width="680" height="200">
+	<svg id="chart" width="680" height="200"></svg>
+	<svg id="time" width="680" height="200"></svg>
+</svg>
+
+<% end %>

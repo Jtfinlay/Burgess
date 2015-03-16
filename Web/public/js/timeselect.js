@@ -24,9 +24,11 @@ TimeSelect.prototype = {
 				.showLegend(false)
 				.showXAxis(true)
 				.showYAxis(true);
+
 			that.chart.xAxis
 				.axisLabel('Time')
 				.tickFormat(function(d) { return d3.time.format('%H:%M')(new Date(d));})
+			
 			that.chart.yAxis
       			.axisLabel('Customers')
       			.tickFormat(d3.format('1.0f'));
@@ -77,7 +79,7 @@ TimeSelect.prototype = {
 		var drag = d3.behavior.drag()
 			.on('dragstart', function() { self.selector.style('opacity', 1)})
 			.on('drag', function () {
-				self.selector.attr('x', Math.max(0, Math.min(d3.event.x - self.container.attr('x'), self.container.attr('width')-BAR_SIZE)));
+				self.selector.attr('x', Math.max(0, Math.min(d3.event.x, self.container.attr('width')-BAR_SIZE)));
 				self.selectorMoved(
 					self.selector.attr('x') / self.container.attr('width')
 				);
