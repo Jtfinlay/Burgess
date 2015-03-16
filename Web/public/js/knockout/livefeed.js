@@ -9,7 +9,7 @@ function LiveFeedViewModel() {
 		$.each(drawables, function(i,d) {
 			var exist_array = d.employee ? self.employees : self.customers;
 			var existing = $.map(exist_array(), function(e,i) {
-				if (d.mac == e.mac) { return i; }
+				if (d.id() == e.id()) { return i; }
 			})[0];
 
 			d.lastUpdated = (new Date()).getTime();
@@ -63,7 +63,7 @@ $.get("map/size", function(result) {
     var details = JSON.parse(result);
     map = new LiveMap("live_map", details.width, details.height, details.store_img);
 });
-
+var fart;
 var refreshMapData = function() {
 	var self = this;
 	$.get("livefeed/data", function(result) {

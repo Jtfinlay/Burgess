@@ -102,6 +102,6 @@ func (i *Interaction) GetPriorityTime() time.Time {
 	} else if t >= (30 * time.Second) {
 		return time.Unix(0, time.Now().UnixNano() + int64(7*time.Minute))
 	} else {
-			return time.Unix(0, time.Now().UnixNano() + int64(2*time.Minute))
+		return time.Unix(0, time.Now().UnixNano() + int64(2*time.Minute))
 	}
 }

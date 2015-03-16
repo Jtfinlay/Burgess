@@ -8,7 +8,6 @@ function LiveMap(idCanvas, theWidth, theHeight, img) {
 	this.width_m = theWidth;
 	this.height_m = theHeight;
 	this.img = img;
-	this.customers = [];
 
 	this.width_px = 600; this.height_px = 400;
 	this.loadResources();

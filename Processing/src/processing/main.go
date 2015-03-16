@@ -19,7 +19,7 @@ import (
 
 var (
 	c_pos *mgo.Collection					// db connection
-	sleepDuration = 5 * time.Second			// period to aggregate data over
+	sleepDuration = 2 * time.Second			// period to aggregate data over
 	offset = int64(1 * time.Second)			// offset in case aggregation is slow
 	host = "ua-bws.cloudapp.net"
 )
@@ -69,15 +69,17 @@ func main() {
 
 	priority.Init(session, sleepDuration)
 
+	c_pos = session.DB("retailers").C("position")
+
 
 	for {
 		t := time.Now()
-		// t := time.Unix(0, 1425452375000 * int64(time.Millisecond))
 		data := aggregateData(pullRecentData(t))
+
 		priority.UpdatePriorities(data)
 
-		customers = priority.GetCustomers()
-		employees = priority.GetEmployees()
+		customers := priority.GetCustomers()
+		employees := priority.GetEmployees()
 
 		priority.StoreArchived(t, customers, employees)
 

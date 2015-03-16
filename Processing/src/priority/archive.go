@@ -8,7 +8,6 @@
 package priority
 
 import (
-    // "fmt"
     "time"
     "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -47,9 +46,9 @@ func emplToArchived(hash *map[string]*models.Employee) *[]models.Archived {
 
 /** Push aggregated data to the archive database **/
 func StoreArchived(now time.Time, customers *map[string]*models.Customer, employees *map[string]*models.Employee) {
+
     data := append(*custToArchived(customers), *emplToArchived(employees)...)
     if (len(data) == 0) { return }
-
     err := c_arch.Insert(
     	bson.M{
     		"t": now,

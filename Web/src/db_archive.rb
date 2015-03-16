@@ -9,7 +9,7 @@ class ArchiveData
         conn = MongoSingleton::instance
         db = conn.db('retailers')
         @position = db['position']
-		@archived = db['archived_fake']
+		@archived = db['archived']
     end
 
     #
@@ -70,11 +70,11 @@ class ArchiveData
     end
 
     #
-    # Pull Customers/hour between the given times (sec)
+    # Pull Customers(or Employees)/hour between the given times (sec)
     #
     # This is somehow faster than a 'distinct' mongo query. I hate databases.
     #
-    def getCustomersHourly(ti, tf)
+    def getVisitorsHourly(ti, tf, employees)
         # Round down to nearest hour
         ti -= (ti % 60*60)
         tf -= (tf % 60*60)
@@ -87,7 +87,7 @@ class ArchiveData
             result.push({
                 "x": t*1000,
                 "y": data.select{|o| o["t"].to_i > t and o["t"].to_i < t+60*60}
-                    .map{|v| v["data"]}.flatten.select{|v| !v["employee"]}.map{|v| v["mac"]}.uniq.count
+                    .map{|v| v["data"]}.flatten.select{|v| v["employee"] == employees }.map{|v| v["mac"]}.uniq.count
             })
         end
 

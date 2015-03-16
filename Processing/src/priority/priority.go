@@ -25,7 +25,7 @@ var (
 
     userExpiration = 20 * time.Second			// Time until user considered dead
 	interactionExpiration =  10*time.Second 	// Time until interaction considered dead
-	interactionDistance = float32(4)			// 4 metres, boundary box
+	interactionDistance = float32(2)			// 2 metres, boundary box
 )
 
 /*
@@ -37,7 +37,8 @@ func PullEmployeeData() {
     if err != nil { panic(err) }
 
     for _,value := range result {
-        EmployeesAll[value.MAC] = &value
+    	temp := value
+        EmployeesAll[value.MAC] = &temp
     }
 }
 
@@ -73,7 +74,7 @@ func UpdateUsers(data *map[string]*models.Position) {
             Customers[value.Wifi].Position = *value
         } else {
             Customers[value.Wifi] = &models.Customer{value.Wifi, time.Now(),
-                time.Now(), *value, time.Now(), 0, nil}
+                time.Now(), *value, time.Unix(0, time.Now().UnixNano() + int64(5*time.Minute)), 0, nil}
         }
     }
 
