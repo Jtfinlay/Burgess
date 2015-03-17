@@ -2,61 +2,63 @@
 <link href='/vendor/NVD3/nv.d3.css' rel='stylesheet'>
 <link href='/css/timelapse.css' rel='stylesheet'>
 
-<h1>Playback</h1>
+<div class='container' style='padding-top:50px'>
+	<h1>Playback</h1>
 
-<p>03-16-2015</p>
-<div class='row'>
-	<div id='timeBar' style='padding-left: 60px'>
-		<div class='input-group col-sm-4 wrapper'>
-			<input id="datetimepicker" type="text" class='form-control' data-bind='value: dateSelected'></input>
-			<span class='input-group-btn'>
-				<button data-bind="click: pullData" class='btn btn-default' type='button'>Select Date</button>
+	<p>03-16-2015</p>
+	<div class='row'>
+		<div id='timeBar' style='padding-left: 60px'>
+			<div class='input-group col-sm-4 wrapper'>
+				<input id="datetimepicker" type="text" class='form-control' data-bind='value: dateSelected'></input>
+				<span class='input-group-btn'>
+					<button data-bind="click: pullData" class='btn btn-default' type='button'>Select Date</button>
+				</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- MAP -->
+	<div class='row'>
+		<div class='col-sm-7'>
+			<canvas id="live_map" width="600" height="400"></canvas>
+		</div>
+		<div class='col-sm-5'>
+			<h4>Employees</h4>
+			<table>
+				<tbody data-bind="foreach: employees">
+					<tr>
+						<td><div data-bind="style:{background:color}" style="width:12px; height:12px;"></div></td>
+						<td><p data-bind="text: name"/></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<br /><br />
+
+	<!-- TIME RATE -->
+	<div class='row' style='padding-left: 70px'>
+		<div class='col-sm-1'>
+				<button id='btnPlay' data-bind="visible: !playing(), click: play" type='button' class='btn btn-default' aria-label='Play'>
+					<span class='glyphicon glyphicon-play' aria-hidden='true' style='color:green'></span>
+				</button>
+			    <button id='btnStop' data-bind="visible: playing, click: stop" type='button' class='btn btn-default' aria-label='Stop'>
+			        <span class='glyphicon glyphicon-stop' aria-hidden='true' style='color:red'></span>
+			    </button>
+			</div>
+		<div class='col-sm-1'><h5 data-bind="text: timeString"></h5></div>
+		<div class='input-group col-sm-3'>
+			<input type="text" class="form-control" placeholder="Rate" data-bind="value: timeScaleString">
+			<span class="input-group-btn">
+				<button class="btn btn-default" data-bind="click: setTimeScale" type="button">Set Time Rate</button>
 			</span>
 		</div>
 	</div>
+
+	<!-- CHART -->
+	<svg width="680" height="200">
+		<svg id="chart" width="680" height="200"></svg>
+		<svg id="time" width="680" height="200"></svg>
+	</svg>
 </div>
-
-<!-- MAP -->
-<div class='row'>
-	<div class='col-sm-7'>
-		<canvas id="live_map" width="600" height="400"></canvas>
-	</div>
-	<div class='col-sm-5'>
-		<h4>Employees</h4>
-		<table>
-			<tbody data-bind="foreach: employees">
-				<tr>
-					<td><div data-bind="style:{background:color}" style="width:12px; height:12px;"></div></td>
-					<td><p data-bind="text: name"/></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-</div>
-
-<br /><br />
-
-<!-- TIME RATE -->
-<div class='row' style='padding-left: 70px'>
-	<div class='col-sm-1'>
-			<button id='btnPlay' data-bind="visible: !playing(), click: play" type='button' class='btn btn-default' aria-label='Play'>
-				<span class='glyphicon glyphicon-play' aria-hidden='true' style='color:green'></span>
-			</button>
-		    <button id='btnStop' data-bind="visible: playing, click: stop" type='button' class='btn btn-default' aria-label='Stop'>
-		        <span class='glyphicon glyphicon-stop' aria-hidden='true' style='color:red'></span>
-		    </button>
-		</div>
-	<div class='col-sm-1'><h5 data-bind="text: timeString"></h5></div>
-	<div class='input-group col-sm-3'>
-		<input type="text" class="form-control" placeholder="Rate" data-bind="value: timeScaleString">
-		<span class="input-group-btn">
-			<button class="btn btn-default" data-bind="click: setTimeScale" type="button">Set Time Rate</button>
-		</span>
-	</div>
-</div>
-
-<!-- CHART -->
-<svg width="680" height="200">
-	<svg id="chart" width="680" height="200"></svg>
-	<svg id="time" width="680" height="200"></svg>
-</svg>
