@@ -15,18 +15,34 @@ timeSelect.selectorMoved = function(x) { vm.timePercent(x); }
 function PlaybackViewModel() {
 	var self = this;
 
+	self.employees = ko.observableArray();
 	self.drawables = ko.observableArray();
 	self.positions = {};
 
+	self.timeScaleString = ko.observable(5);
+	self.timeScale = ko.computed(function() {
+		return self.timeScaleString() / 1000
+	});
+	self.timeScale.subscribe(function(newValue) {
+		if (self.playing()) {
+			self.stop();
+			self.play();
+		}
+	});
 	self.timePercent = ko.observable(0);
 	self.timeString = ko.computed(function() {
-		return new Date(timeSelect.xi + self.timePercent() * (timeSelect.xf - timeSelect.xi));
+		var d = new Date(timeSelect.xi + self.timePercent() * (timeSelect.xf - timeSelect.xi));
+		return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)+":"+("0"+d.getSeconds()).slice(-2);
 	});
+	self.setTimeScale = function(value) {
+		console.log(value);
+	}
+
 	self.playing = ko.observable(false);
 	self.dateSelected = ko.observable(dateToString(new Date()));
 
 	self.play = function() {
-		timeSelect.play(0.1);
+		timeSelect.play(self.timeScale());
 		self.playing(true);
 	};
 	self.stop = function() {
@@ -46,8 +62,6 @@ function PlaybackViewModel() {
 						self.positions[v.t].push(e);
 					})
 				});
-
-
 			}
 		);
 		$.post("/analytics/customersHourly",
@@ -113,8 +127,10 @@ $.get("map/size", function(result) {
 vm.timePercent.subscribe(function(x) {
 	var t = timeSelect.xi + x * (timeSelect.xf - timeSelect.xi);
 	vm.drawables([]);
+	vm.employees([]);
 	$.each(getUserPositions(t), function(i,d) {
 		vm.drawables().push(new Drawable(d));
+		if (d.employee) { vm.employees().push(new Drawable(d))}
 	})
 	map.draw(vm.drawables());
 })
