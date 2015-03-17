@@ -12,6 +12,10 @@ require './src/db_analytics'
 class BurgessApp < Sinatra::Base
 	helpers Sinatra::JavaScripts
 
+    def route
+        request.path
+    end
+
     configure do
         enable :sessions
         set :db_user, UserData.new
@@ -40,36 +44,59 @@ class BurgessApp < Sinatra::Base
         end
     end
 
+    before do
+        session[:path] = request.path if !request.path.include?("login")
+    end
+
     get '/' do
         erb :home
     end
 
     get '/livefeed' do
-		js :jcanvas, :knockout, 'map', 'knockout/livefeed'
-        erb :livefeed
+        if authenticated?
+    		js :jcanvas, :knockout, 'map', 'knockout/livefeed'
+            erb :livefeed
+        else
+            erb :login_form
+        end
     end
 
 	get '/livefeed/data' do
-		session[:timelast] = Time.now - 4 if session[:timelast].nil? || session[:timelast] > Time.now - 8
-		result = settings.db_archived.getPositionsSince(session[:timelast])
-		session[:timelast] = Time.now
-		return result.to_json
+        if authenticated?
+    		session[:timelast] = Time.now - 4 if session[:timelast].nil? || session[:timelast] > Time.now - 8
+    		result = settings.db_archived.getPositionsSince(session[:timelast])
+    		session[:timelast] = Time.now
+    		return result.to_json
+        end
+        return nil
 	end
 
     get '/playback' do
-		js :datetime, :knockout, :jcanvas, :nvd3, 'map', 'timeselect', 'knockout/playback'
-        erb :playback
+        if authenticated?
+    		js :datetime, :knockout, :jcanvas, :nvd3, 'map', 'timeselect', 'knockout/playback'
+            erb :playback
+        else
+            erb :login_form
+        end
     end
 
     get '/analytics' do
-		js :nvd3, :knockout, :datetime, 'analytics/helpedTimeChart', 
-            'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
-        erb :analytics
+        if authenticated?
+    		js :nvd3, :knockout, :datetime, 'analytics/helpedTimeChart', 
+                'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
+            erb :analytics
+        else
+            erb :login_form
+        end
     end
 
     get '/settings' do
-		js :knockout, 'knockout/settings'
-        erb :settings
+        if authenticated?
+    		js :knockout, 'knockout/settings'
+            erb :settings
+        else
+            erb :login_form
+        end
     end
 
 	### ANALYTICS ###
@@ -142,9 +169,12 @@ class BurgessApp < Sinatra::Base
     ### PLAY BACK ###
 
     post '/playback/date' do
-        t = Utils.StandardizeTime_s(params[:t].to_i)
-        timezone = params[:timezone].to_i
-		return settings.db_archived.getPositionsOverDay(t, timezone).to_json
+        if authenticated?
+            t = Utils.StandardizeTime_s(params[:t].to_i)
+            timezone = params[:timezone].to_i
+    		return settings.db_archived.getPositionsOverDay(t, timezone).to_json
+        end
+        return nil
     end
 
     ### AUTHENTICATION ###
@@ -156,7 +186,7 @@ class BurgessApp < Sinatra::Base
     post '/login' do
         session[:identity] = settings.db_user.getUser(params['username'])
         if not session[:identity].nil? and session[:identity].validatePassword(params['password'])
-            redirect to '/'
+            redirect to session[:path] || '/'
         else
             push_error('Invalid login')
             redirect to '/login'
