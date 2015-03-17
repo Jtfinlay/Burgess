@@ -23,9 +23,9 @@ var (
     EmployeesAll = make(map[string]*models.Employee, 0)     // all Employees
     EmployeePullTime time.Time
 
-    userExpiration = 20 * time.Second			// Time until user considered dead
-	interactionExpiration =  10*time.Second 	// Time until interaction considered dead
-	interactionDistance = float32(2)			// 2 metres, boundary box
+    userExpiration = 10 * time.Second			// Time until user considered dead
+	interactionExpiration =  5*time.Second 		// Time until interaction considered dead
+	interactionDistance = float32(1)			// 2 metres, boundary box
 )
 
 /*
@@ -116,8 +116,6 @@ func UpdateUsers(data *map[string]*models.Position) {
  * Push completed interaction to the db
  */
 func StoreInteraction(i *models.Interaction) {
-	if DEBUG {return}
-
 	err := c_interactions.Insert(
 		bson.M{
 			"retailer": nil,
@@ -125,7 +123,7 @@ func StoreInteraction(i *models.Interaction) {
 			"customer": i.Customer.MAC,
 			"startTime": i.StartTime,
 			"endTime": i.LastTime,
-			"elapsedTime": i.LastTime.UnixNano()-i.StartTime.UnixNano(),
+			"elapsedTime": (i.LastTime.UnixNano()-i.StartTime.UnixNano())/1000000,
 			"priorityBefore": i.PriorityAtStart,
 			"position": i.Employee.Position.Id,
 	})

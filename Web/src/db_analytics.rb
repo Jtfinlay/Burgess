@@ -8,7 +8,7 @@ class AnalyticsData
     def initialize
         conn = MongoSingleton::instance
         db = conn.db('retailers')
-        @interactions = db['interactions']
+        @interactions = db['analytics']
     end
 
     #
@@ -38,7 +38,7 @@ class AnalyticsData
         employees.each{|v|
             result[v] = @interactions.find(
             {
-				"employee" => {"_id" => v},
+				"employee" => v,
                 "startTime" => {"$gte" => Time.at(ti)},
                 "endTime" => {"$lte" => Time.at(tf)},
                 "elapsedTime" => {"$gte" => minLength*1000}
@@ -56,7 +56,7 @@ class AnalyticsData
         employees.each{|v|
             result[v] = @interactions.find(
             {
-				"employee" => {"_id" => v},
+				"employee" => v,
                 "startTime" => {"$gte" => Time.at(ti)},
                 "endTime" => {"$lte" => Time.at(tf)}
             },

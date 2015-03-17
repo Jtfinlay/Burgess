@@ -81,7 +81,7 @@ class BurgessApp < Sinatra::Base
 		if authenticated?
 			employees = settings.db_user.getEmployees(session[:identity].id)
 			employees.map!{|e| e["_id"]}
-            return settings.db_analytics.getEmployeeHelpCount(ti,tf,10,employees).to_json
+            return settings.db_analytics.getEmployeeHelpCount(ti,tf,0,employees).to_json
 		end
 		return nil
 	end

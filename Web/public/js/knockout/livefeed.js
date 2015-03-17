@@ -6,6 +6,9 @@ function LiveFeedViewModel() {
 	self.customers = ko.observableArray();
 
 	self.update = function(drawables) {
+		drawables = drawables || [];
+
+		// Update values
 		$.each(drawables, function(i,d) {
 			var exist_array = d.employee ? self.employees : self.customers;
 			var existing = $.map(exist_array(), function(e,i) {
@@ -19,7 +22,8 @@ function LiveFeedViewModel() {
 			} else {
 				exist_array()[existing].update(d);
 			}
-		})
+		});
+		// Remove old values
 	}
 
 	self.mapData = function(result) {
