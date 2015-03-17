@@ -1,3 +1,5 @@
+var drawableExpired = 5*1000;
+
 function LiveFeedViewModel() {
 	var self = this;
 
@@ -23,7 +25,14 @@ function LiveFeedViewModel() {
 				exist_array()[existing].update(d);
 			}
 		});
+
 		// Remove old values
+		self.customers($.grep(self.customers(), function(d,i) {
+			return ((new Date()).getTime() - d.lastUpdated < drawableExpired);
+		}));
+		self.employees($.grep(self.employees(), function(d,i) {
+			return ((new Date()).getTime() - d.lastUpdated < drawableExpired);
+		}));
 	}
 
 	self.mapData = function(result) {
