@@ -35,11 +35,8 @@ HelpedTimeChart.prototype = {
                 .showValues(true)
                 .tooltips(false);
 
-            d3.select(idSVG)
-                .datum(data)
-                .transition().duration(1000)
-                .call(self.chart);
-
+            self.updateChart(data);
+            
             nv.utils.windowResize(self.chart.update);
             return self.chart;
         });
@@ -48,6 +45,7 @@ HelpedTimeChart.prototype = {
     updateChart: function(data) {
         d3.select(this.id)
             .datum(data)
+            .transition().duration(1000)
             .call(this.chart);
     }
 };

@@ -10,7 +10,8 @@ function AnalyticsViewModel() {
 	self.employees = [];
 	self.helpCount = [];
 	self.helpTime = [];
-	self.peakTimes = [];
+	self.peakCustomerTimes = [];
+	self.peakEmployeeTimes = [];
 	
 	/* 
 	 *	Pull analytical data between given times
@@ -27,16 +28,20 @@ function AnalyticsViewModel() {
 			{"ti":ti, "tf":tf},
 			function(data) {
 				$.each(JSON.parse(data), function(index, value) {
-				 	self.peakTimes.push([value.x, value.y])
+				 	self.peakCustomerTimes.push([value.x, value.y])
 				})
 				peakChart.drawChart("#peakHours svg",
-					peakChart.formatData(self.peakTimes))
+					peakChart.formatCustomerData(self.peakCustomerTimes), null)
 			}
 		);
 		$.post("/analytics/employeesHourly",
 			{"ti":ti, "tf":tf},
 			function(data) {
-				// TODO
+				$.each(JSON.parse(data), function(index, value) {
+					self.peakEmployeeTimes.push([value.x, value.y])
+				})
+				peakChart.drawChart("#peakHours svg",
+					null, peakChart.formatEmployeeData(self.peakEmployeeTimes))
 			}
 		);
 		$.post("/analytics/helpCount",
@@ -121,4 +126,5 @@ $("#datetimeselected").click(function() {
 	m = (new Date($("#datetimepicker").val())).getTime()
 	vm.pullData(m, m+24*3600*1000);
 });
+/* Init */
 $("#datetimeselected").click();
