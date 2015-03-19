@@ -106,7 +106,7 @@ public final class BluetoothSendMetaData extends AsyncTask<ArrayList<Result>, Vo
 	protected Boolean doInBackground(ArrayList<Result>... params)
 	{
 		boolean result = true;
-		for(ArrayList<Result> data : params)
+		for (ArrayList<Result> data : params)
 		{
 			result = result & this.POST(data);
 		}

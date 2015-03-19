@@ -10,13 +10,17 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
-public class BluetoothCollection
+public final class BluetoothCollection
 {
+	// Singletons are awful... but because Android this is the simplest way to do this
+	public static BluetoothCollection Instance;
+
 	private HashMap<String, String> m_stationMacs;
 	private String m_localMacAddress;
 
@@ -49,10 +53,11 @@ public class BluetoothCollection
 		{
 			m_errors = true;
 		}
+
+		Instance = this;
 	}
 
-	// TODO::JT figure out what is going on here and clean up
-	public void startCollection(ArrayList<Result> results, Context context)
+	public void startCollection(Context context)
 	{
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(BluetoothDevice.ACTION_FOUND);
@@ -73,7 +78,7 @@ public class BluetoothCollection
 		return networkInfo != null && networkInfo.isConnected();
 	}
 
-	public ListenForData(BluetoothListener listener)
+	public void ListenForData(BluetoothListener listener)
 	{
 		m_listeners.add(listener);
 	}
@@ -83,6 +88,14 @@ public class BluetoothCollection
 		m_listeners.remove(listener);
 	}
 
+	private void PublishData(ArrayList<Result> data)
+	{
+		for (BluetoothListener listener : m_listeners)
+		{
+			listener.OnDataReady(data);
+		}
+	}
+
 	public interface BluetoothListener
 	{
 		void OnDataReady(ArrayList<Result> results);
@@ -90,7 +103,7 @@ public class BluetoothCollection
 
 	private class BluetoothReceiver extends BroadcastReceiver
 	{
-		private ArrayList<Result>
+		private ArrayList<Result> m_results = new ArrayList<>();
 
 		public void onReceive(Context context, Intent intent)
 		{
@@ -103,16 +116,19 @@ public class BluetoothCollection
 
 				if (m_stationMacs.containsKey(device.getAddress()))
 				{
-					m_btThread.addResult(new Result(m_localMacAddress, m_stationMacs.get(device.getAddress()), rssi, time.getTime()));
+					m_results.add(new Result(m_localMacAddress,
+							m_stationMacs.get(device.getAddress()),
+							rssi,
+							time.getTime()));
 				}
 			}
 			else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
 			{
-				m_context.unregisterReceiver(m_receiver);
-				synchronized (m_syncToken)
-				{
-					m_syncToken.notify();
-				}
+				context.unregisterReceiver(m_receiver);
+				PublishData(m_results);
+				BluetoothSendMetaData sender = new BluetoothSendMetaData();
+				sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m_results);
+				m_results = new ArrayList<>();
 			}
 		}
 	}
