@@ -1,8 +1,8 @@
 package com.burgess.employeeApp;
 
 import android.content.Context;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -12,7 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.burgess.btTracking.BluetoothMetadataThread;
+import com.burgess.btTracking.BluetoothCollection;
 import com.burgess.btTracking.Result;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ViewBTActivity extends ActionBarActivity implements BluetoothMetadataThread.OnDataRxedCallback
+public class ViewBTActivity extends ActionBarActivity implements BluetoothCollection.BluetoothListener
 {
 	private BluetoothListAdapter m_adapter;
 	private ListView m_list;
@@ -36,9 +36,9 @@ public class ViewBTActivity extends ActionBarActivity implements BluetoothMetada
 		m_list.setAdapter(m_adapter);
 
 		// I really hate singletons....
-		if(BluetoothMetadataThread.Instance != null)
+		if (BluetoothCollection.Instance != null)
 		{
-			BluetoothMetadataThread.Instance.RegisterListener(this);
+			BluetoothCollection.Instance.ListenForData(this);
 		}
 		else
 		{
@@ -49,9 +49,9 @@ public class ViewBTActivity extends ActionBarActivity implements BluetoothMetada
 	@Override
 	protected void onDestroy()
 	{
-		if(BluetoothMetadataThread.Instance != null)
+		if (BluetoothCollection.Instance != null)
 		{
-			BluetoothMetadataThread.Instance.RemoveListener(this);
+			BluetoothCollection.Instance.RemoveListener(this);
 		}
 
 		super.onDestroy();
@@ -64,9 +64,9 @@ public class ViewBTActivity extends ActionBarActivity implements BluetoothMetada
 	}
 
 	@Override
-	public void OnDataAvailable(final ArrayList<Result> data)
+	public void OnDataReady(final ArrayList<Result> data)
 	{
-		if(data.size() == 0)
+		if (data.size() == 0)
 		{
 			return;
 		}
@@ -84,7 +84,7 @@ public class ViewBTActivity extends ActionBarActivity implements BluetoothMetada
 
 	private final class BluetoothListAdapter extends BaseAdapter
 	{
-		private Object m_syncToken = new Object();
+		private final Object m_syncToken = new Object();
 		private Map<String, Result> m_data = new HashMap<>();
 		private List<String> m_macs = new ArrayList<>();
 		private Context m_context;
@@ -129,8 +129,8 @@ public class ViewBTActivity extends ActionBarActivity implements BluetoothMetada
 			synchronized (m_syncToken)
 			{
 				Result res = getItem(position);
-				mac.setText(res.getMAC());
-				strength.setText(((Integer)(res.getSignalStrength())).toString());
+				mac.setText(res.getSource());
+				strength.setText(((Integer) (res.getSignalStrength())).toString());
 			}
 
 			return v;
@@ -140,13 +140,13 @@ public class ViewBTActivity extends ActionBarActivity implements BluetoothMetada
 		{
 			synchronized (m_syncToken)
 			{
-				for(Result res : data)
+				for (Result res : data)
 				{
-					if(!m_data.containsKey(res.getMAC()))
+					if (!m_data.containsKey(res.getSource()))
 					{
-						m_macs.add(0, res.getMAC());
+						m_macs.add(0, res.getSource());
 					}
-					m_data.put(res.getMAC(), res);
+					m_data.put(res.getSource(), res);
 				}
 
 				notifyDataSetChanged();

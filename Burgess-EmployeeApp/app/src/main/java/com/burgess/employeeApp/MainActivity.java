@@ -13,14 +13,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.burgess.btTracking.BluetoothMetadataThread;
+import com.burgess.btTracking.BluetoothCollection;
+
+import java.util.HashMap;
 
 public class MainActivity extends ActionBarActivity
 {
-
 	private final static int REQUEST_ENABLE_BT = 55;
 
-	private BluetoothMetadataThread m_bluetoothThread;
+	private BluetoothCollection m_bluetoothSignalCollector;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -47,19 +48,14 @@ public class MainActivity extends ActionBarActivity
 		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
 
-		m_bluetoothThread = new BluetoothMetadataThread(bluetoothManager,
-		                                                wifiManager,
-		                                                connectivityManager,
-		                                                this.getApplicationContext());
-		m_bluetoothThread.start();
-	}
+		// TODO::TM hook this up to server DB
+		HashMap<String, String> stationMacs = new HashMap<>();
 
-	@Override
-	protected void onDestroy()
-	{
-		m_bluetoothThread.StopCollection();
-
-		super.onDestroy();
+		m_bluetoothSignalCollector = new BluetoothCollection(stationMacs,
+				bluetoothManager,
+				wifiManager,
+				connectivityManager);
+		m_bluetoothSignalCollector.startCollection(getApplicationContext());
 	}
 
 	@Override

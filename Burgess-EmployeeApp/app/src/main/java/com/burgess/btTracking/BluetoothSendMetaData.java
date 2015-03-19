@@ -1,5 +1,6 @@
 package com.burgess.btTracking;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
@@ -15,11 +16,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class BluetoothSendMetaData
+public final class BluetoothSendMetaData extends AsyncTask<ArrayList<Result>, Void, Boolean>
 {
 	private final String url = "http://192.168.0.22:9000/rawBluetooth";
 
-	public boolean POST(ArrayList<Result> results)
+	private boolean POST(ArrayList<Result> results)
 	{
 		if (results.isEmpty())
 		{
@@ -99,6 +100,17 @@ public class BluetoothSendMetaData
 
 		inputStream.close();
 		return result;
+	}
 
+	@Override
+	protected Boolean doInBackground(ArrayList<Result>... params)
+	{
+		boolean result = true;
+		for (ArrayList<Result> data : params)
+		{
+			result = result & this.POST(data);
+		}
+
+		return result;
 	}
 }
