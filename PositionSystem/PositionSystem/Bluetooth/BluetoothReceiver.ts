@@ -18,25 +18,24 @@ export class Receiver {
 
 	private m_db: mongodb.Db;
     private m_solver: bluetooth.PositionSolver;
-
-	constructor(solver: bluetooth.PositionSolver, db: mongodb.Db, app: express.Express) {
+    
+    constructor(solver: bluetooth.PositionSolver, db: mongodb.Db, app: express.Express) {
 		this.m_solver = solver;
         this.m_db = db;
 
         var self = this;
         app.post('/rawBluetooth', function (req: express.Request, res: express.Response) {
-            var macsToUpdate = self.saveRawToDB(req.body, function (macsToUpdate) {
-                console.log("Bluetooth Solving for : " + macsToUpdate.length);
-                self.m_solver.solveFor(macsToUpdate);
+            var entry = self.saveRawToDB(req.body, function (entry) {
+                console.log("Bluetooth Solver Solving");
+                self.m_solver.solveFor(entry);
             });
             res.sendStatus(200);
         });
     }
 
-    private saveRawToDB(raw: RawBluetoothEntry[], cb: (updatedMacs: string[]) => void): void {
-		var updatedMacs: string[] = [];
-		var macSet = {};
-		var self = this;
+    private saveRawToDB(raw: RawBluetoothEntry[], cb: (entry: common.BluetoothEntry) => void): void {
+        var entry: common.BluetoothEntry;
+        var self = this;
 
         self.m_db.collection(constants.RAW_BLUETOOTH_COLLECTION, function (err: Error, rawBluetoothCollection: mongodb.Collection): void {
 			if (err) {
@@ -44,25 +43,17 @@ export class Receiver {
 				return;
 			}
 
-			var entries: common.BluetoothEntry[] = [];
-
             raw.forEach(function (val, index, array) {
-                var entry = new common.BluetoothEntry(val.mac, val.source, val.strength, val.time);
-                entries.push(entry);
-                macSet[entry.mac] = entry.mac;
+                entry = new common.BluetoothEntry(val.mac, val.source, val.strength, val.time);
             });
 
-			rawBluetoothCollection.insert(entries, function (error, result) {
+			rawBluetoothCollection.insert(entry, function (error, result) {
 				if (error) {
 					console.log('Error saving entry to DB : ' + error);
 				}
 			});
 
-			for (var id in macSet) {
-				updatedMacs.push(id);
-			}
-
-			cb(updatedMacs);
+			cb(entry);
 		});
     }
 }

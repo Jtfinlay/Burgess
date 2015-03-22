@@ -27,6 +27,7 @@ public final class BluetoothCollection
 	private BluetoothManager m_bluetoothManager;
 	private BluetoothAdapter m_bluetoothAdapter;
 	private BroadcastReceiver m_receiver;
+    private Context m_context;
 
 	private ArrayList<BluetoothListener> m_listeners = new ArrayList<>();
 
@@ -35,11 +36,13 @@ public final class BluetoothCollection
 	public BluetoothCollection(HashMap<String, String> stationMacs,
 	                           BluetoothManager bluetoothManager,
 	                           WifiManager wifiManager,
-	                           ConnectivityManager connMgr)
+	                           ConnectivityManager connMgr,
+                               Context context)
 	{
 		m_stationMacs = stationMacs;
 		m_bluetoothManager = bluetoothManager;
 		m_bluetoothAdapter = m_bluetoothManager.getAdapter();
+        m_context = context;
 
 		//wifi needs to be enabled to get the MAC.
 		boolean previousState = wifiManager.isWifiEnabled();
@@ -57,15 +60,15 @@ public final class BluetoothCollection
 		Instance = this;
 	}
 
-	public void startCollection(Context context)
-	{
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(BluetoothDevice.ACTION_FOUND);
-		filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-		context.registerReceiver(m_receiver, filter);
+	public void startCollection()
+    {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        m_context.registerReceiver(m_receiver, filter);
 
-		m_bluetoothAdapter.startDiscovery();
-	}
+        m_bluetoothAdapter.startDiscovery();
+    }
 
 	public boolean hasErrors()
 	{
@@ -117,7 +120,7 @@ public final class BluetoothCollection
 				if (m_stationMacs.containsKey(device.getAddress()))
 				{
 					m_results.add(new Result(m_localMacAddress,
-							m_stationMacs.get(device.getAddress()),
+							m_stationMacs.get(device.getAddress().toUpperCase()),
 							rssi,
 							time.getTime()));
 				}
@@ -129,6 +132,7 @@ public final class BluetoothCollection
 				BluetoothSendMetaData sender = new BluetoothSendMetaData();
 				sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m_results);
 				m_results = new ArrayList<>();
+                startCollection();
 			}
 		}
 	}

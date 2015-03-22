@@ -21,24 +21,31 @@ mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
 		if (err) {
 			console.log("Failed to connect to position DB : " + err)
 			return;
-		}
+        }
 
-		var port = 9000;
-		var app = express();
+        mongo.MongoClient.connect(constants.BLUETOOTHLOCATION_DB_URL, function (err, btLocDB) {
+            if (err) {
+                console.log("Failed to connect to Bluetooth location DB : " + err)
+			return;
+            }
 
-		app.use(bodyParser.urlencoded(
-			{
-				extended: true
-			}));
-		app.use(bodyParser.json());
+            var port = 9000;
+            var app = express();
 
-		var solver = new WifiSolver.PositionSolver(rawDB, posDB);
-		var btSolver = new BluetoothSolver.PositionSolver(rawDB, posDB);
+            app.use(bodyParser.urlencoded(
+                {
+                    extended: true
+                }));
+            app.use(bodyParser.json());
 
-		var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
-		var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, app);
+            var solver = new WifiSolver.PositionSolver(rawDB, posDB);
+            var btSolver = new BluetoothSolver.PositionSolver(rawDB, posDB, btLocDB);
 
-		console.log('Gathering Raw Data...');
-		app.listen(port);
+            var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
+            var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, app);
+
+            console.log('Gathering Raw Data...');
+            app.listen(port);
+        });
 	});
 });
