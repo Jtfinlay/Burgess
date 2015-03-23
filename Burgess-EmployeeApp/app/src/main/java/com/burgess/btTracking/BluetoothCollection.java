@@ -106,6 +106,8 @@ public final class BluetoothCollection
 
 	private class BluetoothReceiver extends BroadcastReceiver
 	{
+        private final int STRENGTH_CUT_OFF = -55;
+
 		private ArrayList<Result> m_results = new ArrayList<>();
 
 		public void onReceive(Context context, Intent intent)
@@ -117,23 +119,36 @@ public final class BluetoothCollection
 				int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
 				Calendar time = Calendar.getInstance();
 
-				if (m_stationMacs.containsKey(device.getAddress()))
-				{
-					m_results.add(new Result(m_localMacAddress,
-							m_stationMacs.get(device.getAddress().toUpperCase()),
-							rssi,
-							time.getTime()));
-				}
+                if (rssi > STRENGTH_CUT_OFF) {
+                    if (m_stationMacs.containsKey(device.getAddress())) {
+                        m_results.add(new Result(m_localMacAddress,
+                                m_stationMacs.get(device.getAddress().toUpperCase()),
+                                rssi,
+                                time.getTime()));
+                        locationFound(context);
+                    }
+                }
 			}
 			else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
 			{
-				context.unregisterReceiver(m_receiver);
-				PublishData(m_results);
-				BluetoothSendMetaData sender = new BluetoothSendMetaData();
-				sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m_results);
-				m_results = new ArrayList<>();
-                startCollection();
+                startNewBTScan(context);
 			}
 		}
+
+        private void locationFound(Context context)
+        {
+            m_bluetoothAdapter.cancelDiscovery();
+            startNewBTScan(context);
+        }
+
+        private void startNewBTScan(Context context)
+        {
+            context.unregisterReceiver(m_receiver);
+            PublishData(m_results);
+            BluetoothSendMetaData sender = new BluetoothSendMetaData();
+            sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m_results);
+            m_results = new ArrayList<>();
+            startCollection();
+        }
 	}
 }
