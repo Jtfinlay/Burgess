@@ -1,5 +1,19 @@
 # Burgess
 
+## Directories 
+
+We were too lazy (and didn't have enough private repos) to split these into sub-repos. Enjoy!
+
+**Burgess-EmployeeApp**: contains the Android app for Bluetooth Connection, the Employee Live Map, push notifications, and a placeholder Customer screen. (Tier 1 & Tier 3)
+
+**PositionSystem**: contains *Position-Processing,* which is a fancy NodeJS server that takes the raw Bluetooth/WiFi metadata and turns it into useful position data. (Tier 2)
+
+**Processing**: holds the post position-processing scripts that take accumulated position data, then reformats, archives, and watches for interactions between customers and employees. (Tier 2)
+
+**Web**: Contains web portal including authentication, live feed, playback, analytics, and other management pages. (Tier 3)
+
+**scripts**: additional scripts for integration
+
 ## Tier 1
 
 **Wi-Fi signal collection** is handled by a group of drones that are distributed throughout the physical space. Each drone has an AWUS036H wireless adapter, internet connectivity, Airodump-ng tool and the drone scripts. The drone scripts run Airodump-ng, format the output and transmit this output to the ‘Queen’. The Queen is a master drone that receives data from all the drones and aggregates it prior to forwarding it on to Tier 2 for processing.
@@ -24,16 +38,13 @@ make
 
 ## Tier 2
 
-**Position system** receives signal data from Tier 1 systems and solves for positions of devices based on the signal metadata. The system classifies customers by a specific priority detailing how long it has been since they have interacted with an employee.
+**PositionSystem** receives signal data from Tier 1 systems and solves for positions of devices based on the signal metadata. The system classifies customers by a specific priority detailing how long it has been since they have interacted with an employee.
+
+**Processing** takes the gathered position data from *PositionSystem* and performs post processing on it. It reformats the data to an archived system, manages a customer priority system between employees and customers, and sends push notifications when a customer is in need of help.
 
 ## Tier 3
 
 **Web portal** provides interfacing for the retailer to work with the system. This is the online presentation layer.
-```
-cd Burgess/Web
-bundle install --deployment     # To install gems
-rvmsudo rackup                  # To run portal
-```
 
 **Android application** provides a live map for employees to see where customers are in real time.
 
@@ -46,6 +57,7 @@ rvmsudo rackup                  # To run portal
 * Data Processing
  * [TypeScript](http://www.typescriptlang.org/) to process metadata into useful position information
  * [Go](https://golang.org/) to aggregate position data into simplified results for analytics
+ * [Parse](https://www.parse.com/) to manage push notifications on Android and send via REST API
 * Web Portal
  * [Sinatra](http://www.sinatrarb.com/) web framework
  * [MongoDB](http://www.mongodb.org) database
