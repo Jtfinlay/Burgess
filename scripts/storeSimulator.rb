@@ -3,13 +3,12 @@ require 'ruby-progressbar'
 require 'time'
 include Mongo
 
-MAX_PEOPLE = 50 # No new people will be added to simulation once this limit is reached
-NEW_PEOPLE_PROB = 0.05 # % chance of a person entering the store each second
 SLEEP_DURATION = 60 # Number of seconds to sleep for
 SLEEP_PROB = 0.15 # % chance of sleeping upon reaching a target
 CLOSE_ENOUGH = 0.1 # distance between 2 things that is sufficient for them to be treated as the same point
 STORAGE_INTERVAL = 1 # number of simulation steps to be done before snapshots are stored in the DB
 STEP_SIZE = 30 # step at 30 second intervals
+SECONDS_PER_HOUR = 3600
 
 class Vector
   attr_reader :x, :y
@@ -114,6 +113,49 @@ class StoreSimulator
     @people = []
     @rand = Random.new
     @snapshotData = []
+    @maxPeople = 0
+    @newPeopleProb = 0.0
+    @timePoints = []
+  end
+
+  def createTimePoints(curDate)
+    morningEarly =   {'startTime' =>  "#{curDate} 08:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03}
+    morningLate =    {'startTime' =>  "#{curDate} 10:00", 'maxPeople' => 05, 'newPeopleProb' => 0.12}
+    lunch =          {'startTime' =>  "#{curDate} 12:00", 'maxPeople' => 20, 'newPeopleProb' => 0.80}
+    afternoonEarly = {'startTime' =>  "#{curDate} 13:00", 'maxPeople' => 15, 'newPeopleProb' => 0.44}
+    afternoonLate =  {'startTime' =>  "#{curDate} 16:00", 'maxPeople' => 10, 'newPeopleProb' => 0.18}
+    eveningEarly =   {'startTime' =>  "#{curDate} 18:00", 'maxPeople' => 07, 'newPeopleProb' => 0.15}
+    eveningLate =    {'startTime' =>  "#{curDate} 20:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03}
+
+    @timePoints.push(morningEarly)
+    @timePoints.push(morningLate)
+    @timePoints.push(lunch)
+    @timePoints.push(afternoonEarly)
+    @timePoints.push(afternoonLate)
+    @timePoints.push(eveningEarly)
+    @timePoints.push(eveningLate)
+  end
+
+  def updateActiveTimePoint(currentTime)
+    #find a time point that is before the currentTime (or same as) and is closest to that time
+    beforeNow = @timePoints.select do |timePoint|
+      Time.parse(timePoint['startTime']).to_i <= currentTime
+    end
+    # find the latest time before the current time
+    curTimePoint = beforeNow.inject do |v, tp|
+      res = tp if v == nil
+      if res == nil
+        res = [v, tp].max do |a, b|
+          Time.parse(a['startTime']) <=> Time.parse(b['startTime'])
+        end
+      end
+      res
+    end
+
+    if curTimePoint != nil
+      @maxPeople = curTimePoint['maxPeople']
+      @newPeopleProb = curTimePoint['newPeopleProb']
+    end
   end
 
   def createControlPoints
@@ -184,8 +226,8 @@ class StoreSimulator
   end
 
   def createPeople
-    return unless @people.length < MAX_PEOPLE
-    return unless NEW_PEOPLE_PROB > @rand.rand(1.0)
+    return unless @people.length < @maxPeople
+    return unless @newPeopleProb > @rand.rand(1.0)
     newPerson = Person.new(self.generateRandomMac, @entrance, 0.8)
     @people.push(newPerson)
   end
@@ -271,9 +313,11 @@ class StoreSimulator
   # duration in seconds, end-time is seconds
   def run(showOutput, startTime, endTime)
     self.createControlPoints
+    self.createTimePoints(Time.now.strftime("%d/%m/%Y"))
 
     duration = endTime - startTime
     currentTime = startTime
+    nextTransitionTime = currentTime + SECONDS_PER_HOUR
     counter = 0
 
     @client = MongoClient.new
@@ -283,9 +327,15 @@ class StoreSimulator
 
     p = ProgressBar.create(:total => duration)
 
+    updateActiveTimePoint(currentTime)
+
     while (currentTime < endTime) do
       step(STEP_SIZE)
       self.createSnapshot(currentTime)
+      if currentTime > nextTransitionTime
+        nextTransitionTime = currentTime + SECONDS_PER_HOUR
+        updateActiveTimePoint(currentTime)
+      end
       if STORAGE_INTERVAL <= counter
         self.storeSnapshots
         counter = 0
