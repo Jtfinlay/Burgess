@@ -8,7 +8,7 @@ SLEEP_PROB = 0.15 # % chance of sleeping upon reaching a target
 CLOSE_ENOUGH = 0.1 # distance between 2 things that is sufficient for them to be treated as the same point
 STORAGE_INTERVAL = 1 # number of simulation steps to be done before snapshots are stored in the DB
 STEP_SIZE = 30 # step at 30 second intervals
-SECONDS_PER_HOUR = 3600
+SECONDS_PER_HALF_HOUR = 1800
 
 class Vector
   attr_reader :x, :y
@@ -119,13 +119,13 @@ class StoreSimulator
   end
 
   def createTimePoints(curDate)
-    morningEarly =   {'startTime' =>  "#{curDate} 08:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03}
-    morningLate =    {'startTime' =>  "#{curDate} 10:00", 'maxPeople' => 05, 'newPeopleProb' => 0.12}
-    lunch =          {'startTime' =>  "#{curDate} 12:00", 'maxPeople' => 20, 'newPeopleProb' => 0.80}
-    afternoonEarly = {'startTime' =>  "#{curDate} 13:00", 'maxPeople' => 15, 'newPeopleProb' => 0.44}
-    afternoonLate =  {'startTime' =>  "#{curDate} 16:00", 'maxPeople' => 10, 'newPeopleProb' => 0.18}
-    eveningEarly =   {'startTime' =>  "#{curDate} 18:00", 'maxPeople' => 07, 'newPeopleProb' => 0.15}
-    eveningLate =    {'startTime' =>  "#{curDate} 20:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03}
+    morningEarly =   {'startTime' =>  "#{curDate} 08:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03} # not many people early morning
+    morningLate =    {'startTime' =>  "#{curDate} 10:00", 'maxPeople' => 05, 'newPeopleProb' => 0.12} # a few people late morning
+    lunch =          {'startTime' =>  "#{curDate} 12:00", 'maxPeople' => 20, 'newPeopleProb' => 0.80} # very busy at lunch time
+    afternoonEarly =  {'startTime' =>  "#{curDate} 13:00", 'maxPeople' => 10, 'newPeopleProb' => 0.18} # things die off after lunch
+    afternoonLate = {'startTime' =>  "#{curDate} 16:30", 'maxPeople' => 15, 'newPeopleProb' => 0.64} # late afternoon gets busy again
+    eveningEarly =   {'startTime' =>  "#{curDate} 18:00", 'maxPeople' => 07, 'newPeopleProb' => 0.15} # supper time hits and things slow down
+    eveningLate =    {'startTime' =>  "#{curDate} 20:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03} # almost no one before closing time
 
     @timePoints.push(morningEarly)
     @timePoints.push(morningLate)
@@ -317,7 +317,7 @@ class StoreSimulator
 
     duration = endTime - startTime
     currentTime = startTime
-    nextTransitionTime = currentTime + SECONDS_PER_HOUR
+    nextTransitionTime = currentTime + SECONDS_PER_HALF_HOUR
     counter = 0
 
     @client = MongoClient.new
@@ -333,7 +333,7 @@ class StoreSimulator
       step(STEP_SIZE)
       self.createSnapshot(currentTime)
       if currentTime > nextTransitionTime
-        nextTransitionTime = currentTime + SECONDS_PER_HOUR
+        nextTransitionTime = currentTime + SECONDS_PER_HALF_HOUR
         updateActiveTimePoint(currentTime)
       end
       if STORAGE_INTERVAL <= counter
