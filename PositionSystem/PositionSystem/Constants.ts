@@ -5,3 +5,4 @@ export var RAW_WIFI_COLLECTION = 'rawWifi';
 export var RAW_BLUETOOTH_COLLECTION = 'rawBluetooth';
 export var BLUETOOTHLOCATIONS_COLLECTION = 'locations';
 export var POS_COLLECTION = 'position';
+export var BT_ERROR = 2.5; // We are placing the regions 5 meters apart giving us an approx error of 2.5 meters on position

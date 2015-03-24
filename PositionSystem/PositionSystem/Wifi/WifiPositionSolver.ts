@@ -138,7 +138,7 @@ export class PositionSolver {
 				var pos = this.AveragePoints(points);
 				var uncertainty = this.CalcStdDeviation(pos, points);
 
-				result = new common.PositionEntry(mac, pos.x(), pos.y(), uncertainty, new Date(), "");
+				result = new common.PositionEntry(mac, pos.x(), pos.y(), uncertainty, new Date());
 			}
 		}
 

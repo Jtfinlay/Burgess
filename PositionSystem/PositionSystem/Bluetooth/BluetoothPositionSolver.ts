@@ -34,7 +34,7 @@ export class PositionSolver {
 	public solveFor(entry: common.BluetoothEntry): void {
 		var position: common.PositionEntry;
 		var point: common.Point = this.getPoint(entry.stationId);
-		position = new common.PositionEntry('', point.x(), point.y(), 0, new Date(entry.time), entry.mac);
+		position = new common.PositionEntry(entry.mac, point.x(), point.y(), constants.BT_ERROR, new Date(entry.time));
 
 		this.m_posDB.collection(constants.POS_COLLECTION, function (err, collection) {
 			if (err) {

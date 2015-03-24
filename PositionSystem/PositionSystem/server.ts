@@ -21,31 +21,31 @@ mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
 		if (err) {
 			console.log("Failed to connect to position DB : " + err)
 			return;
-        }
+		}
 
-        mongo.MongoClient.connect(constants.BLUETOOTHLOCATION_DB_URL, function (err, btLocDB) {
-            if (err) {
-                console.log("Failed to connect to Bluetooth location DB : " + err)
+		mongo.MongoClient.connect(constants.BLUETOOTHLOCATION_DB_URL, function (err, btLocDB) {
+			if (err) {
+				console.log("Failed to connect to Bluetooth location DB : " + err)
 			return;
-            }
+			}
 
-            var port = 9000;
-            var app = express();
+			var port = 9000;
+			var app = express();
 
-            app.use(bodyParser.urlencoded(
-                {
-                    extended: true
-                }));
-            app.use(bodyParser.json());
+			app.use(bodyParser.urlencoded(
+				{
+					extended: true
+				}));
+			app.use(bodyParser.json());
 
-            var solver = new WifiSolver.PositionSolver(rawDB, posDB);
-            var btSolver = new BluetoothSolver.PositionSolver(rawDB, posDB, btLocDB);
+			var solver = new WifiSolver.PositionSolver(rawDB, posDB);
+			var btSolver = new BluetoothSolver.PositionSolver(rawDB, posDB, btLocDB);
 
-            var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
-            var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, app);
+			var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
+			var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, app);
 
-            console.log('Gathering Raw Data...');
-            app.listen(port);
-        });
+			console.log('Gathering Raw Data...');
+			app.listen(port);
+		});
 	});
 });
