@@ -1,13 +1,15 @@
 require 'mongo'
 require 'ruby-progressbar'
+require 'time'
 include Mongo
 
 MAX_PEOPLE = 50 # No new people will be added to simulation once this limit is reached
 NEW_PEOPLE_PROB = 0.05 # % chance of a person entering the store each second
-SLEEP_DURATION = 30 # Number of seconds to sleep for
+SLEEP_DURATION = 60 # Number of seconds to sleep for
 SLEEP_PROB = 0.15 # % chance of sleeping upon reaching a target
 CLOSE_ENOUGH = 0.1 # distance between 2 things that is sufficient for them to be treated as the same point
-STORAGE_INTERVAL = 250 # number of simulation steps to be done before snapshots are stored in the DB
+STORAGE_INTERVAL = 1 # number of simulation steps to be done before snapshots are stored in the DB
+STEP_SIZE = 30 # step at 30 second intervals
 
 class Vector
   attr_reader :x, :y
@@ -88,20 +90,21 @@ class Person
   end
 
   def advance(delta)
-    @sleepDuration -= 1 if @sleepDuration > 0
+    @sleepDuration -= delta if @sleepDuration > 0
     return if @sleepDuration > 0
     moveVec = @target.position - position
+    distanceCanMove = moveVec.normalize * @speed * delta
 
-    if moveVec.magnitude <= CLOSE_ENOUGH # if within a half a meter of the target consider the target to have been reache
+    if moveVec.magnitude <= CLOSE_ENOUGH # if within a half a meter of the target consider the target to have been reached
       if SLEEP_PROB > @rand.rand(1.0)
         @sleepDuration = SLEEP_DURATION
       else
         @target = @target.getNextControlPoint
       end
-    elsif moveVec.magnitude < @speed # target is within 1 second of movement, just jump to target, this is to prevent overshooting target
+    elsif moveVec.magnitude < distanceCanMove.magnitude # target is within 1 second of movement, just jump to target, this is to prevent overshooting target
       @position = @target.position
     else # will not reach target this second, just advance position towards it
-      @position = @position + moveVec.normalize * @speed
+      @position = @position + distanceCanMove
     end
   end
 end
@@ -237,7 +240,7 @@ class StoreSimulator
     @snapshotData = []
   end
 
-  def draw
+  def draw(currentTime)
     system "clear" or system "cls"
 
     # fixed because no point in overdoing this
@@ -259,16 +262,17 @@ class StoreSimulator
       end
     end
     puts "Customers : #{@people.length}"
+    puts "Time : #{Time.at(currentTime).to_s}"
     output.each do |line|
       puts line.join
     end
   end
 
   # duration in seconds, end-time is seconds
-  def run(showOutput, duration, endTime = Time.now.to_i)
+  def run(showOutput, startTime, endTime)
     self.createControlPoints
 
-    startTime = endTime - duration
+    duration = endTime - startTime
     currentTime = startTime
     counter = 0
 
@@ -280,15 +284,15 @@ class StoreSimulator
     p = ProgressBar.create(:total => duration)
 
     while (currentTime < endTime) do
-      step(1)
+      step(STEP_SIZE)
       self.createSnapshot(currentTime)
       if STORAGE_INTERVAL <= counter
         self.storeSnapshots
         counter = 0
-        self.draw if showOutput # drawing on storage so drawing doesn't occur every frame
+        self.draw(currentTime) if showOutput # drawing on storage so drawing doesn't occur every frame
       end
-      p.increment
-      currentTime += 1
+      p.progress += STEP_SIZE
+      currentTime += STEP_SIZE
       counter = [counter + 1, STORAGE_INTERVAL].min
     end
 
@@ -299,12 +303,16 @@ end
 
 if ARGV.length >= 1
   showOutput = false
-  showOutput = true if ARGV.length > 1 and ["true", "t", "yes", "showoutput"].any? do |val| val == ARGV[1].downcase end
+  showOutput = true if ARGV.length >= 1 and ["true", "t", "yes", "showoutput"].any? do |val| val == ARGV[0].downcase end
   sim = StoreSimulator.new()
-  sim.run(showOutput, ARGV[0].to_i)
+
+  # sim runs from 8AM to 10 PM of the current day
+  startTime = Time.parse("#{Time.now.strftime("%d/%m/%Y")} 08:00").to_i
+  endTime = Time.parse("#{Time.now.strftime("%d/%m/%Y")} 22:00").to_i
+  sim.run(showOutput, startTime, endTime)
 else
   puts "Usage : "
-  puts "ruby storeSimulator <duration:int> <showOutput:boolean>"
+  puts "ruby storeSimulator <showOutput:boolean>"
   puts "duration is measured in seconds"
   puts "showOutput must be either 'true', 't', 'showOutput' or 'yes' for output to be displayed"
 end
