@@ -12,6 +12,15 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+var (
+	InitialWait = int64(5*time.Minute)
+	ShortInteraction = 1 * time.Minute
+	ShortWait = int64(15*time.Minute)
+	MediumInteraction = 30 * time.Second
+	MediumWait = int64(7*time.Minute)
+	LongWait = int64(2*time.Minute)
+)
+
 type (
 
 	/** Matches db 'position' **/
@@ -97,11 +106,11 @@ func (c *Customer) RemoveInteraction(interaction *Interaction) {
 /** Get preferred wait time for completed interaction **/
 func (i *Interaction) GetPriorityTime() time.Time {
 	t := time.Since(i.StartTime)
-	if t >= (1 * time.Minute) {
-		return time.Unix(0, time.Now().UnixNano() + int64(15*time.Minute))
-	} else if t >= (30 * time.Second) {
-		return time.Unix(0, time.Now().UnixNano() + int64(7*time.Minute))
+	if t >= ShortInteraction {
+		return time.Unix(0, time.Now().UnixNano() + ShortWait)
+	} else if t >= MediumInteraction {
+		return time.Unix(0, time.Now().UnixNano() + MediumWait)
 	} else {
-		return time.Unix(0, time.Now().UnixNano() + int64(2*time.Minute))
+		return time.Unix(0, time.Now().UnixNano() + LongWait)
 	}
 }

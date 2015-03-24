@@ -48,6 +48,9 @@ class BurgessApp < Sinatra::Base
         session[:path] = request.path if !request.path.include?("login")
     end
 
+    template :empty_layout do
+    end
+
     get '/' do
         erb :home
     end
@@ -63,7 +66,7 @@ class BurgessApp < Sinatra::Base
 
 	get '/livefeed/data' do
         if authenticated?
-    		session[:timelast] = Time.now - 4 if session[:timelast].nil? || session[:timelast] > Time.now - 8
+    		session[:timelast] = Time.now - 30 if session[:timelast].nil? || session[:timelast] > Time.now - 30
     		result = settings.db_archived.getPositionsSince(session[:timelast])
     		session[:timelast] = Time.now
     		return result.to_json
@@ -164,6 +167,25 @@ class BurgessApp < Sinatra::Base
             return session[:identity].getMapDetails.to_json
         end
 		return nil
+    end
+
+    ### MOBILE ####
+
+    get '/livefeed_mobile' do
+        js :jcanvas, :knockout, 'map', 'knockout/livefeed_mobile'
+        erb :livefeed_mobile, :layout => false
+    end
+
+    get '/livefeed_mobile/data' do
+        session[:timelast] = Time.now - 4 if session[:timelast].nil? || session[:timelast] > Time.now - 8
+        result = settings.db_archived.getPositionsSince(session[:timelast])
+        session[:timelast] = Time.now
+        return result.to_json
+    end
+
+    post '/auth_mobile' do
+        session[:identity] = settings.db_user.getEmployeeByAuth(params['auth_code'])
+        return session[:identity].nil?.to_json
     end
 
     ### PLAY BACK ###

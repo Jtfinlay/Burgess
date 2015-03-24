@@ -38,6 +38,10 @@ class UserData
 
 	def getEmployees(id)
 		return @employeeData.find({'retailer' => id},{}).to_a
+	end
+
+	def getEmployeeByAuth(auth_code)
+		return @employeeData.find({'auth_code' => auth_code}).to_a
 	end	
 
 	def updateEmployees(retail_id, data)

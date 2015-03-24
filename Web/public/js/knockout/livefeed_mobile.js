@@ -47,21 +47,11 @@ function LiveFeedViewModel() {
 	}
 
 	self.pullEmployees = function(result) {
-		$.get("/employees", function (data) {
-			self.employees_all = [];
-			$.each(JSON.parse(data), function(i, employee) {
-				self.employees_all.push(employee);
-			});
-			self.mapEmployeeNames();
+		var data = '[{"_id":{"$oid": "54f79825429707aee3571d8c"},"retailer":{"$oid": "54f28084c06cba6f3c973e44"},"name":"James Finlay","auth_code":"18a-943-3350","mac":"40:B0:FA:68:39:0C"},{"_id":{"$oid": "54f79879429707aee3571d8d"},"retailer":{"$oid": "54f28084c06cba6f3c973e44"},"name":"Jesse Tucker","auth_code":"da7-866-3a60","mac":"C0:EE:FB:25:F9:B6"},{"_id":{"$oid": "54f79879429707aee3571d8e"},"retailer":{"$oid": "54f28084c06cba6f3c973e44"},"name":"Tyler Meen","auth_code":"8a1-66a-358a","mac":"50:CC:F8:D9:F8:D7"}]'
+		self.employees_all = [];
+		$.each(JSON.parse(data), function(i, employee) {
+			self.employees_all.push(employee);
 		});
-	}
-
-	self.mapEmployeeNames = function() {
-		$.each(self.employees_all, function(i,employee) {
-			var found = $.grep(self.employees(), function(e,i) {return e.id() == employee.mac})[0];
-			if (found != null) { found.name(employee.name); }
-		});
-		self.employees.valueHasMutated();
 	}
 }
 
@@ -71,14 +61,11 @@ $(function() {
 })
 
 /** RETAIL MAP **/
-var map;
-$.get("map/size", function(result) {
-    var details = JSON.parse(result);
-    map = new LiveMap("live_map", details.width, details.height, details.store_img);
-});
+var map = new LiveMap("live_map", 13.26, 12.24, "/images/store_layout.png");
+
 var refreshMapData = function() {
 	var self = this;
-	$.get("livefeed/data", function(result) {
+	$.get("livefeed_mobile/data", function(result) {
 		var hash = vm.mapData(JSON.parse(result));
 		var drawables = hash[Math.max.apply(Math,Object.keys(hash))];
 		vm.update(drawables);
