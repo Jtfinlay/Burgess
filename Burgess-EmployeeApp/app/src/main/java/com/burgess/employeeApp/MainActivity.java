@@ -8,9 +8,11 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.*;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.burgess.btTracking.BluetoothCollection;
@@ -28,6 +30,11 @@ public class MainActivity extends ActionBarActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(com.burgess.employeeApp.R.layout.activity_main);
+		if (savedInstanceState == null) {
+			getSupportFragmentManager().beginTransaction()
+					.add(R.id.container, new HomeFragment())
+					.commit();
+		}
 
 		final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 		BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -50,13 +57,13 @@ public class MainActivity extends ActionBarActivity
 
 		// TODO::TM hook this up to server DB
 		HashMap<String, String> stationMacs = new HashMap<>();
-        stationMacs.put("E4:98:D6:63:1D:86","bt-stn1");
+		stationMacs.put("E4:98:D6:63:1D:86", "bt-stn1");
 
 		m_bluetoothSignalCollector = new BluetoothCollection(stationMacs,
 				bluetoothManager,
 				wifiManager,
 				connectivityManager,
-                getApplicationContext());
+				getApplicationContext());
 		m_bluetoothSignalCollector.startCollection();
 	}
 
@@ -88,5 +95,38 @@ public class MainActivity extends ActionBarActivity
 		}
 
 		return wasHandled || super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * A placeholder fragment containing a simple view.
+	 */
+	public static class HomeFragment extends Fragment {
+
+		private Button _btnEmployee;
+		private Button _btnCustomer;
+
+		public HomeFragment() {}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_main_activity, container, false);
+
+			_btnEmployee = (Button) rootView.findViewById(R.id.btnEmployee);
+			_btnCustomer = (Button) rootView.findViewById(R.id.btnCustomer);
+
+			_btnEmployee.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					FragmentTransaction transaction = getFragmentManager().beginTransaction();
+					transaction.replace(R.id.container, new LiveFeedFragment());
+					transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+					transaction.addToBackStack(null);
+
+					transaction.commit();
+				}
+			});
+
+			return rootView;
+		}
 	}
 }
