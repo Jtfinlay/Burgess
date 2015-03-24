@@ -10,6 +10,7 @@ package priority
 import (
 	"models"
 	"time"
+	"push_notification"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -168,7 +169,7 @@ func UpdateInteractions() {
 
 		// TODO::JF Send push notification
 		if customer.Priority == 1 {
-
+			push_notification.alert()
 		}
 	}
 }

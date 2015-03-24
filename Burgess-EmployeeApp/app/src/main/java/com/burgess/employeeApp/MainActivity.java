@@ -11,11 +11,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.*;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.burgess.btTracking.BluetoothCollection;
+import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 import java.util.HashMap;
 
@@ -30,6 +33,12 @@ public class MainActivity extends ActionBarActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(com.burgess.employeeApp.R.layout.activity_main);
+
+		Log.v("MainActivity", "PreParse");
+		Parse.initialize(this, "OHZhBe7qRjQWqz0IkKV9mOKXcb7yA4tRSgIvjQBC", "ewX4BAHgOaWrv3Q6z1thS6SlzR0oOosfMyeJnH2O");
+		ParseInstallation.getCurrentInstallation().saveInBackground();
+		Log.v("MainActivity", "PostParse");
+
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, new HomeFragment())
