@@ -75,7 +75,7 @@ func UpdateUsers(data *map[string]*models.Position) {
             Customers[value.Wifi].Position = *value
         } else {
             Customers[value.Wifi] = &models.Customer{value.Wifi, time.Now(),
-                time.Now(), *value, time.Unix(0, time.Now().UnixNano() + int64(5*time.Minute)), 0, nil}
+                time.Now(), *value, time.Unix(0, time.Now().UnixNano() + models.InitialWait), 0, nil}
         }
     }
 
@@ -154,6 +154,8 @@ func UpdateInteractions() {
 			}
 		}
 
+		prevPriority := customer.Priority
+
 		// Calculate Priority
 		if len(customer.Interactions) == 0 {
 			dt := float32(customer.ExpiryTime.UnixNano() -
@@ -167,9 +169,9 @@ func UpdateInteractions() {
 			if customer.Priority < 0 { customer.Priority = 0}
 		}
 
-		// TODO::JF Send push notification
-		if customer.Priority == 1 {
-			push_notification.alert()
+		// Send push notification
+		if customer.Priority == 1 && prevPriority < 1 {
+			push_notification.Alert()
 		}
 	}
 }

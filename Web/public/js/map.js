@@ -9,7 +9,14 @@ function LiveMap(idCanvas, theWidth, theHeight, img) {
 	this.height_m = theHeight;
 	this.img = img;
 
-	this.width_px = 600; this.height_px = 400;
+	this.width_px = $("#"+this.id).width();
+	this.height_px = $("#"+this.id).height();
+
+	$("#"+this.id).attr('width', this.width_px);
+	$("#"+this.id).attr('height', this.height_px);
+
+	console.log(this.width_px);
+	console.log(this.height_px);
 	this.loadResources();
 
 	/*$('<img src="'+self.img+'"/>').load(function() {
@@ -39,6 +46,7 @@ LiveMap.prototype = {
 		drawables = drawables || [];
 
 		jc.start(this.id);
+
 		jc.rect(0, 0, this.width_px, this.height_px, 'rgba(200, 200, 200, 1)', 1);
 		jc.image(this.iBackground, 0, 0, this.width_px, this.height_px);
 

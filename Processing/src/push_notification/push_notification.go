@@ -8,13 +8,11 @@
 package push_notification
 
 import (
- 	"fmt"
  	"net/http"
  	"bytes"
- 	"io/ioutil"
 )
 
- func alert() {
+func Alert() {
 
  	url := "https://api.parse.com/1/push"
  	jsonStr := []byte(`{"where": {"deviceType": "android"},"data": {"alert": "Customer help!"}}`)
@@ -29,9 +27,4 @@ import (
  		panic(err)
  	}
  	defer resp.Body.Close()
-
- 	fmt.Println("response Status:", resp.Status)
-    fmt.Println("response Headers:", resp.Header)
-    body, _ := ioutil.ReadAll(resp.Body)
-    fmt.Println("response Body:", string(body))
  }
