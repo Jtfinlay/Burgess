@@ -2,7 +2,6 @@ package com.burgess.employeeApp;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -45,8 +44,7 @@ public class MainActivity extends ActionBarActivity
 					.commit();
 		}
 
-		final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-		BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
+		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 		if (mBluetoothAdapter == null)
 		{
@@ -69,7 +67,7 @@ public class MainActivity extends ActionBarActivity
 		stationMacs.put("E4:98:D6:63:1D:86", "bt-stn1");
 
 		m_bluetoothSignalCollector = new BluetoothCollection(stationMacs,
-				bluetoothManager,
+                mBluetoothAdapter,
 				wifiManager,
 				connectivityManager,
 				getApplicationContext());

@@ -2,7 +2,6 @@ package com.burgess.btTracking;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +23,6 @@ public final class BluetoothCollection
 	private HashMap<String, String> m_stationMacs;
 	private String m_localMacAddress;
 
-	private BluetoothManager m_bluetoothManager;
 	private BluetoothAdapter m_bluetoothAdapter;
 	private BroadcastReceiver m_receiver;
 	private Context m_context;
@@ -34,14 +32,13 @@ public final class BluetoothCollection
 	private boolean m_errors = false;
 
 	public BluetoothCollection(HashMap<String, String> stationMacs,
-	                           BluetoothManager bluetoothManager,
+                               BluetoothAdapter bluetoothAdapter,
 	                           WifiManager wifiManager,
 	                           ConnectivityManager connMgr,
 	                           Context context)
 	{
 		m_stationMacs = stationMacs;
-		m_bluetoothManager = bluetoothManager;
-		m_bluetoothAdapter = m_bluetoothManager.getAdapter();
+        m_bluetoothAdapter = bluetoothAdapter;
 		m_context = context;
 
 		//wifi needs to be enabled to get the MAC.
