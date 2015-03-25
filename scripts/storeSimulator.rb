@@ -3,12 +3,15 @@ require 'ruby-progressbar'
 require 'time'
 include Mongo
 
+require 'pp'
+
 SLEEP_DURATION = 60 # Number of seconds to sleep for
 SLEEP_PROB = 0.15 # % chance of sleeping upon reaching a target
 CLOSE_ENOUGH = 0.1 # distance between 2 things that is sufficient for them to be treated as the same point
-STORAGE_INTERVAL = 1 # number of simulation steps to be done before snapshots are stored in the DB
-STEP_SIZE = 30 # step at 30 second intervals
+STORAGE_INTERVAL = 360 # number of simulation steps to be done before snapshots are stored in the DB
+STEP_SIZE = 5 # step at X second intervals
 SECONDS_PER_HALF_HOUR = 1800
+WALKING_SPEED = 0.5 # m/s
 
 class Vector
   attr_reader :x, :y
@@ -116,16 +119,17 @@ class StoreSimulator
     @maxPeople = 0
     @newPeopleProb = 0.0
     @timePoints = []
+    @activeEmployees = {}
   end
 
   def createTimePoints(curDate)
-    morningEarly =   {'startTime' =>  "#{curDate} 08:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03} # not many people early morning
-    morningLate =    {'startTime' =>  "#{curDate} 10:00", 'maxPeople' => 05, 'newPeopleProb' => 0.12} # a few people late morning
-    lunch =          {'startTime' =>  "#{curDate} 12:00", 'maxPeople' => 20, 'newPeopleProb' => 0.80} # very busy at lunch time
-    afternoonEarly =  {'startTime' =>  "#{curDate} 13:00", 'maxPeople' => 10, 'newPeopleProb' => 0.18} # things die off after lunch
-    afternoonLate = {'startTime' =>  "#{curDate} 16:30", 'maxPeople' => 15, 'newPeopleProb' => 0.64} # late afternoon gets busy again
-    eveningEarly =   {'startTime' =>  "#{curDate} 18:00", 'maxPeople' => 07, 'newPeopleProb' => 0.15} # supper time hits and things slow down
-    eveningLate =    {'startTime' =>  "#{curDate} 20:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03} # almost no one before closing time
+    morningEarly =   {'startTime' =>  "#{curDate} 08:00", 'maxPeople' => 02, 'newPeopleProb' => 0.03, 'staff' => ['left']}                 # not many people early morning, partial coverage
+    morningLate =    {'startTime' =>  "#{curDate} 10:00", 'maxPeople' => 05, 'newPeopleProb' => 0.12, 'staff' => ['left', 'right']}          # a few people late morning, good coverage
+    lunch =          {'startTime' =>  "#{curDate} 12:00", 'maxPeople' => 20, 'newPeopleProb' => 0.80, 'staff' => ['right', 'all']}         # very busy at lunch time, disproportionate coverage
+    afternoonEarly = {'startTime' =>  "#{curDate} 13:00", 'maxPeople' => 10, 'newPeopleProb' => 0.18, 'staff' => ['all']}                  # things die off after lunch, broad coverage
+    afternoonLate =  {'startTime' =>  "#{curDate} 16:30", 'maxPeople' => 15, 'newPeopleProb' => 0.64, 'staff' => ['right']}                # late afternoon gets busy again, understaffed
+    eveningEarly =   {'startTime' =>  "#{curDate} 18:00", 'maxPeople' => 07, 'newPeopleProb' => 0.15, 'staff' => ['right', 'left']}        # supper time hits and things slow down, good coverage
+    eveningLate =    {'startTime' =>  "#{curDate} 20:00", 'maxPeople' => 02, 'newPeopleProb' => 0.02, 'staff' => ['right', 'all', 'left']} # almost no one before closing time, overstaffed
 
     @timePoints.push(morningEarly)
     @timePoints.push(morningLate)
@@ -155,7 +159,44 @@ class StoreSimulator
     if curTimePoint != nil
       @maxPeople = curTimePoint['maxPeople']
       @newPeopleProb = curTimePoint['newPeopleProb']
+
+      # get the routes that should be active
+      newRoutes = Array.new(curTimePoint['staff'])
+      # strip out any that are already active
+      @activeEmployees.each do |name, employee|
+        newRoutes.delete(name)
+      end
+
+      # start new ones up
+      newRoutes.each do |routeName|
+        route = @routes[routeName]
+        employee = self.getAvailableEmployee(route)
+        @activeEmployees[routeName] = employee
+        @people.push(employee)
+      end
+
+      # stop any that are not active
+      deadRoutes = @activeEmployees.select do |rName, employee|
+        !curTimePoint['staff'].any? do |name| rName == name end
+      end
+      deadRoutes.each do |name, employee|
+        @people.delete(employee)
+        @activeEmployees.delete(name)
+      end
     end
+  end
+
+  def getAvailableEmployee(startPoint)
+    # get an employee who is not on the floor
+    available = @employees.select do |employee|
+      mac = employee['mac']
+      !@people.any? do |person|
+        person.mac == mac
+      end
+    end
+
+    freeEmployee = available.sample
+    Person.new(freeEmployee['mac'], startPoint, WALKING_SPEED)
   end
 
   def createControlPoints
@@ -209,6 +250,114 @@ class StoreSimulator
     ]
   end
 
+  def createLeftRoute
+    leftEntrace = ControlPoint.new(0, 0)
+    p3 = ControlPoint.new(7, 4)
+    p4 = ControlPoint.new(2, 4)
+    p5 = ControlPoint.new(7, 9)
+    p6 = ControlPoint.new(2, 9)
+
+    # numbers bias employee to patrol in a clockwise circle, but not perfectly as it is partially random
+    leftEntrace.connections = [
+      Connection.new(p4, 1),
+    ]
+    p3.connections = [
+      Connection.new(p4, 1),
+      Connection.new(p5, 3),
+    ]
+    p4.connections = [
+      Connection.new(p3, 3),
+      Connection.new(p6, 1),
+    ]
+    p5.connections = [
+      Connection.new(p3, 1),
+      Connection.new(p6, 3),
+    ]
+    p6.connections = [
+      Connection.new(p4, 3),
+      Connection.new(p5, 1),
+    ]
+
+    leftEntrace
+  end
+
+  def createRightRoute
+    rightEntrance = ControlPoint.new(11, 0)
+    p1 = ControlPoint.new(11, 9)
+    p2 = ControlPoint.new(11, 4)
+    p3 = ControlPoint.new(7, 4)
+    p5 = ControlPoint.new(7, 9)
+
+    # numbers bias employee to hang out near top right of store
+    rightEntrance.connections = [
+      Connection.new(p5, 1),
+    ]
+    p1.connections = [
+      Connection.new(p2, 3),
+      Connection.new(p5, 1),
+    ]
+    p2.connections = [
+      Connection.new(p3, 1),
+      Connection.new(p2, 3),
+      Connection.new(p1, 1),
+    ]
+    p3.connections = [
+      Connection.new(p2, 3),
+      Connection.new(p5, 1),
+    ]
+    p5.connections = [
+      Connection.new(p3, 1),
+      Connection.new(p2, 3),
+      Connection.new(p5, 1),
+    ]
+    rightEntrance
+  end
+
+  def createAllRoute
+    centralEntrance = ControlPoint.new(5, 0)
+
+    p1 = ControlPoint.new(11, 9)
+    p2 = ControlPoint.new(11, 4)
+    p3 = ControlPoint.new(7, 4)
+    p4 = ControlPoint.new(2, 4)
+    p5 = ControlPoint.new(7, 9)
+    p6 = ControlPoint.new(2, 9)
+    p7 = ControlPoint.new(1, 1)
+    p8 = ControlPoint.new(6, 1)
+    p9 = ControlPoint.new(12, 1)
+
+    centralEntrance.connections = [
+      Connection.new(p8, 1)
+    ]
+
+    points = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
+    points.each do |p|
+      p.connections = []
+      points.each do |other|
+        p.connections.push(Connection.new(other, 1)) if other != p
+      end
+    end
+    centralEntrance
+  end
+
+  def createEmployeeControlPoints
+    # There are 3 employee routes, a full store, a left side and a right side.
+    # otherwise they behave exactly like customers in terms of movement patterns
+
+    # Employees enter from the top left and follow 1 of the three routes
+    # left route goes between points 3, 4, 5, 6 but does not allow diagonal movement between 5, 4 and 6, 3. This is the left route
+    # right route goes between 1, 2, 3, 5 and allows for movement between all points at any point in time
+    # all route goes between almost all points. Some are out of customer range and are 'slack off' points. Movement is unrestricted.
+
+    @routes =
+    {
+      'left' => self.createLeftRoute,
+      'right' => self.createRightRoute,
+      'all' => self.createAllRoute
+    }
+
+  end
+
   def clearDB(from, to)
     startTime = Time.at(from)
     endTime = Time.at(to)
@@ -228,7 +377,7 @@ class StoreSimulator
   def createPeople
     return unless @people.length < @maxPeople
     return unless @newPeopleProb > @rand.rand(1.0)
-    newPerson = Person.new(self.generateRandomMac, @entrance, 0.8)
+    newPerson = Person.new(self.generateRandomMac, @entrance, WALKING_SPEED)
     @people.push(newPerson)
   end
 
@@ -293,17 +442,21 @@ class StoreSimulator
     # just doing quick and dirty code so I can see what is going on.
     output = (0..height).map do |row|
       (0..width).map do |col|
-        person = @people.select do |p|
+        persons = @people.select do |p|
           p.position.x.round == col && p.position.y.round == row
+        end
+        isEmployee = persons.any? do |p|
+          @activeEmployees.any? do |route, employee| p == employee end
         end
         res = '|' if col == 0 || col == width
         res = '-' if row == 0 || row == height
-        res = '+' if person.length > 0
+        res = '+' if persons.length > 0
+        res = '*' if isEmployee
         res = ' ' if res == nil
         res
       end
     end
-    puts "Customers : #{@people.length}"
+    puts "Customers and Employees : #{@people.length}"
     puts "Time : #{Time.at(currentTime).to_s}"
     output.each do |line|
       puts line.join
@@ -313,6 +466,7 @@ class StoreSimulator
   # duration in seconds, end-time is seconds
   def run(showOutput, startTime, endTime)
     self.createControlPoints
+    self.createEmployeeControlPoints
     self.createTimePoints(Time.now.strftime("%d/%m/%Y"))
 
     duration = endTime - startTime
@@ -323,7 +477,10 @@ class StoreSimulator
     @client = MongoClient.new
     @db = @client.db("retailers")
     @posCollection = @db["position"]
+    @employeeCollection = @db["employees"]
     self.clearDB(startTime, endTime)
+
+    @employees = @employeeCollection.find().to_a
 
     p = ProgressBar.create(:total => duration)
 
@@ -351,19 +508,12 @@ class StoreSimulator
   end
 end
 
-if ARGV.length >= 1
-  showOutput = false
-  showOutput = true if ARGV.length >= 1 and ["true", "t", "yes", "showoutput"].any? do |val| val == ARGV[0].downcase end
-  sim = StoreSimulator.new()
+showOutput = false
+showOutput = true if ARGV.length == 1 and ["true", "t", "yes", "showoutput"].any? do |val| val == ARGV[0].downcase end
+sim = StoreSimulator.new()
 
-  # sim runs from 8AM to 10 PM of the current day
-  startTime = Time.parse("#{Time.now.strftime("%d/%m/%Y")} 08:00").to_i
-  endTime = Time.parse("#{Time.now.strftime("%d/%m/%Y")} 22:00").to_i
-  sim.run(showOutput, startTime, endTime)
-else
-  puts "Usage : "
-  puts "ruby storeSimulator <showOutput:boolean>"
-  puts "duration is measured in seconds"
-  puts "showOutput must be either 'true', 't', 'showOutput' or 'yes' for output to be displayed"
-end
+# sim runs from 8AM to 10 PM of the current day
+startTime = Time.parse("#{Time.now.strftime("%d/%m/%Y")} 08:00").to_i
+endTime = Time.parse("#{Time.now.strftime("%d/%m/%Y")} 22:00").to_i
+sim.run(showOutput, startTime, endTime)
 
