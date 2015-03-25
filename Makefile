@@ -1,5 +1,7 @@
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+GOPATH := $(ROOT_DIR)/Processing
+
 make:
-	export GOPATH=`pwd`/Processing
 	go install processing
 
 web_portal:
@@ -12,9 +14,9 @@ postprocessing: make
 	./Processing/bin/processing
 	
 test_go: make
-	go test processing
-	go test priority
-	go test models
+	go test processing -v
+	go test priority -v
+	go test models -v
 
 test_ruby:
 	ruby Web/src/tests/test_analytics.rb

@@ -13,12 +13,24 @@ import (
 )
 
 var (
+	// Sleep time between loops
+	SleepDuration = 2 * time.Second			// period to aggregate data over
+
+	// Interactions - Meet time & wait time
 	InitialWait = int64(5*time.Minute)
+
 	ShortInteraction = 1 * time.Minute
 	ShortWait = int64(15*time.Minute)
+
 	MediumInteraction = 30 * time.Second
 	MediumWait = int64(7*time.Minute)
+	
 	LongWait = int64(2*time.Minute)
+
+	// Interaction vars
+	UserExpiration = 10 * time.Second			// Time until user considered dead
+	InteractionExpiration =  5*time.Second 		// Time until interaction considered dead
+	InteractionDistance = float32(1)			// 2 metres, boundary box
 )
 
 type (
@@ -114,3 +126,22 @@ func (i *Interaction) GetPriorityTime() time.Time {
 		return time.Unix(0, time.Now().UnixNano() + LongWait)
 	}
 }
+
+/** Convert from Customer hash to Archived array **/
+func custToArchived(hash *map[string]*Customer) *[]Archived {
+    result := make([]Archived, 0)
+    for _,value := range *hash {
+        result = append(result, *value.ToArchived())
+    }
+    return &result
+}
+
+/** Convert from Employee hash to Archived array **/
+func emplToArchived(hash *map[string]*Employee) *[]Archived {
+    result := make([]Archived, 0)
+    for _,value := range *hash {
+        result = append(result, *value.ToArchived())
+    }
+    return &result
+}
+

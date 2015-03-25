@@ -14,38 +14,20 @@ import (
 	"gopkg.in/mgo.v2"
 	"models"
 	"priority"
-	"gopkg.in/mgo.v2/bson"
 )
 
 var (
-	c_pos *mgo.Collection					// db connection
-	sleepDuration = 2 * time.Second			// period to aggregate data over
 	offset = int64(1 * time.Second)			// offset in case aggregation is slow
 	host = "ua-bws.cloudapp.net"
 )
 
 /*
- * Pull data from recent period from position database
+ *	Aggregate position data to remove duplicate users
  *
- * tf: Upper limit for query
+ *	data: list of position data
+ *
+ *	return: map of position data, with duplicate users removed
  */
-func pullRecentData(tf time.Time) *[]models.Position {
-	var result []models.Position
-
-	ti := time.Unix(0, tf.UnixNano() - int64(sleepDuration) - offset)
-	err := c_pos.Find(
-		bson.M{
-			"time": bson.M{
-				"$gte" : ti,
-				"$lt" : tf,
-			},
-		}).All(&result)
-	if err != nil { panic(err) }
-
-	return &result
-}
-
-//  Aggregate position data to remove duplicate users
 func aggregateData(data *[]models.Position) *map[string]*models.Position {
 	hash := make(map[string]*models.Position)
 	for i := range *data {
@@ -57,7 +39,9 @@ func aggregateData(data *[]models.Position) *map[string]*models.Position {
 	return &hash
 }
 
-// Connect to databases, then begin aggregation cycle
+/*
+ *	Main function for the application. Opens db connection & manages loop.
+ */
 func main() {
 	fmt.Println("Connecting...")
 	session, err := mgo.Dial(host)
@@ -67,22 +51,19 @@ func main() {
 	fmt.Println("Connection Established!")
 	defer session.Close()
 
-	priority.Init(session, sleepDuration)
-
-	c_pos = session.DB("retailers").C("position")
-
+	models.Init(session)
 
 	for {
 		t := time.Now()
-		data := aggregateData(pullRecentData(t))
+		data := aggregateData(models.PullRecentData(t,(int64(models.SleepDuration) - offset)))
 
 		priority.UpdatePriorities(data)
 
 		customers := priority.GetCustomers()
 		employees := priority.GetEmployees()
 
-		priority.StoreArchived(t, customers, employees)
+		models.StoreArchived(t, customers, employees)
 
-		time.Sleep(sleepDuration)
+		time.Sleep(models.SleepDuration)
 	}
 }
