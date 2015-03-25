@@ -1,5 +1,5 @@
 /*
- * Test cases for the priority logic
+ *  Test cases for the priority logic
  *
  *	Author: James Finlay
  *	Date: March 7th, 2015
@@ -15,8 +15,8 @@ import (
 )
 
 func resetValues() {
-    DEBUG = true
-    sleepDuration = 5*time.Second
+    models.DEBUG = true
+    models.SleepDuration = 5*time.Second
     Customers = make(map[string]*models.Customer,0)
     Employees = make(map[string]*models.Employee, 0)
     EmployeesAll = make(map[string]*models.Employee, 0)
@@ -40,8 +40,7 @@ func TestUpdateUsers(t *testing.T) {
     EmployeesAll["e1"] = createEmployee("e1")
     Customers["c1"] = createCustomer("c1")
     Customers["c2"] = createCustomer("c2")
-    Customers["c2"].ExpiryTime = time.Unix(0,
-        time.Now().UnixNano() - int64(2*userExpiration))
+    Customers["c2"].ExpiryTime = time.Unix(0, time.Now().UnixNano() - int64(2*models.UserExpiration))
 
     UpdateUsers(&positions)
 
@@ -75,7 +74,7 @@ func TestUpdateInteractions(t *testing.T) {
     positions := make(map[string]*models.Position)
     positions["c1"] = &models.Position{bson.NewObjectId(), "", "c1", 50, 50, 2, time.Now()}
     positions["c2"] = &models.Position{bson.NewObjectId(), "", "c2", 100, 100, 2, time.Now()}
-    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 47, 47, 2, time.Now()}
+    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 49.5, 49.5, 2, time.Now()}
     positions["e2"] = &models.Position{bson.NewObjectId(), "", "e2", 0, 0, 2, time.Now()}
 
     EmployeesAll["e1"] = createEmployee("e1")
@@ -90,13 +89,13 @@ func TestUpdateInteractions(t *testing.T) {
 
     // Tests!!!
     if len(Employees["e1"].Interactions) != 1 {
-        t.Error("UpdateInteractions: e1 should have 1 interaction")
+        t.Error("UpdateInteractions: e1 should have 1 interaction. Has", len(Employees["e1"].Interactions))
     }
     if len(Employees["e2"].Interactions) > 0 {
         t.Error("UpdateInteractions: e2 should not have any interactions")
     }
     if len(Customers["c1"].Interactions) != 1 {
-        t.Error("UpdateInteractions: c1 should have 1 interaction")
+        t.Error("UpdateInteractions: c1 should have 1 interaction. Has", len(Customers["c1"].Interactions))
     }
     if len(Customers["c2"].Interactions) > 0 {
         t.Error("UpdateInteractions: c2 should not have any interactions")
@@ -107,8 +106,7 @@ func TestUpdateInteractions(t *testing.T) {
 
     // Test interaction expiry
     positions["c1"].X = 100
-    Employees["e1"].Interactions[0].LastTime =
-        time.Unix(0,time.Now().UnixNano()-int64(time.Hour))
+    Employees["e1"].Interactions[0].LastTime = time.Unix(0,time.Now().UnixNano()-int64(time.Hour))
 
     UpdateUsers(&positions)
 
@@ -143,8 +141,7 @@ func TestPriorityValues(t *testing.T) {
     UpdateUsers(&positions)
 
     // Test at 5sec -> .08333
-    Customers["c1"].ExpiryTime =
-        time.Unix(0,time.Now().UnixNano()+int64(time.Minute)-int64(5*time.Second))
+    Customers["c1"].ExpiryTime = time.Unix(0,time.Now().UnixNano()+int64(time.Minute)-int64(5*time.Second))
 
     UpdateInteractions()
 
