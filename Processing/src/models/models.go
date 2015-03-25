@@ -30,7 +30,7 @@ var (
 	// Interaction vars
 	UserExpiration = 10 * time.Second			// Time until user considered dead
 	InteractionExpiration =  5*time.Second 		// Time until interaction considered dead
-	InteractionDistance = float32(1)			// 2 metres, boundary box
+	InteractionDistance = float32(1)			// 1 metre, boundary box
 )
 
 type (

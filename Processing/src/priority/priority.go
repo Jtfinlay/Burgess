@@ -86,7 +86,8 @@ func UpdateUsers(data *map[string]*models.Position) {
 
 	// Kill expired interactions
 	for _,employee := range Employees {
-		for i,interaction := range employee.Interactions {
+		for i := len(employee.Interactions)-1; i >= 0; i-- {
+			interaction := employee.Interactions[i]
 			if time.Since(interaction.LastTime) > models.InteractionExpiration {
 
 				// Store event
@@ -99,8 +100,7 @@ func UpdateUsers(data *map[string]*models.Position) {
 				}
 				// kill the interaction
 				interaction.Customer.RemoveInteraction(interaction)
-				employee.Interactions = append(employee.Interactions[:i],
-					employee.Interactions[i+1:]...)
+				employee.Interactions = append(employee.Interactions[:i], employee.Interactions[i+1:]...)
 			}
 		}
 	}
