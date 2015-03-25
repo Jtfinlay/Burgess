@@ -61,7 +61,12 @@ public class MainActivity extends ActionBarActivity
 
 		// TODO::TM hook this up to server DB
 		HashMap<String, String> stationMacs = new HashMap<>();
-		stationMacs.put("E4:98:D6:63:1D:86", "bt-stn1");
+		stationMacs.put("00:17:9A:3F:2C:1B", "bt-stn1");
+        stationMacs.put("00:19:5B:0E:4C:6C", "bt-stn2");
+        stationMacs.put("00:19:5B:0E:4C:6D", "bt-stn3");
+        stationMacs.put("00:19:5B:0E:4C:71", "bt-stn4");
+        stationMacs.put("00:19:5B:0E:4C:72", "bt-stn5");
+        stationMacs.put("00:19:5B:0E:4C:7B", "bt-stn6");
 
 		_bluetoothSignalCollector = new BluetoothCollection(stationMacs,
                 mBluetoothAdapter,

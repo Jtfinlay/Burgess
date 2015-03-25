@@ -32,13 +32,13 @@ public final class BluetoothCollection
 	private boolean m_errors = false;
 
 	public BluetoothCollection(HashMap<String, String> stationMacs,
-                               BluetoothAdapter bluetoothAdapter,
+	                           BluetoothAdapter bluetoothAdapter,
 	                           WifiManager wifiManager,
 	                           ConnectivityManager connMgr,
 	                           Context context)
 	{
 		m_stationMacs = stationMacs;
-        m_bluetoothAdapter = bluetoothAdapter;
+		m_bluetoothAdapter = bluetoothAdapter;
 		m_context = context;
 
 		//wifi needs to be enabled to get the MAC.
@@ -88,7 +88,7 @@ public final class BluetoothCollection
 		m_listeners.remove(listener);
 	}
 
-	private void PublishData(ArrayList<Result> data)
+	private void PublishData(HashMap<String, Result> data)
 	{
 		for (BluetoothListener listener : m_listeners)
 		{
@@ -98,15 +98,16 @@ public final class BluetoothCollection
 
 	public interface BluetoothListener
 	{
-		void OnDataReady(ArrayList<Result> results);
+		void OnDataReady(HashMap<String, Result> results);
 	}
 
 	private class BluetoothReceiver extends BroadcastReceiver
-    {
-        private final int MAX_COUNT = 3;
+	{
+		private final int MAX_COUNT = 3;
+		private final long TIME_OUT = 15000;
 
-        private int m_count = 0;
-		private ArrayList<Result> m_results = new ArrayList<>();
+		private int m_count = 0;
+		private HashMap<String, Result> m_results = new HashMap<>();
 
 		public void onReceive(Context context, Intent intent)
 		{
@@ -119,13 +120,25 @@ public final class BluetoothCollection
 
 				if (m_stationMacs.containsKey(device.getAddress()))
 				{
-                    m_count++;
-					m_results.add(new Result(m_localMacAddress,
-							m_stationMacs.get(device.getAddress().toUpperCase()),
-							rssi,
-							time.getTime()));
+					m_count++;
+					String station = m_stationMacs.get(device.getAddress().toUpperCase());
+					if (m_results.containsKey(station))
+					{
+						m_results.get(station).setSignalStrength(rssi);
+						m_results.get(station).setTime(time.getTime());
+					}
+					else
+					{
+						m_results.put(station,
+								new Result(m_localMacAddress,
+										station,
+										rssi,
+										time.getTime()));
+					}
 					if (m_count == MAX_COUNT)
-                        locationFound(context);
+					{
+						locationFound(context);
+					}
 				}
 			}
 			else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
@@ -141,24 +154,41 @@ public final class BluetoothCollection
 		}
 
 		private void startNewBTScan(Context context)
-        {
-            context.unregisterReceiver(m_receiver);
-            PublishData(m_results);
+		{
+			context.unregisterReceiver(m_receiver);
+			PublishData(m_results);
 
-            Result max = null;
-            for (Result r : m_results)
-                if (max == null || r.getSignalStrength() > max.getSignalStrength())
-                    max = r;
-            if(max != null)
-            {
-                BluetoothSendMetaData sender = new BluetoothSendMetaData();
-                ArrayList<Result> temp = new ArrayList<Result>();
-                temp.add(max);
-                sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, temp);
-            }
+			Result max = null;
+			for (Result r : m_results.values())
+			{
+				if (max == null || r.getSignalStrength() > max.getSignalStrength())
+				{
+					max = r.clone();
+				}
+			}
+			if (max != null)
+			{
+				BluetoothSendMetaData sender = new BluetoothSendMetaData();
+				ArrayList<Result> temp = new ArrayList<Result>();
+				temp.add(max);
+				sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, temp);
+			}
 
-			m_results = new ArrayList<>();
-            m_count = 0;
+			ArrayList<String> removeList = new ArrayList<>();
+			for(Result r : m_results.values())
+			{
+				if(r.getTime().getTime() - Calendar.getInstance().getTime().getTime() > TIME_OUT)
+				{
+					removeList.add(r.getSource());
+				}
+			}
+
+			for(String r : removeList)
+			{
+				m_results.remove(r);
+			}
+
+			m_count = 0;
 			startCollection();
 		}
 	}
