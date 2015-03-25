@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public final class BluetoothSendMetaData extends AsyncTask<ArrayList<Result>, Void, Boolean>
 {
-	private final String url = "http://192.168.0.154:9000/rawBluetooth";
+	private final String url = "http://ua-bws.cloudapp.net:9000/rawBluetooth";
 
 	private boolean POST(ArrayList<Result> results)
 	{

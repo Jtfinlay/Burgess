@@ -10,12 +10,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/macAddress"
         android:layout_weight="70"
-        android:layout_margin="10dp"/>
+        android:layout_margin="10dp"
+        android:textColor="#AAAAAA" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/strength"
         android:layout_weight="30"
-        android:layout_margin="10dp"/>
+        android:layout_margin="10dp"
+        android:textColor="#AAAAAA" />
 
 </LinearLayout>

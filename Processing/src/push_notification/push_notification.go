@@ -1,5 +1,5 @@
 /*
- *	Send push notification.
+ *	Manage push notifications for devices
  *
  *	Author: James Finlay
  *	Date: March 24th, 2015
@@ -12,8 +12,10 @@ import (
  	"bytes"
 )
 
+/*
+ *	Send push notification to all subscribed devices
+ */
 func Alert() {
-
  	url := "https://api.parse.com/1/push"
  	jsonStr := []byte(`{"where": {"deviceType": "android"},"data": {"alert": "Customer help!"}}`)
  	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))

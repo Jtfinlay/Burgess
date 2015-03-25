@@ -44,10 +44,6 @@ class BurgessApp < Sinatra::Base
         end
     end
 
-    before do
-        session[:path] = request.path if !request.path.include?("login")
-    end
-
     template :empty_layout do
     end
 
@@ -56,6 +52,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/livefeed' do
+        session[:path] = request.path
         if authenticated?
     		js :jcanvas, :knockout, 'map', 'knockout/livefeed'
             erb :livefeed
@@ -75,6 +72,7 @@ class BurgessApp < Sinatra::Base
 	end
 
     get '/playback' do
+        session[:path] = request.path
         if authenticated?
     		js :datetime, :knockout, :jcanvas, :nvd3, 'map', 'timeselect', 'knockout/playback'
             erb :playback
@@ -84,6 +82,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/analytics' do
+        session[:path] = request.path
         if authenticated?
     		js :nvd3, :knockout, :datetime, 'analytics/helpedTimeChart', 
                 'analytics/peakChart', 'analytics/helpedCountChart', 'knockout/analytics'
@@ -94,6 +93,7 @@ class BurgessApp < Sinatra::Base
     end
 
     get '/settings' do
+        session[:path] = request.path
         if authenticated?
     		js :knockout, 'knockout/settings'
             erb :settings

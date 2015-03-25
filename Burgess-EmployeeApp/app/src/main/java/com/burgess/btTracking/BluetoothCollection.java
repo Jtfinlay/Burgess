@@ -2,7 +2,6 @@ package com.burgess.btTracking;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +23,6 @@ public final class BluetoothCollection
 	private HashMap<String, String> m_stationMacs;
 	private String m_localMacAddress;
 
-	private BluetoothManager m_bluetoothManager;
 	private BluetoothAdapter m_bluetoothAdapter;
 	private BroadcastReceiver m_receiver;
 	private Context m_context;
@@ -34,14 +32,13 @@ public final class BluetoothCollection
 	private boolean m_errors = false;
 
 	public BluetoothCollection(HashMap<String, String> stationMacs,
-	                           BluetoothManager bluetoothManager,
+                               BluetoothAdapter bluetoothAdapter,
 	                           WifiManager wifiManager,
 	                           ConnectivityManager connMgr,
 	                           Context context)
 	{
 		m_stationMacs = stationMacs;
-		m_bluetoothManager = bluetoothManager;
-		m_bluetoothAdapter = m_bluetoothManager.getAdapter();
+        m_bluetoothAdapter = bluetoothAdapter;
 		m_context = context;
 
 		//wifi needs to be enabled to get the MAC.
@@ -105,9 +102,10 @@ public final class BluetoothCollection
 	}
 
 	private class BluetoothReceiver extends BroadcastReceiver
-	{
-		private final int STRENGTH_CUT_OFF = -55;
+    {
+        private final int MAX_COUNT = 3;
 
+        private int m_count = 0;
 		private ArrayList<Result> m_results = new ArrayList<>();
 
 		public void onReceive(Context context, Intent intent)
@@ -119,16 +117,15 @@ public final class BluetoothCollection
 				int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
 				Calendar time = Calendar.getInstance();
 
-				if (rssi > STRENGTH_CUT_OFF)
+				if (m_stationMacs.containsKey(device.getAddress()))
 				{
-					if (m_stationMacs.containsKey(device.getAddress()))
-					{
-						m_results.add(new Result(m_localMacAddress,
-								m_stationMacs.get(device.getAddress().toUpperCase()),
-								rssi,
-								time.getTime()));
-						locationFound(context);
-					}
+                    m_count++;
+					m_results.add(new Result(m_localMacAddress,
+							m_stationMacs.get(device.getAddress().toUpperCase()),
+							rssi,
+							time.getTime()));
+					if (m_count == MAX_COUNT)
+                        locationFound(context);
 				}
 			}
 			else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
@@ -144,12 +141,24 @@ public final class BluetoothCollection
 		}
 
 		private void startNewBTScan(Context context)
-		{
-			context.unregisterReceiver(m_receiver);
-			PublishData(m_results);
-			BluetoothSendMetaData sender = new BluetoothSendMetaData();
-			sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m_results);
+        {
+            context.unregisterReceiver(m_receiver);
+            PublishData(m_results);
+
+            Result max = null;
+            for (Result r : m_results)
+                if (max == null || r.getSignalStrength() > max.getSignalStrength())
+                    max = r;
+            if(max != null)
+            {
+                BluetoothSendMetaData sender = new BluetoothSendMetaData();
+                ArrayList<Result> temp = new ArrayList<Result>();
+                temp.add(max);
+                sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, temp);
+            }
+
 			m_results = new ArrayList<>();
+            m_count = 0;
 			startCollection();
 		}
 	}

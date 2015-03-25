@@ -15,8 +15,6 @@ function LiveMap(idCanvas, theWidth, theHeight, img) {
 	$("#"+this.id).attr('width', this.width_px);
 	$("#"+this.id).attr('height', this.height_px);
 
-	console.log(this.width_px);
-	console.log(this.height_px);
 	this.loadResources();
 
 	/*$('<img src="'+self.img+'"/>').load(function() {
