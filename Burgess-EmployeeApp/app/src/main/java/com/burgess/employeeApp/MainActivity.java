@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.*;
 import android.widget.Button;
 import android.widget.Toast;
@@ -26,7 +25,7 @@ public class MainActivity extends ActionBarActivity
 {
 	private final static int REQUEST_ENABLE_BT = 55;
 
-	private BluetoothCollection m_bluetoothSignalCollector;
+	private BluetoothCollection _bluetoothSignalCollector;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -34,10 +33,8 @@ public class MainActivity extends ActionBarActivity
 		super.onCreate(savedInstanceState);
 		setContentView(com.burgess.employeeApp.R.layout.activity_main);
 
-		Log.v("MainActivity", "PreParse");
 		Parse.initialize(this, "OHZhBe7qRjQWqz0IkKV9mOKXcb7yA4tRSgIvjQBC", "ewX4BAHgOaWrv3Q6z1thS6SlzR0oOosfMyeJnH2O");
 		ParseInstallation.getCurrentInstallation().saveInBackground();
-		Log.v("MainActivity", "PostParse");
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -68,18 +65,17 @@ public class MainActivity extends ActionBarActivity
 		HashMap<String, String> stationMacs = new HashMap<>();
 		stationMacs.put("E4:98:D6:63:1D:86", "bt-stn1");
 
-		m_bluetoothSignalCollector = new BluetoothCollection(stationMacs,
+		_bluetoothSignalCollector = new BluetoothCollection(stationMacs,
 				bluetoothManager,
 				wifiManager,
 				connectivityManager,
 				getApplicationContext());
-		m_bluetoothSignalCollector.startCollection();
+		_bluetoothSignalCollector.startCollection();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(com.burgess.employeeApp.R.menu.main, menu);
 		return true;
 	}
@@ -87,15 +83,10 @@ public class MainActivity extends ActionBarActivity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		boolean wasHandled = false;
 		switch (id)
 		{
-			case com.burgess.employeeApp.R.id.action_settings:
-				break;
 			case com.burgess.employeeApp.R.id.action_openBTView:
 				wasHandled = true;
 				Intent intent = new Intent(this, ViewBTActivity.class);
@@ -134,8 +125,39 @@ public class MainActivity extends ActionBarActivity
 					transaction.commit();
 				}
 			});
+			_btnCustomer.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					FragmentTransaction transaction = getFragmentManager().beginTransaction();
+					transaction.replace(R.id.container, new CustomerFragment());
+					transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+					transaction.addToBackStack(null);
+
+					transaction.commit();
+				}
+			});
+
+			_btnCustomer.setOnTouchListener(new TransparentButtonListener());
+			_btnEmployee.setOnTouchListener(new TransparentButtonListener());
 
 			return rootView;
+		}
+	}
+
+	public static class TransparentButtonListener implements View.OnTouchListener {
+		@Override
+		public boolean onTouch(View view, MotionEvent motionEvent) {
+			switch (motionEvent.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+				case MotionEvent.ACTION_HOVER_ENTER:
+					view.setBackgroundColor(view.getResources().getColor(R.color.opacity_100));
+					break;
+				case MotionEvent.ACTION_UP:
+				case MotionEvent.ACTION_HOVER_EXIT:
+					view.setBackgroundColor(view.getResources().getColor(R.color.opacity_75));
+					break;
+			}
+			return false;
 		}
 	}
 }

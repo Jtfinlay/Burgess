@@ -4,11 +4,6 @@
     tools:context="com.burgess.employeeApp.MainActivity" >
 
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
-    <item
         android:id="@+id/action_openBTView"
         android:orderInCategory="1"
         android:title="@string/title_activity_view_bt"
