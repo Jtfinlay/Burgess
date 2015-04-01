@@ -521,6 +521,6 @@ end
 puts "date : #{dateToPopulate}"
 
 # sim runs from 8AM to 10 PM of the current day
-startTime = Time.parse("#{dateToPopulate} 08:00").to_i
-endTime = Time.parse("#{dateToPopulate} 22:00").to_i
+startTime = Time.parse("#{dateToPopulate} 08:00 -0600").to_i
+endTime = Time.parse("#{dateToPopulate} 22:00 -0600").to_i
 sim.run(showOutput, startTime, endTime, dateToPopulate)
