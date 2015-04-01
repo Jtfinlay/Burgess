@@ -464,10 +464,10 @@ class StoreSimulator
   end
 
   # duration in seconds, end-time is seconds
-  def run(showOutput, startTime, endTime)
+  def run(showOutput, startTime, endTime, curDate)
     self.createControlPoints
     self.createEmployeeControlPoints
-    self.createTimePoints(Time.now.strftime("%d/%m/%Y"))
+    self.createTimePoints(curDate)
 
     duration = endTime - startTime
     currentTime = startTime
@@ -509,11 +509,18 @@ class StoreSimulator
 end
 
 showOutput = false
-showOutput = true if ARGV.length == 1 and ["true", "t", "yes", "showoutput"].any? do |val| val == ARGV[0].downcase end
+showOutput = true if ARGV.length == 2 and ["true", "t", "yes", "showoutput"].any? do |val| val == ARGV[1].downcase end
 sim = StoreSimulator.new()
 
-# sim runs from 8AM to 10 PM of the current day
-startTime = Time.parse("#{Time.now.strftime("%d/%m/%Y")} 08:00").to_i
-endTime = Time.parse("#{Time.now.strftime("%d/%m/%Y")} 22:00").to_i
-sim.run(showOutput, startTime, endTime)
+dateToPopulate = Time.now.strftime("%d/%m/%Y")
 
+if ARGV.length >= 1
+  dateToPopulate = ARGV[0]
+end
+
+puts "date : #{dateToPopulate}"
+
+# sim runs from 8AM to 10 PM of the current day
+startTime = Time.parse("#{dateToPopulate} 08:00").to_i
+endTime = Time.parse("#{dateToPopulate} 22:00").to_i
+sim.run(showOutput, startTime, endTime, dateToPopulate)
