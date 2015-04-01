@@ -8,12 +8,11 @@ HelpedTimeChart.prototype = {
         $.each(employees, function(i,v) {
             time.push({
                 "label": v.name(),
-                "value": v.helpTimes.reduce(
-                    function(a,b){return a+b},0)/v.helpTimes.length
+                "value": v.helpTimes.reduce(function(a,b){return (a+b)},0)/(1000*v.helpTimes.length)
             })
         });
 		return [{
-            "key": "Today",
+            "key": "Single day",
             "color": "#4f99b4",
             "values": time
         }];

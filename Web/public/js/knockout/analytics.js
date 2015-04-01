@@ -22,26 +22,29 @@ function AnalyticsViewModel() {
 		self.helpTime = [];
 		self.peakTimes = [];
 		self.REST = 0;
+		self.PEAK = 0;
 		self.REST_total = 3;
 
 		$.post("/analytics/customersHourly",
 			{"ti":ti, "tf":tf},
 			function(data) {
+					self.peakCustomerTimes = [];
 				$.each(JSON.parse(data), function(index, value) {
 				 	self.peakCustomerTimes.push([value.x, value.y])
 				})
 				peakChart.drawChart("#peakHours svg",
-					peakChart.formatCustomerData(self.peakCustomerTimes), null)
+					peakChart.formatCustomerData(self.peakCustomerTimes), null);
 			}
 		);
 		$.post("/analytics/employeesHourly",
 			{"ti":ti, "tf":tf},
 			function(data) {
+				self.peakEmployeeTimes = [];
 				$.each(JSON.parse(data), function(index, value) {
 					self.peakEmployeeTimes.push([value.x, value.y])
 				})
 				peakChart.drawChart("#peakHours svg",
-					null, peakChart.formatEmployeeData(self.peakEmployeeTimes))
+					null, peakChart.formatEmployeeData(self.peakEmployeeTimes));
 			}
 		);
 		$.post("/analytics/helpCount",
@@ -89,7 +92,6 @@ function AnalyticsViewModel() {
 			});
 		});
 		
-		
 		$.each(self.helpCount, function(i, data) {
 			$.map($.grep(self.employees, function(e) {
 				return e._id.$oid == data[0];
@@ -114,7 +116,10 @@ $(function() {
 var formatDate = function(d) {
 	return String.leftPad(d.getMonth() + 1, 2, '0') + '-' + String.leftPad(d.getDate(), 2, '0') + '-' + d.getFullYear();
 }
-
+var stringToDate = function(s) {
+	var val = s.split("-");
+	return new Date(val[2],val[0]-1,val[1]);
+}
 /* Date time picker */
 $("#datetimepicker").datetimepicker({
 	format:'m-d-Y',
@@ -123,7 +128,7 @@ $("#datetimepicker").datetimepicker({
 });
 $("#datetimepicker").val(formatDate(new Date()));
 $("#datetimeselected").click(function() {
-	m = (new Date($("#datetimepicker").val())).getTime()
+	m = (stringToDate($("#datetimepicker").val())).getTime()
 	vm.pullData(m, m+24*3600*1000);
 });
 /* Init */

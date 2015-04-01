@@ -17,6 +17,18 @@
 					</tr>
 				</tbody>
 			</table>
+			<hr />
+			<h4>Customers</h4>
+			<table>
+				<thead><tr>
+						<th>MAC Address</th>
+					</tr></thead>
+				<tbody data-bind="foreach: customers">
+					<tr>
+						<td><p data-bind="text: id"/></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
 </div>

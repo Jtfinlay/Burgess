@@ -12,7 +12,7 @@ HelpedCountChart.prototype = {
 			})
 		});
 		return [{
-			"key": "Today",
+			"key": "Single day",
 			"color": "#1f77b4",
 			"values": count
 		}];
