@@ -63,7 +63,7 @@ class BurgessApp < Sinatra::Base
 
 	get '/livefeed/data' do
         if authenticated?
-    		session[:timelast] = Time.now - 30 if session[:timelast].nil? || session[:timelast] > Time.now - 30
+    		session[:timelast] = Time.now - 30 if session[:timelast].nil? || Time.now - 30 > session[:timelast]
     		result = settings.db_archived.getPositionsSince(session[:timelast])
     		session[:timelast] = Time.now
     		return result.to_json

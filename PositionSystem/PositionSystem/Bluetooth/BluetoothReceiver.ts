@@ -25,7 +25,7 @@ export class Receiver {
 
 		var self = this;
 		app.post('/rawBluetooth', function (req: express.Request, res: express.Response) {
-			var entry = self.saveRawToDB(req.body, function (entry) {
+			self.saveRawToDB(req.body, function (entry) {
 				console.log("Bluetooth Solver Solving");
 				self.m_solver.solveFor(entry);
 			});

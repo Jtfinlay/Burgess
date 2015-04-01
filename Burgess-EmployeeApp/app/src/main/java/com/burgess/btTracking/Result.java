@@ -20,6 +20,11 @@ public final class Result implements Comparable<Result>
 		this.time = time;
 	}
 
+	public Result clone()
+	{
+		return new Result(this.mac, this.source, this.signalStrength, (Date) this.time.clone());
+	}
+
 	public JSONObject getJSON()
 	{
 		JSONObject result = new JSONObject();
@@ -54,9 +59,19 @@ public final class Result implements Comparable<Result>
 		return this.signalStrength;
 	}
 
+    public void setSignalStrength(int newSignalStrength)
+    {
+        this.signalStrength = newSignalStrength;
+    }
+
 	public Date getTime()
 	{
 		return this.time;
+	}
+
+	public void setTime(Date newTime)
+	{
+		this.time = (Date) newTime.clone();
 	}
 
 	@Override

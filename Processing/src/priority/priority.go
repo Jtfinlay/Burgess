@@ -43,7 +43,7 @@ func FindEmployee(MAC string) *models.Employee {
     }
     if EmployeesAll[MAC] != nil {
         Employees[MAC] = EmployeesAll[MAC]
-        Employees[MAC].FirstSeen = time.Now()
+        Employees[MAC].FirstSeen = models.TimeNow
         return Employees[MAC]
     }
     return nil
@@ -61,25 +61,25 @@ func UpdateUsers(data *map[string]*models.Position) {
         // Employee?
         employee := FindEmployee(value.Wifi)
         if employee != nil {
-            employee.LastSeen = time.Now()
+            employee.LastSeen = models.TimeNow
             employee.Position = *value
         } else if Customers[value.Wifi] != nil {
-            Customers[value.Wifi].LastSeen = time.Now()
+            Customers[value.Wifi].LastSeen = models.TimeNow
             Customers[value.Wifi].Position = *value
         } else {
-            Customers[value.Wifi] = &models.Customer{value.Wifi, time.Now(),
-                time.Now(), *value, time.Unix(0, time.Now().UnixNano() + models.InitialWait), 0, nil}
+            Customers[value.Wifi] = &models.Customer{value.Wifi, models.TimeNow,
+                models.TimeNow, *value, time.Unix(0, models.TimeNow.UnixNano() + models.InitialWait), 0, nil}
         }
     }
 
     // Kill expired users
     for key,value := range Employees {
-        if time.Since(value.LastSeen) > models.UserExpiration {
+        if models.TimeNow.Sub(value.LastSeen) > models.UserExpiration {
             delete(Employees, key)
         }
     }
     for key,value := range Customers {
-        if time.Since(value.LastSeen) > models.UserExpiration {
+        if models.TimeNow.Sub(value.LastSeen) > models.UserExpiration {
             delete(Customers, key)
         }
     }
@@ -88,7 +88,7 @@ func UpdateUsers(data *map[string]*models.Position) {
 	for _,employee := range Employees {
 		for i := len(employee.Interactions)-1; i >= 0; i-- {
 			interaction := employee.Interactions[i]
-			if time.Since(interaction.LastTime) > models.InteractionExpiration {
+			if models.TimeNow.Sub(interaction.LastTime) > models.InteractionExpiration {
 
 				// Store event
 				models.StoreInteraction(interaction)
@@ -119,10 +119,10 @@ func UpdateInteractions() {
 
 			interaction := models.FindByCustomer(employee.Interactions, customer)
 			if interaction != nil {
-				interaction.LastTime = time.Now()
+				interaction.LastTime = models.TimeNow
 			} else {
 				interaction = &models.Interaction{employee, customer,
-					time.Now(), time.Now(), customer.Priority}
+					models.TimeNow, models.TimeNow, customer.Priority}
 				customer.Interactions = append(customer.Interactions, interaction)
 				employee.Interactions = append(employee.Interactions, interaction)
 				customer.Priority = 0
@@ -133,7 +133,7 @@ func UpdateInteractions() {
 
 		// Calculate Priority
 		if len(customer.Interactions) == 0 {
-			dt := float32(customer.ExpiryTime.UnixNano() - time.Now().UnixNano() + int64(models.SleepDuration))
+			dt := float32(customer.ExpiryTime.UnixNano() - models.TimeNow.UnixNano() + int64(models.SleepDuration))
 			if dt == 0 {
 				customer.Priority = 1
 			} else {
@@ -158,9 +158,9 @@ func UpdatePriorities(data *map[string]*models.Position) {
     // TODO::JF - Filter by retailer
 
     // If it's been a while, update our EmployeeAll data
-    if time.Since(EmployeePullTime) > time.Hour {
+    if models.TimeNow.Sub(EmployeePullTime) > time.Hour {
         PullEmployeeData()
-        EmployeePullTime = time.Now()
+        EmployeePullTime = models.TimeNow
     }
 
 	UpdateUsers(data)

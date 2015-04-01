@@ -1,9 +1,9 @@
 /*
- *	This program watches for updates to the position database, aggregates the data over period
- *	(default 5sec) and places it in the archived database.
+ *	This program takes updates between the given times, aggregates the data over period
+ *	(default 5sec) and places it in the archived database
  *
  *	Author: James Finlay
- *	Date: March 6th, 2015
+ *	Date: March 31st, 2015
  */
 
 package main
@@ -53,16 +53,22 @@ func main() {
 
 	models.Init(session)
 
-	for {
-		models.TimeNow = time.Now()
-		data := aggregateData(models.PullRecentData(models.TimeNow,(int64(models.SleepDuration) - offset)))
+	loc,err := time.LoadLocation("Local")
+	if err != nil { panic(err) }
+
+	models.SleepDuration = 10 * time.Second
+
+	for i := 0; i <= 60*60*24; i += 10 {
+		models.TimeNow = time.Date(2015,03,30,0,0,i,0,loc)
+
+		if i % (60*60) == 0 { fmt.Println(models.TimeNow) }
+
+		data := aggregateData(models.PullRecentData(models.TimeNow,(10*1000000000 - offset)))
 		priority.UpdatePriorities(data)
 
 		customers := priority.GetCustomers()
 		employees := priority.GetEmployees()
 
 		models.StoreArchived(models.TimeNow, customers, employees)
-
-		time.Sleep(models.SleepDuration)
 	}
 }

@@ -78,6 +78,7 @@ func PullRecentData(tf time.Time, offset int64) *[]Position {
 	if DEBUG { return &result }
 
 	ti := time.Unix(0, tf.UnixNano() - offset)
+
 	err := c_position.Find(
 		bson.M{
 			"time": bson.M{

@@ -64,7 +64,7 @@ public class ViewBTActivity extends ActionBarActivity implements BluetoothCollec
 	}
 
 	@Override
-	public void OnDataReady(final ArrayList<Result> data)
+	public void OnDataReady(final HashMap<String, Result> data)
 	{
 		if (data.size() == 0)
 		{
@@ -136,11 +136,11 @@ public class ViewBTActivity extends ActionBarActivity implements BluetoothCollec
 			return v;
 		}
 
-		public void SetData(List<Result> data)
+		public void SetData(HashMap<String, Result> data)
 		{
 			synchronized (m_syncToken)
 			{
-				for (Result res : data)
+				for (Result res : data.values())
 				{
 					if (!m_data.containsKey(res.getSource()))
 					{

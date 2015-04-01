@@ -28,9 +28,11 @@ var (
 	LongWait = int64(2*time.Minute)
 
 	// Interaction vars
-	UserExpiration = 10 * time.Second			// Time until user considered dead
+	UserExpiration = 25 * time.Second			// Time until user considered dead
 	InteractionExpiration =  5*time.Second 		// Time until interaction considered dead
 	InteractionDistance = float32(1)			// 1 metre, boundary box
+
+	TimeNow time.Time
 )
 
 type (
@@ -117,13 +119,13 @@ func (c *Customer) RemoveInteraction(interaction *Interaction) {
 
 /** Get preferred wait time for completed interaction **/
 func (i *Interaction) GetPriorityTime() time.Time {
-	t := time.Since(i.StartTime)
+	t := TimeNow.Sub(i.StartTime)
 	if t >= ShortInteraction {
-		return time.Unix(0, time.Now().UnixNano() + ShortWait)
+		return time.Unix(0, TimeNow.UnixNano() + ShortWait)
 	} else if t >= MediumInteraction {
-		return time.Unix(0, time.Now().UnixNano() + MediumWait)
+		return time.Unix(0, TimeNow.UnixNano() + MediumWait)
 	} else {
-		return time.Unix(0, time.Now().UnixNano() + LongWait)
+		return time.Unix(0, TimeNow.UnixNano() + LongWait)
 	}
 }
 
