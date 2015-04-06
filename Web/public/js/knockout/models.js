@@ -24,7 +24,7 @@ function Employee(data) {
 
 /**
  *	Drawable {
- *		id: string
+ *		mac: string
  *		x: float
  *		y: float
  *		radius: float
