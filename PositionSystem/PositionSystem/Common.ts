@@ -31,7 +31,7 @@ export class Point {
 	private m_x: number;
 	private m_y: number;
 
-	constructor(x, y) {
+	constructor(x:number, y:number) {
 		this.m_x = x;
 		this.m_y = y;
 	}
@@ -106,7 +106,7 @@ export class Circle {
 		// y3 = y2 +- h * (x1 - x0) / d
 
 		var x_term2 = h * (c.center().y() - this.center().y()) / d;
-		var y_term2 = h * (c.center().x() - this.center().x()) / d;
+		var y_term2 = Math.abs(h * (c.center().x() - this.center().x()) / d);
 
 		var p3 = new Point(p2.x() + x_term2, p2.y() + y_term2);
 		var p4 = new Point(p2.x() - x_term2, p2.y() - y_term2);
