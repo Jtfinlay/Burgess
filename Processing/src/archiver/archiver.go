@@ -58,8 +58,8 @@ func main() {
 
 	models.SleepDuration = 10 * time.Second
 
-	for i := 0; i <= 60*60*24; i += 10 {
-		models.TimeNow = time.Date(2015,03,30,0,0,i,0,loc)
+	for i := 0; i <= 60*60*10; i += 10 {
+		models.TimeNow = time.Date(2015,03,31,14,0,i,0,loc)
 
 		if i % (60*60) == 0 { fmt.Println(models.TimeNow) }
 

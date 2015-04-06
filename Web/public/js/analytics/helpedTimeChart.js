@@ -23,7 +23,9 @@ HelpedTimeChart.prototype = {
         var self = this;
         if (self.chart != null) { return self.updateChart(data); }
 
+        console.log("time1")
         nv.addGraph(function() {
+            console.log("time2")
             self.chart = nv.models.multiBarHorizontalChart()
                 .x(function(d) { return d.label })
                 .y(function(d) { return d.value })

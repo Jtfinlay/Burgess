@@ -28,7 +28,7 @@ function AnalyticsViewModel() {
 		$.post("/analytics/customersHourly",
 			{"ti":ti, "tf":tf},
 			function(data) {
-					self.peakCustomerTimes = [];
+				self.peakCustomerTimes = [];
 				$.each(JSON.parse(data), function(index, value) {
 				 	self.peakCustomerTimes.push([value.x, value.y])
 				})
@@ -126,7 +126,8 @@ $("#datetimepicker").datetimepicker({
 	lang:'en',
 	timepicker:false
 });
-$("#datetimepicker").val(formatDate(new Date()));
+// $("#datetimepicker").val(formatDate(new Date()));
+$("#datetimepicker").val("03-31-2015");
 $("#datetimeselected").click(function() {
 	m = (stringToDate($("#datetimepicker").val())).getTime()
 	vm.pullData(m, m+24*3600*1000);

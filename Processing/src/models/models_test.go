@@ -23,6 +23,3 @@ func TestCustomerToArchived(t *testing.T) {
 			archived.MAC, "CARLTON")
 	}
 }
-
-
-//TODO::JF More model tests

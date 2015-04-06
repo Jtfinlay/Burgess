@@ -1,5 +1,5 @@
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-GOPATH := $(ROOT_DIR)/Processing
+export GOPATH := $(ROOT_DIR)/Processing
 
 make:
 	go install processing
@@ -13,8 +13,8 @@ preprocessing:
 
 postprocessing: make
 	./Processing/bin/processing
+
 test_go: make
-	go test processing -v
 	go test priority -v
 	go test models -v
 
