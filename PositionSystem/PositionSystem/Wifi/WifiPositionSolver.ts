@@ -28,13 +28,13 @@ export class PositionSolver {
 		// TODO::JT store this in DB and retrieve. Just hacking together for the time being
 		this.m_stations = {
 			'rasp-1': {
-				id: 'rasp-`', point: new common.Point(0.0, 1.0)
+				id: 'rasp-`', point: new common.Point(0.0, 0.0)
 			},
 			'rasp-2': {
-				id: 'rasp-2', point: new common.Point(2.0, 0.0)
+				id: 'rasp-2', point: new common.Point(10.0, 0.0)
 			},
 			'rasp-3': {
-				id: 'rasp-3', point: new common.Point(1.0, 1.0)
+				id: 'rasp-3', point: new common.Point(0.0, 10.0)
 			}
 		}
 	}
@@ -126,7 +126,7 @@ export class PositionSolver {
 		});
 	}
 
-	private CalculatePosition(mac: string, latestEntries: common.WifiEntry[]):common.PositionEntry {
+	CalculatePosition(mac: string, latestEntries: common.WifiEntry[]):common.PositionEntry {
 		// can't perform trilateration without at least 3 measurements
 		var result:common.PositionEntry = null;
 		if (latestEntries.length >= 3) {

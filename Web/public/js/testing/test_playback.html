@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Knockout/Playback.js Test</title>
+  <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.18.0.css">
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <input id="datetimepicker" style="visibility: hidden;"></input>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.js"></script>
+  <script src="//code.jquery.com/qunit/qunit-1.18.0.js"></script>
+  <script src="/vendor/datetimepicker/jquery.datetimepicker.js"></script>
+
+  <script>
+    // Disable externals
+    $.get = function(url, callback) {};
+    $.post = function(url, data, callback) {};
+    $.fn.extend({datetimepicker: function(data){}});
+    function TimeSelect() {};
+    function LiveMap(id,w,h,img) {};
+    TimeSelect.prototype = {
+      drawChart: function(id, data) {},
+      drawSelector: function(id) {}
+    };
+  </script>
+
+  <script src="../knockout/models.js"></script>
+  <script src="../knockout/playback.js"></script>
+  
+  <script>
+  QUnit.testStart(function( details ) {
+    vm = new PlaybackViewModel();
+  });
+  QUnit.testDone(function ( details ) { 
+    $.get = function(url, callback) {};
+    $.post = function(url, data, callback) {}
+  });
+
+
+  QUnit.test( "String to date", function( assert ) {
+    var s = "03-31-2015";
+    var dr = stringToDate(s);
+    var de = new Date(2015,02,31);
+
+    assert.ok(de.getDay() == dr.getDay(), "Passed!");
+    assert.ok(de.getMonth() == dr.getMonth(), "Passed!");
+    assert.ok(de.getYear() == dr.getYear(), "Passed!");
+  });
+
+  QUnit.test( "Date to string", function( assert ) {
+    var se = "03-31-2015";
+    var d = new Date(2015,02,31);
+    var sr = dateToString(d);
+
+    assert.ok(se == sr, "Passed!");
+  });
+
+  </script>
+</body>
+</html>

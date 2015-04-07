@@ -23,7 +23,9 @@ HelpedCountChart.prototype = {
 		var self = this;
 		if (self.chart != null) { return self.updateChart(data); }
 		
+		console.log(1);
 		nv.addGraph(function() {
+
 			self.chart = nv.models.multiBarHorizontalChart()
 				.x(function(d) { return d.label })
 				.y(function(d) { return d.value })
@@ -42,9 +44,11 @@ HelpedCountChart.prototype = {
 	},
 	
 	updateChart: function(data) {
+		fart = 3;
 		d3.select(this.id)
 			.datum(data)
 			.transition().duration(1000)
 			.call(this.chart);
 	}
 };
+var fart;

@@ -70,12 +70,15 @@ func TestUpdateUsers(t *testing.T) {
 func TestUpdateInteractions(t *testing.T) {
     resetValues()
 
+    tNow := time.Now()
+    models.TimeNow = tNow
+
     // Set up the data
     positions := make(map[string]*models.Position)
-    positions["c1"] = &models.Position{bson.NewObjectId(), "", "c1", 50, 50, 2, time.Now()}
-    positions["c2"] = &models.Position{bson.NewObjectId(), "", "c2", 100, 100, 2, time.Now()}
-    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 49.5, 49.5, 2, time.Now()}
-    positions["e2"] = &models.Position{bson.NewObjectId(), "", "e2", 0, 0, 2, time.Now()}
+    positions["c1"] = &models.Position{bson.NewObjectId(), "", "c1", 50, 50, 2, tNow}
+    positions["c2"] = &models.Position{bson.NewObjectId(), "", "c2", 100, 100, 2, tNow}
+    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 49.5, 49.5, 2, tNow}
+    positions["e2"] = &models.Position{bson.NewObjectId(), "", "e2", 0, 0, 2, tNow}
 
     EmployeesAll["e1"] = createEmployee("e1")
     EmployeesAll["e2"] = createEmployee("e2")
@@ -106,7 +109,7 @@ func TestUpdateInteractions(t *testing.T) {
 
     // Test interaction expiry
     positions["c1"].X = 100
-    Employees["e1"].Interactions[0].LastTime = time.Unix(0,time.Now().UnixNano()-int64(time.Hour))
+    Employees["e1"].Interactions[0].LastTime = tNow.Add(-time.Hour)
 
     UpdateUsers(&positions)
 
@@ -119,9 +122,12 @@ func TestUpdateInteractions(t *testing.T) {
 func TestPriorityValues(t *testing.T) {
     resetValues()
 
+    tNow := time.Now()
+    models.TimeNow = tNow
+
     positions := make(map[string]*models.Position)
-    positions["c1"] = &models.Position{bson.NewObjectId(), "", "c1", 0, 0, 2, time.Now()}
-    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 0, 0, 2, time.Now()}
+    positions["c1"] = &models.Position{bson.NewObjectId(), "", "c1", 0, 0, 2, tNow}
+    positions["e1"] = &models.Position{bson.NewObjectId(), "", "e1", 0, 0, 2, tNow}
 
     Customers["c1"] = createCustomer("c1")
     Employees["e1"] = createEmployee("e1")
@@ -134,14 +140,13 @@ func TestPriorityValues(t *testing.T) {
     }
 
     // Remove interaction
-    Customers["c1"].Interactions[0].LastTime = time.Unix(0,time.Now().UnixNano()-
-        int64(time.Minute))
+    Customers["c1"].Interactions[0].LastTime = tNow.Add(-time.Minute)
     positions["c1"].X = 100
 
     UpdateUsers(&positions)
 
     // Test at 5sec -> .08333
-    Customers["c1"].ExpiryTime = time.Unix(0,time.Now().UnixNano()+int64(time.Minute)-int64(5*time.Second))
+    Customers["c1"].ExpiryTime = tNow.Add(time.Minute - 5*time.Second)
 
     UpdateInteractions()
 
@@ -151,8 +156,8 @@ func TestPriorityValues(t *testing.T) {
 
     // Test at t-5sec -> .91666
     Customers["c1"].Priority = 0.833333333
-    Customers["c1"].ExpiryTime =
-        time.Unix(0,time.Now().UnixNano()+int64(5*time.Second))
+    Customers["c1"].ExpiryTime = tNow.Add(5*time.Second)
+        
     UpdateInteractions()
 
     if Customers["c1"].Priority > .92 || Customers["c1"].Priority < .91 {

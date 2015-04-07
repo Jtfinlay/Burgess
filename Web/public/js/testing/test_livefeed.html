@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Knockout/Livefeed.js Test</title>
+  <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.18.0.css">
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.1.0.js"></script>
+  <script src="//code.jquery.com/qunit/qunit-1.18.0.js"></script>
+
+  <script>
+    // Disable externals
+    $.get = function(url, callback) {}
+    function LiveMap(id, width, height, img) {
+      this.id = id;
+      this.width = width;
+      this.height = height;
+      this.img = img;
+    }
+  </script>
+
+  <script src="../knockout/models.js"></script>
+  <script src="../knockout/livefeed.js"></script>
+  
+  <script>
+  QUnit.begin(function( details ) {
+    clearTimeout(timer);
+  });
+  QUnit.testStart(function( details ) {
+    vm = new LiveFeedViewModel();
+  });
+  QUnit.testDone(function ( details ) { 
+    $.get = function(url, callback) {};
+  });
+
+
+  QUnit.test( "Pull Employees", function( assert ) {
+    var data = [{_id:"e1",retailer:"r",name:"Adam",auth_code:"111",mac:"AAA"},
+                {_id:"e2",retailer:"r",name:"Brad",auth_code:"222",mac:"BBB"},
+                {_id:"e3",retailer:"r",name:"Carl",auth_code:"333",mac:"CCC"}];
+
+    $.get = function(url, callback) { 
+      if (url == "/employees") { callback(JSON.stringify(data)) };
+    };
+    vm.pullEmployees();
+
+    assert.ok( vm.employees_all.length == data.length, "Passed!");
+    
+    assert.ok( vm.employees_all[0]._id == data[0]._id, "Passed!" );
+    assert.ok( vm.employees_all[0].retailer == data[0].retailer, "Passed!" );
+    assert.ok( vm.employees_all[0].name == data[0].name, "Passed!" );
+    assert.ok( vm.employees_all[0].mac == data[0].mac, "Passed!" );
+    assert.ok( vm.employees_all[0].auth_code == data[0].auth_code, "Passed!" );
+
+    assert.ok( vm.employees_all[1]._id == data[1]._id, "Passed!" );
+    assert.ok( vm.employees_all[1].retailer == data[1].retailer, "Passed!" );
+    assert.ok( vm.employees_all[1].name == data[1].name, "Passed!" );
+    assert.ok( vm.employees_all[1].mac == data[1].mac, "Passed!" );
+    assert.ok( vm.employees_all[1].auth_code == data[1].auth_code, "Passed!" );
+
+    assert.ok( vm.employees_all[2]._id == data[2]._id, "Passed!" );
+    assert.ok( vm.employees_all[2].retailer == data[2].retailer, "Passed!" );
+    assert.ok( vm.employees_all[2].name == data[2].name, "Passed!" );
+    assert.ok( vm.employees_all[2].mac == data[2].mac, "Passed!" );
+    assert.ok( vm.employees_all[2].auth_code == data[2].auth_code, "Passed!" );
+
+  });
+
+  QUnit.test( "Map employee names", function( assert ) {
+
+    var data1 = [{_id:"e1",retailer:"r",name:"Adam",auth_code:"111",mac:"AAA"},
+                 {_id:"e2",retailer:"r",name:"Brad",auth_code:"222",mac:"BBB"}];
+
+    var data2 = {mac: "AAA", x: 3.0, y: 4.0, radius:0.5, priority:0.5, employee:true};
+    
+    vm.employees_all = data1;
+    vm.employees.push(new Drawable(data2));
+
+    assert.ok(vm.employees().length == 1, "Passed!");
+    assert.ok(vm.employees()[0].name() == "Unknown", "Passed!");
+
+    vm.mapEmployeeNames();
+
+    assert.ok(vm.employees().length == 1, "Passed!");
+    assert.ok(vm.employees()[0].name() == "Adam", "Passed!");
+  });
+
+
+  QUnit.test( "Update", function( assert ) {
+
+    var data1 = [{_id:"e1",retailer:"r",name:"Adam",auth_code:"111",mac:"AAA"},
+                 {_id:"e2",retailer:"r",name:"Brad",auth_code:"222",mac:"BBB"}];
+    var data2 = [
+      new Drawable({mac: "AAA", x: 3.0, y: 4.0, radius:0.5, priority:0.5, employee:true}),
+      new Drawable({mac: "CCC", x: 3.0, y: 4.0, radius:0.5, priority:0.5, employee:false})]
+    vm.employees_all = data1;
+
+    vm.update(data2);
+
+    assert.ok(vm.employees().length == 1, "Passed!");
+    assert.ok(vm.customers().length == 1, "Passed!");
+    assert.ok(vm.employees()[0].id() == "AAA", "Passed!");
+    assert.ok(vm.customers()[0].id() == "CCC", "Passed!");
+
+    vm.employees()[0].lastUpdated -= (drawableExpired+1000);
+    vm.update();
+
+    assert.ok(vm.employees().length == 0, "Passed!");
+    assert.ok(vm.customers().length == 1, "Passed!");
+
+  });
+
+  </script>
+</body>
+</html>
