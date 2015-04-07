@@ -1,5 +1,13 @@
 # Burgess
 
+Wireless monitoring system designed to track customers through a retail space.
+
+Created by James Finlay, Jesse Tucker, and Tyler Meen for the ECE 493 Capstone Project at the University of Alberta. Graduating class of 2015 from Computer Engineering Software.
+
+Position tracking is a growing technology in retail spaces that is used to provide ads, contextual information, promotions, and other product-focused opportunities. Existing systems use Bluetooth beacons to detect a customers’ phone, determine their position in the store, and provide insight into a nearby product. 
+
+The inspiration for the Burgess Wireless System comes from wanting to shift this product-focused technology into a disruptive customer-focused experience. The problem is simple - how do employees know which customers have been helped? Solving this problem could not only improve in-store customer service, but benefit team performance. By knowing who needs help first, employees can ensure that each customer feels at home and that they are being looked after. This benefits customers, employees, retailers, and brand image.
+
 ## How to run
 
 This README contains a description of all the different pieces. This sections describes how to run any of it. There is a Makefile in the root of the project that holds the Linux calls. You may need to run the different parts of the system in different terminals, or run as orphans. Whatever floats your boat.
@@ -37,7 +45,7 @@ There are some simulator scripts for integration testing, but they are complicat
 
 ## Directories 
 
-We were too lazy (and didn't have enough private repos) to split these into sub-repos. Enjoy!
+We were too lazy (and didn't have enough private repos (at the time)) to split these into sub-repos. Enjoy!
 
 **Burgess-EmployeeApp**: contains the Android app for Bluetooth Connection, the Employee Live Map, push notifications, and a placeholder Customer screen. (Tier 1 & Tier 3)
 
@@ -102,4 +110,4 @@ make
  * [jQuery](http://jquery.com) to make JavaScript easier
  * [KnockOutJS](http://knockoutjs.com/) for data binding
  * [jCanvas](http://calebevans.me/projects/jcanvas/) for canvas drawing
- * [QUnit]](https://qunitjs.com/) for JS testing
+ * [QUnit](https://qunitjs.com/) for JS testing
