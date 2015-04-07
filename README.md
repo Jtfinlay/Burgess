@@ -1,5 +1,40 @@
 # Burgess
 
+## How to run
+
+This README contains a description of all the different pieces. This sections describes how to run any of it. There is a Makefile in the root of the project that holds the Linux calls. You may need to run the different parts of the system in different terminals, or run as orphans. Whatever floats your boat.
+
+First, the preprocessing. This runs a NodeJS server that gathers the Bluetooth & WiFi metadata, then parses it into use position data.
+
+```
+make preprocessing
+```
+
+Next, a Go script that takes the position data and performs aggregation, analytics, and monitors interactions.
+
+```
+make postprocessing
+```
+
+Finally, the web server to access the live feed, playback, etc.
+
+```
+make web_portal
+```
+
+Finally, if you want to run tests, you can run them individually or just do a bulk test:
+
+```
+make test_go
+make test_ruby
+
+or
+
+make test
+```
+
+There are some simulator scripts for integration testing, but they are complicated and easier to demo in person.
+
 ## Directories 
 
 We were too lazy (and didn't have enough private repos) to split these into sub-repos. Enjoy!
@@ -67,3 +102,4 @@ make
  * [jQuery](http://jquery.com) to make JavaScript easier
  * [KnockOutJS](http://knockoutjs.com/) for data binding
  * [jCanvas](http://calebevans.me/projects/jcanvas/) for canvas drawing
+ * [QUnit]](https://qunitjs.com/) for JS testing
