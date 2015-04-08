@@ -252,10 +252,10 @@ class StoreSimulator
 
   def createLeftRoute
     leftEntrace = ControlPoint.new(0.5, 0.5)
-    p3 = ControlPoint.new(1, 1)
-    p4 = ControlPoint.new(5, 2)
-    p5 = ControlPoint.new(5, 7.5)
-    p6 = ControlPoint.new(2, 6)
+    p3 = ControlPoint.new(3, 1)
+    p4 = ControlPoint.new(6, 2)
+    p5 = ControlPoint.new(6, 7.5)
+    p6 = ControlPoint.new(4, 6)
 
     # numbers bias employee to patrol in a clockwise circle, but not perfectly as it is partially random
     leftEntrace.connections = [
@@ -316,13 +316,13 @@ class StoreSimulator
   def createAllRoute
     centralEntrance = ControlPoint.new(0.5, 0.5)
 
-    p1 = ControlPoint.new(1, 1)
+    p1 = ControlPoint.new(4, 1)
     p2 = ControlPoint.new(2, 1)
     p3 = ControlPoint.new(8, 2)
-    p4 = ControlPoint.new(1, 5)
+    p4 = ControlPoint.new(4, 5)
     p5 = ControlPoint.new(2, 5)
     p6 = ControlPoint.new(8, 5)
-    p7 = ControlPoint.new(1, 7)
+    p7 = ControlPoint.new(3, 7)
     p8 = ControlPoint.new(3, 8)
     p9 = ControlPoint.new(7, 8)
 
