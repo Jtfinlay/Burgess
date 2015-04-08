@@ -18,11 +18,10 @@ import com.burgess.btTracking.BluetoothCollection;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 
-import java.util.HashMap;
-
 public class MainActivity extends ActionBarActivity
 {
 	private final static int REQUEST_ENABLE_BT = 55;
+    private final String url = "http://ua-bws.cloudapp.net:9000";
 
 	private BluetoothCollection _bluetoothSignalCollector;
 
@@ -59,17 +58,11 @@ public class MainActivity extends ActionBarActivity
 		WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
 
-		// TODO::TM hook this up to server DB
-		HashMap<String, String> stationMacs = new HashMap<>();
-        stationMacs.put("00:19:5B:0E:4C:6C", "bt-stn1");
-        stationMacs.put("00:19:5B:0E:4C:6D", "bt-stn2");
-        stationMacs.put("00:19:5B:0E:4C:71", "bt-stn3");
-
-		_bluetoothSignalCollector = new BluetoothCollection(stationMacs,
-                mBluetoothAdapter,
+		_bluetoothSignalCollector = new BluetoothCollection(mBluetoothAdapter,
 				wifiManager,
 				connectivityManager,
-				getApplicationContext());
+				getApplicationContext(),
+                url);
 		_bluetoothSignalCollector.startCollection();
 	}
 

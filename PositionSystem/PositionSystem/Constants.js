@@ -1,0 +1,9 @@
+﻿exports.RAW_DB_URL = 'mongodb://localhost:27017/raw';
+exports.POS_DB_URL = 'mongodb://localhost:27017/retailers';
+exports.BLUETOOTHLOCATION_DB_URL = 'mongodb://localhost:27017/bluetoothLocations';
+exports.RAW_WIFI_COLLECTION = 'rawWifi';
+exports.RAW_BLUETOOTH_COLLECTION = 'rawBluetooth';
+exports.BLUETOOTHLOCATIONS_COLLECTION = 'locations';
+exports.POS_COLLECTION = 'position';
+exports.BT_ERROR = 0.5; // We are placing the regions 5 meters apart giving us an approx error of 2.5 meters on position
+//# sourceMappingURL=Constants.js.map

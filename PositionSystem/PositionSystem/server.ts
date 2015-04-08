@@ -42,7 +42,7 @@ mongo.MongoClient.connect(constants.RAW_DB_URL, function (err, rawDB) {
 			var btSolver = new BluetoothSolver.PositionSolver(rawDB, posDB, btLocDB);
 
 			var wifiRxer = new WifiReceiver.Receiver(solver, rawDB, app);
-			var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, app);
+			var bluetoothRxer = new BluetoothReciever.Receiver(btSolver, rawDB, btLocDB, app);
 
 			console.log('Gathering Raw Data...');
 			app.listen(port);
