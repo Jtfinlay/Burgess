@@ -11,6 +11,10 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 
+import org.json.JSONArray;
+
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -22,6 +26,7 @@ public final class BluetoothCollection
 
 	private HashMap<String, String> m_stationMacs;
 	private String m_localMacAddress;
+    private String m_url;
 
 	private BluetoothAdapter m_bluetoothAdapter;
 	private BroadcastReceiver m_receiver;
@@ -31,13 +36,17 @@ public final class BluetoothCollection
 
 	private boolean m_errors = false;
 
-	public BluetoothCollection(HashMap<String, String> stationMacs,
-	                           BluetoothAdapter bluetoothAdapter,
+	public BluetoothCollection(BluetoothAdapter bluetoothAdapter,
 	                           WifiManager wifiManager,
 	                           ConnectivityManager connMgr,
-	                           Context context)
+	                           Context context,
+                               String url)
 	{
-		m_stationMacs = stationMacs;
+        m_stationMacs = new HashMap<>();
+        m_url = url;
+        BluetoothStationGet sender = new BluetoothStationGet();
+        sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, m_stationMacs);
+
 		m_bluetoothAdapter = bluetoothAdapter;
 		m_context = context;
 
@@ -168,8 +177,8 @@ public final class BluetoothCollection
 			}
 			if (max != null)
 			{
-				BluetoothSendMetaData sender = new BluetoothSendMetaData();
-				ArrayList<Result> temp = new ArrayList<Result>();
+				BluetoothSendMetaData sender = new BluetoothSendMetaData(m_url);
+				ArrayList<Result> temp = new ArrayList<>();
 				temp.add(max);
 				sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, temp);
 			}
@@ -192,4 +201,48 @@ public final class BluetoothCollection
 			startCollection();
 		}
 	}
+
+    private class BluetoothStationGet extends AsyncTask<HashMap<String, String>, Void, Boolean>
+    {
+        private void getStations(HashMap<String, String> stationList, String baseURL) {
+            URL url;
+            HttpURLConnection conn;
+            BufferedReader rd;
+            String line;
+            String result = "";
+            try {
+                url = new URL(baseURL + "/bluetoothStations");
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line = rd.readLine()) != null) {
+                    result += line;
+                }
+                rd.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                JSONArray jsArray = new JSONArray(result);
+                for (int i = 0; i < jsArray.length(); i++)
+                {
+                    String mac = jsArray.getJSONObject(i).getString("mac");
+                    String id = jsArray.getJSONObject(i).getString("id");
+                    stationList.put(mac,id);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected Boolean doInBackground(HashMap<String, String>... params)
+        {
+            getStations(m_stationMacs, m_url);
+            return true;
+        }
+    }
 }

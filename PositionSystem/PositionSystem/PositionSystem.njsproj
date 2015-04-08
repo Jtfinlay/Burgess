@@ -12,7 +12,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a04fcd9d-c40e-4496-afaf-f92b1ffed325</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Wifi\Tests\WifiSolverTester.ts</StartupFile>
+    <StartupFile>server.ts</StartupFile>
     <StartWebBrowser>True</StartWebBrowser>
     <SearchPath>
     </SearchPath>

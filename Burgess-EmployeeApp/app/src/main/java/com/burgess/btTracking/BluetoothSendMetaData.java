@@ -18,7 +18,12 @@ import java.util.ArrayList;
 
 public final class BluetoothSendMetaData extends AsyncTask<ArrayList<Result>, Void, Boolean>
 {
-	private final String url = "http://ua-bws.cloudapp.net:9000/rawBluetooth";
+    private String m_url;
+
+    public BluetoothSendMetaData(String url)
+    {
+        m_url = url;
+    }
 
 	private boolean POST(ArrayList<Result> results)
 	{
@@ -36,7 +41,7 @@ public final class BluetoothSendMetaData extends AsyncTask<ArrayList<Result>, Vo
 			HttpClient httpclient = new DefaultHttpClient();
 
 			// 2. make POST request to the given URL
-			HttpPost httpPost = new HttpPost(url);
+			HttpPost httpPost = new HttpPost(m_url + "/rawBluetooth");
 
 			String json = "";
 
