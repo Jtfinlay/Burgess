@@ -200,15 +200,15 @@ class StoreSimulator
   end
 
   def createControlPoints
-    @entrance = ControlPoint.new(11, 12)
-    p1 = ControlPoint.new(11, 9)
-    p2 = ControlPoint.new(11, 4)
-    p3 = ControlPoint.new(7, 4)
-    p4 = ControlPoint.new(2, 4)
-    p5 = ControlPoint.new(7, 9)
-    p6 = ControlPoint.new(2, 9)
-    p7 = ControlPoint.new(4, 6)
-    @exit = ControlPoint.new(2, 12)
+    @entrance = ControlPoint.new(0.5, 0.5)
+    p1 = ControlPoint.new(3, 2)
+    p2 = ControlPoint.new(5.5, 3)
+    p3 = ControlPoint.new(7.5, 2)
+    p4 = ControlPoint.new(3, 7)
+    p5 = ControlPoint.new(5, 8)
+    p6 = ControlPoint.new(8, 8)
+    p7 = ControlPoint.new(6, 6)
+    @exit = ControlPoint.new(9.5, 1)
 
     @entrance.connections = [
       Connection.new(p1, 1)
@@ -251,11 +251,11 @@ class StoreSimulator
   end
 
   def createLeftRoute
-    leftEntrace = ControlPoint.new(0, 0)
-    p3 = ControlPoint.new(7, 4)
-    p4 = ControlPoint.new(2, 4)
-    p5 = ControlPoint.new(7, 9)
-    p6 = ControlPoint.new(2, 9)
+    leftEntrace = ControlPoint.new(0.5, 0.5)
+    p3 = ControlPoint.new(1, 1)
+    p4 = ControlPoint.new(5, 2)
+    p5 = ControlPoint.new(5, 7.5)
+    p6 = ControlPoint.new(2, 6)
 
     # numbers bias employee to patrol in a clockwise circle, but not perfectly as it is partially random
     leftEntrace.connections = [
@@ -282,11 +282,11 @@ class StoreSimulator
   end
 
   def createRightRoute
-    rightEntrance = ControlPoint.new(11, 0)
-    p1 = ControlPoint.new(11, 9)
-    p2 = ControlPoint.new(11, 4)
-    p3 = ControlPoint.new(7, 4)
-    p5 = ControlPoint.new(7, 9)
+    rightEntrance = ControlPoint.new(0.5, 0.5)
+    p1 = ControlPoint.new(5, 2)
+    p2 = ControlPoint.new(5, 7)
+    p3 = ControlPoint.new(8, 7)
+    p5 = ControlPoint.new(8, 3)
 
     # numbers bias employee to hang out near top right of store
     rightEntrance.connections = [
@@ -314,17 +314,17 @@ class StoreSimulator
   end
 
   def createAllRoute
-    centralEntrance = ControlPoint.new(5, 0)
+    centralEntrance = ControlPoint.new(0.5, 0.5)
 
-    p1 = ControlPoint.new(11, 9)
-    p2 = ControlPoint.new(11, 4)
-    p3 = ControlPoint.new(7, 4)
-    p4 = ControlPoint.new(2, 4)
-    p5 = ControlPoint.new(7, 9)
-    p6 = ControlPoint.new(2, 9)
-    p7 = ControlPoint.new(1, 1)
-    p8 = ControlPoint.new(6, 1)
-    p9 = ControlPoint.new(12, 1)
+    p1 = ControlPoint.new(1, 1)
+    p2 = ControlPoint.new(2, 1)
+    p3 = ControlPoint.new(8, 2)
+    p4 = ControlPoint.new(1, 5)
+    p5 = ControlPoint.new(2, 5)
+    p6 = ControlPoint.new(8, 5)
+    p7 = ControlPoint.new(1, 7)
+    p8 = ControlPoint.new(3, 8)
+    p9 = ControlPoint.new(7, 8)
 
     centralEntrance.connections = [
       Connection.new(p8, 1)
