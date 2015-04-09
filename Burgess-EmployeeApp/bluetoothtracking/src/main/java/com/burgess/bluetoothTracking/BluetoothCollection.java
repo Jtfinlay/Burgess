@@ -1,4 +1,4 @@
-package com.burgess.btTracking;
+package com.burgess.bluetoothTracking;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;

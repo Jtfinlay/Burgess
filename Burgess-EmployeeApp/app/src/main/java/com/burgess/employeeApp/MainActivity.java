@@ -14,7 +14,7 @@ import android.view.*;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.burgess.btTracking.BluetoothCollection;
+import com.burgess.bluetoothTracking.BluetoothCollection;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 

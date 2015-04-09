@@ -1,4 +1,4 @@
-package com.burgess.btTracking;
+package com.burgess.bluetoothTracking;
 
 import org.json.JSONException;
 import org.json.JSONObject;

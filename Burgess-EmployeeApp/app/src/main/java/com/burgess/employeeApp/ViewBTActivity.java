@@ -12,8 +12,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.burgess.btTracking.BluetoothCollection;
-import com.burgess.btTracking.Result;
+import com.burgess.bluetoothTracking.BluetoothCollection;
+import com.burgess.bluetoothTracking.Result;
 
 import java.util.ArrayList;
 import java.util.HashMap;

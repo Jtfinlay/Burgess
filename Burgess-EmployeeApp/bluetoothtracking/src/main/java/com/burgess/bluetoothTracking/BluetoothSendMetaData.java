@@ -1,4 +1,4 @@
-package com.burgess.btTracking;
+package com.burgess.bluetoothTracking;
 
 import android.os.AsyncTask;
 import android.util.Log;

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Burgess-EmployeeApp.iml" filepath="$PROJECT_DIR$/Burgess-EmployeeApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bluetoothtracking/bluetoothtracking.iml" filepath="$PROJECT_DIR$/bluetoothtracking/bluetoothtracking.iml" />
     </modules>
   </component>
 </project>
